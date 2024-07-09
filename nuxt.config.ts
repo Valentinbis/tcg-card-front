@@ -5,6 +5,7 @@ export default defineNuxtConfig({
       apiBase: "http://192.168.111.119:8000/api/",
     },
   },
+
   devtools: {
     enabled: false,
 
@@ -12,11 +13,13 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
+
   modules: [
     '@primevue/nuxt-module',
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
   ],
+
   primevue: {
     options: {
       ripple: true,
@@ -25,7 +28,10 @@ export default defineNuxtConfig({
       include: "*",
     },
   },
+
   css: [
     "@mdi/font/css/materialdesignicons.css",
   ],
+
+  compatibilityDate: "2024-07-09",
 });
