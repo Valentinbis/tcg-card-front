@@ -35,7 +35,9 @@ declare module 'nuxt/schema' {
 
       importPT: any,
 
-      importTheme: any,
+      importTheme: {
+         from: string,
+      },
 
       options: {
          ripple: boolean,

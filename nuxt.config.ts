@@ -27,6 +27,7 @@ export default defineNuxtConfig({
     components: {
       include: "*",
     },
+    importTheme: { from: '@/themes/auratheme.ts' },
   },
 
   css: [

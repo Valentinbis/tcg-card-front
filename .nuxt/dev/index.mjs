@@ -25,6 +25,9 @@ import { consola } from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/fr
 import { getContext } from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/unctx/dist/index.mjs';
 import { isVNode, version, unref } from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/vue/index.mjs';
 import BaseStyle from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/@primevue/core/base/style/index.mjs';
+import { Theme } from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/@primeuix/styled/index.mjs';
+import { definePreset } from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/@primevue/themes/index.mjs';
+import Aura from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/@primevue/themes/aura/index.mjs';
 import { createServerHead as createServerHead$1, CapoPlugin } from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/unhead/dist/index.mjs';
 import { defineHeadPlugin } from 'file:///Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/@unhead/shared/dist/index.mjs';
 
@@ -108,7 +111,9 @@ const _inlineRuntimeConfig = {
       "autoImport": true,
       "resolvePath": "",
       "importPT": "",
-      "importTheme": "",
+      "importTheme": {
+        "from": "@/themes/auratheme.ts"
+      },
       "options": {
         "ripple": true
       },
@@ -1589,9 +1594,9 @@ function normalizeCookieHeaders(headers) {
   return outgoingHeaders;
 }
 
-const config = useRuntimeConfig();
+const config$1 = useRuntimeConfig();
 const _routeRulesMatcher = toRouteMatcher(
-  createRouter({ routes: config.nitro.routeRules })
+  createRouter({ routes: config$1.nitro.routeRules })
 );
 function createRouteRulesHandler(ctx) {
   return eventHandler((event) => {
@@ -1881,8 +1886,33 @@ var MenubarStyle = BaseStyle.extend({
   inlineStyles: inlineStyles
 });
 
+const MyPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      50: "{teal.50}",
+      100: "{teal.100}",
+      200: "{teal.200}",
+      300: "{teal.300}",
+      400: "{teal.400}",
+      500: "{teal.500}",
+      600: "{teal.600}",
+      700: "{teal.700}",
+      800: "{teal.800}",
+      900: "{teal.900}",
+      950: "{teal.950}"
+    }
+  }
+});
+const undefined$1 = {
+  preset: MyPreset,
+  options: {
+    darkModeSelector: ".p-dark"
+  }
+};
+
 const runtimeConfig = useRuntimeConfig();
-runtimeConfig?.public?.primevue ?? {};
+const config = runtimeConfig?.public?.primevue ?? {};
+const { options = {} } = config;
 
 const stylesToTop = [].join('');
 const styleProps = {
@@ -1890,14 +1920,14 @@ const styleProps = {
 };
 const styles$2 = [
   ,
-  BaseStyle && BaseStyle.getStyleSheet ? BaseStyle.getStyleSheet(undefined, styleProps) : '',ButtonStyle && ButtonStyle.getStyleSheet ? ButtonStyle.getStyleSheet(undefined, styleProps) : '',MenubarStyle && MenubarStyle.getStyleSheet ? MenubarStyle.getStyleSheet(undefined, styleProps) : ''
+  BaseStyle && BaseStyle.getStyleSheet ? BaseStyle.getStyleSheet(undefined$1, styleProps) : '',ButtonStyle && ButtonStyle.getStyleSheet ? ButtonStyle.getStyleSheet(undefined$1, styleProps) : '',MenubarStyle && MenubarStyle.getStyleSheet ? MenubarStyle.getStyleSheet(undefined$1, styleProps) : ''
 ].join('');
 
-
+Theme.setTheme(undefined$1 || options?.theme);
 
 const themes = [
-    BaseStyle && BaseStyle.getCommonThemeStyleSheet ? BaseStyle.getCommonThemeStyleSheet(undefined, styleProps) : '',
-    BaseStyle && BaseStyle.getThemeStyleSheet ? BaseStyle.getThemeStyleSheet(undefined, styleProps) : '',ButtonStyle && ButtonStyle.getThemeStyleSheet ? ButtonStyle.getThemeStyleSheet(undefined, styleProps) : '',MenubarStyle && MenubarStyle.getThemeStyleSheet ? MenubarStyle.getThemeStyleSheet(undefined, styleProps) : ''
+    BaseStyle && BaseStyle.getCommonThemeStyleSheet ? BaseStyle.getCommonThemeStyleSheet(undefined$1, styleProps) : '',
+    BaseStyle && BaseStyle.getThemeStyleSheet ? BaseStyle.getThemeStyleSheet(undefined$1, styleProps) : '',ButtonStyle && ButtonStyle.getThemeStyleSheet ? ButtonStyle.getThemeStyleSheet(undefined$1, styleProps) : '',MenubarStyle && MenubarStyle.getThemeStyleSheet ? MenubarStyle.getThemeStyleSheet(undefined$1, styleProps) : ''
 ].join('');
 
 const defineNitroPlugin = (def) => def;

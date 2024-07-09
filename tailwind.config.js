@@ -1,5 +1,5 @@
 // tailwind.config.js
-module.exports = {
-    darkMode: 'class',
-    plugins: [require('tailwindcss-primeui')]
-};
+// module.exports = {
+//     darkMode: 'class',
+//     plugins: [require('tailwindcss-primeui')]
+// };
