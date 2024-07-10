@@ -13,6 +13,7 @@ declare global {
   const callNodeListener: typeof import('../../node_modules/h3')['callNodeListener']
   const clearResponseHeaders: typeof import('../../node_modules/h3')['clearResponseHeaders']
   const clearSession: typeof import('../../node_modules/h3')['clearSession']
+  const clearUserSession: typeof import('../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/session')['clearUserSession']
   const createApp: typeof import('../../node_modules/h3')['createApp']
   const createAppEventHandler: typeof import('../../node_modules/h3')['createAppEventHandler']
   const createError: typeof import('../../node_modules/h3')['createError']
@@ -65,6 +66,7 @@ declare global {
   const getRouterParam: typeof import('../../node_modules/h3')['getRouterParam']
   const getRouterParams: typeof import('../../node_modules/h3')['getRouterParams']
   const getSession: typeof import('../../node_modules/h3')['getSession']
+  const getUserSession: typeof import('../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/session')['getUserSession']
   const getValidatedQuery: typeof import('../../node_modules/h3')['getValidatedQuery']
   const getValidatedRouterParams: typeof import('../../node_modules/h3')['getValidatedRouterParams']
   const handleCacheHeaders: typeof import('../../node_modules/h3')['handleCacheHeaders']
@@ -79,6 +81,7 @@ declare global {
   const isWebResponse: typeof import('../../node_modules/h3')['isWebResponse']
   const lazyEventHandler: typeof import('../../node_modules/h3')['lazyEventHandler']
   const nitroPlugin: typeof import('../../node_modules/nitropack/dist/runtime')['nitroPlugin']
+  const oauth: typeof import('../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/oauth')['oauth']
   const parseCookies: typeof import('../../node_modules/h3')['parseCookies']
   const promisifyNodeListener: typeof import('../../node_modules/h3')['promisifyNodeListener']
   const proxyRequest: typeof import('../../node_modules/h3')['proxyRequest']
@@ -88,6 +91,8 @@ declare global {
   const readRawBody: typeof import('../../node_modules/h3')['readRawBody']
   const readValidatedBody: typeof import('../../node_modules/h3')['readValidatedBody']
   const removeResponseHeader: typeof import('../../node_modules/h3')['removeResponseHeader']
+  const replaceUserSession: typeof import('../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/session')['replaceUserSession']
+  const requireUserSession: typeof import('../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/session')['requireUserSession']
   const runTask: typeof import('../../node_modules/nitropack/dist/runtime')['runTask']
   const sanitizeStatusCode: typeof import('../../node_modules/h3')['sanitizeStatusCode']
   const sanitizeStatusMessage: typeof import('../../node_modules/h3')['sanitizeStatusMessage']
@@ -101,12 +106,14 @@ declare global {
   const sendStream: typeof import('../../node_modules/h3')['sendStream']
   const sendWebResponse: typeof import('../../node_modules/h3')['sendWebResponse']
   const serveStatic: typeof import('../../node_modules/h3')['serveStatic']
+  const sessionHooks: typeof import('../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/session')['sessionHooks']
   const setCookie: typeof import('../../node_modules/h3')['setCookie']
   const setHeader: typeof import('../../node_modules/h3')['setHeader']
   const setHeaders: typeof import('../../node_modules/h3')['setHeaders']
   const setResponseHeader: typeof import('../../node_modules/h3')['setResponseHeader']
   const setResponseHeaders: typeof import('../../node_modules/h3')['setResponseHeaders']
   const setResponseStatus: typeof import('../../node_modules/h3')['setResponseStatus']
+  const setUserSession: typeof import('../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/session')['setUserSession']
   const splitCookiesString: typeof import('../../node_modules/h3')['splitCookiesString']
   const toEventHandler: typeof import('../../node_modules/h3')['toEventHandler']
   const toNodeListener: typeof import('../../node_modules/h3')['toNodeListener']
@@ -124,7 +131,15 @@ declare global {
   const useStorage: typeof import('../../node_modules/nitropack/dist/runtime')['useStorage']
   const writeEarlyHints: typeof import('../../node_modules/h3')['writeEarlyHints']
 }
+// for type re-export
+declare global {
+  // @ts-ignore
+  export type { SessionHooks } from '/Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/nuxt-auth-utils/dist/runtime/server/utils/session.d.ts'
+  import('/Users/v.bissay/Documents/dev/perso/Cashtrack/front/node_modules/nuxt-auth-utils/dist/runtime/server/utils/session.d.ts')
+}
 export { defineCachedFunction, defineCachedEventHandler, cachedFunction, cachedEventHandler, useRuntimeConfig, useStorage, useNitroApp, defineNitroPlugin, nitroPlugin, defineRenderHandler, getRouteRules, useAppConfig, useEvent, defineTask, runTask, defineNitroErrorHandler } from '../../node_modules/nitropack/dist/runtime';
 export { appendCorsHeaders, appendCorsPreflightHeaders, appendHeader, appendHeaders, appendResponseHeader, appendResponseHeaders, assertMethod, callNodeListener, clearResponseHeaders, clearSession, createApp, createAppEventHandler, createError, createEvent, createEventStream, createRouter, defaultContentType, defineEventHandler, defineLazyEventHandler, defineNodeListener, defineNodeMiddleware, defineRequestMiddleware, defineResponseMiddleware, defineWebSocket, defineWebSocketHandler, deleteCookie, dynamicEventHandler, eventHandler, fetchWithEvent, fromNodeMiddleware, fromPlainHandler, fromWebHandler, getCookie, getHeader, getHeaders, getMethod, getProxyRequestHeaders, getQuery, getRequestFingerprint, getRequestHeader, getRequestHeaders, getRequestHost, getRequestIP, getRequestPath, getRequestProtocol, getRequestURL, getRequestWebStream, getResponseHeader, getResponseHeaders, getResponseStatus, getResponseStatusText, getRouterParam, getRouterParams, getSession, getValidatedQuery, getValidatedRouterParams, handleCacheHeaders, handleCors, isCorsOriginAllowed, isError, isEvent, isEventHandler, isMethod, isPreflightRequest, isStream, isWebResponse, lazyEventHandler, parseCookies, promisifyNodeListener, proxyRequest, readBody, readFormData, readMultipartFormData, readRawBody, readValidatedBody, removeResponseHeader, sanitizeStatusCode, sanitizeStatusMessage, sealSession, send, sendError, sendIterable, sendNoContent, sendProxy, sendRedirect, sendStream, sendWebResponse, serveStatic, setCookie, setHeader, setHeaders, setResponseHeader, setResponseHeaders, setResponseStatus, splitCookiesString, toEventHandler, toNodeListener, toPlainHandler, toWebHandler, toWebRequest, unsealSession, updateSession, useBase, useSession, writeEarlyHints } from 'h3';
 export { buildAssetsURL as __buildAssetsURL, publicAssetsURL as __publicAssetsURL } from '../../node_modules/nuxt/dist/core/runtime/nitro/paths';
 export { defineAppConfig } from '../../node_modules/nuxt/dist/core/runtime/nitro/config';
+export { oauth } from '../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/oauth';
+export { sessionHooks, getUserSession, setUserSession, replaceUserSession, clearUserSession, requireUserSession } from '../../node_modules/nuxt-auth-utils/dist/runtime/server/utils/session';

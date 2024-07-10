@@ -92,6 +92,9 @@
       "pinia": [
         "../node_modules/pinia/dist/pinia"
       ],
+      "#auth-utils": [
+        "../node_modules/nuxt-auth-utils/dist/runtime/types/index"
+      ],
       "#vue-router": [
         "../node_modules/vue-router"
       ],
@@ -146,6 +149,7 @@
     "../node_modules/@primevue/nuxt-module/runtime",
     "../node_modules/@pinia/nuxt/runtime",
     "../node_modules/@pinia-plugin-persistedstate/nuxt/runtime",
+    "../node_modules/nuxt-auth-utils/runtime",
     "../node_modules/@nuxt/telemetry/runtime",
     ".."
   ],
@@ -156,6 +160,7 @@
     "../node_modules/@primevue/nuxt-module/runtime/server",
     "../node_modules/@pinia/nuxt/runtime/server",
     "../node_modules/@pinia-plugin-persistedstate/nuxt/runtime/server",
+    "../node_modules/nuxt-auth-utils/runtime/server",
     "../node_modules/@nuxt/telemetry/runtime/server",
     "../.output"
   ]
