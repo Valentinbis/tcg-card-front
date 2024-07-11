@@ -1,9 +1,9 @@
-interface Movement {
+export interface Movement {
     id: number;
     amount: number;
     description: string;
     type: Type;
-    recurrence; Recurrence;
+    recurrence: Recurrence[];
     date: string;
     // category: Category;
 
@@ -14,7 +14,7 @@ interface Type {
 }
 
 interface Recurrence {
-    name: RecurrenceNameEnum;
+    name: string;
     startDate: string;
     endDate: string;
 }

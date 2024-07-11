@@ -1783,6 +1783,23 @@ function getRouteRulesForPath(path) {
   return defu({}, ..._routeRulesMatcher.matchAll(path).reverse());
 }
 
+const script = `
+if (!window.__NUXT_DEVTOOLS_TIME_METRIC__) {
+  Object.defineProperty(window, '__NUXT_DEVTOOLS_TIME_METRIC__', {
+    value: {},
+    enumerable: false,
+    configurable: true,
+  })
+}
+window.__NUXT_DEVTOOLS_TIME_METRIC__.appInit = Date.now()
+`;
+
+const _U51J9mSr7O = (function(nitro) {
+  nitro.hooks.hook("render:html", (htmlContext) => {
+    htmlContext.head.push(`<script>${script}<\/script>`);
+  });
+});
+
 const rootDir = "/Users/v.bissay/Documents/dev/perso/Cashtrack/front";
 
 const devReducers = {
@@ -2038,7 +2055,8 @@ const _1C4jMidCTK = defineNitroPlugin(async (nitroApp) => {
 });
 
 const plugins = [
-  _1s1mjjM9cu,
+  _U51J9mSr7O,
+_1s1mjjM9cu,
 _J01HWss6i5,
 _1C4jMidCTK
 ];
