@@ -1,5 +1,9 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  routeRules: {
+    '/app/**': { ssr: false },
+    '/auth/**': { ssr: false },
+  },
   runtimeConfig: {
     public: {
       apiBase: "http://192.168.111.119:8000/api/",

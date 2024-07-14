@@ -7,7 +7,6 @@ export const useAuthStore = defineStore(
     const user = ref<User | null>(null);
     const authenticated = ref(false);
     const loading = ref(false);
-    const token = ref<string | null>(null);
 
     const authenticateUser = async ({
       email,
@@ -41,10 +40,13 @@ export const useAuthStore = defineStore(
       user,
       authenticated,
       loading,
-      token,
       authenticateUser,
       logUserOut,
-    }
+    };
   },
-  { persist: true }
+  {
+    persist: {
+      storage: persistedState.localStorage,
+    },
+  }
 );

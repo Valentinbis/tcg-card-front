@@ -3,23 +3,29 @@ import { storeToRefs } from 'pinia';
 import { useAuthStore } from '~/stores/auth';
 
 export default defineNuxtRouteMiddleware((to) => {
-  const { authenticated, token } = storeToRefs(useAuthStore()); // make authenticated state reactive
-//   const token = useCookie('token'); // get token from cookies
+  const { authenticated, user } = storeToRefs(useAuthStore());
 
-  if (token.value) {
-    // check if value exists
-    // todo verify if token is valid, before updating the state
-    authenticated.value = true; // update the state to authenticated
+  if (user.value?.apiToken) {
+    const { data, error } = useFetch('http://127.0.0.1:8000/api/me', {
+      headers: { Authorization: `Bearer ${user.value.apiToken}` },
+    });
+
+    if (error.value) {
+      authenticated.value = false;
+      user.value = null;
+    } else {
+      authenticated.value = true;
+    }
   }
 
   // if token exists and url is /login redirect to homepage
-  if (token.value && to?.name === 'login') {
-    return navigateTo('/public');
+  if (user.value?.apiToken && to?.name === 'login') {
+    return navigateTo('/app/dashboard');
   }
 
   // if token doesn't exist redirect to log in
-  if (!token.value && to?.name !== 'login') {
+  if (!user.value?.apiToken && to?.name !== 'login') {
     abortNavigation();
-    // return navigateTo('/auth/login');
+    return navigateTo('/auth/login');
   }
 });

@@ -12,18 +12,6 @@ const user = ref({
   password: "",
 });
 
-// const login = async () => {
-//   const { data } = await useAsyncData("login", () =>
-//     $fetch("http://127.0.0.1:8000/login", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(user.value),
-//     })
-//   );
-// };
-
 const login = async () => {
   await authenticateUser(user.value);
   // redirect to homepage if user is authenticated
@@ -61,6 +49,6 @@ const login = async () => {
 
 <style scoped>
 .button-login {
-  margin-top: 20px; /* Ajustez la valeur de la marge supérieure selon vos besoins */
+  margin-top: 20px;
 }
 </style>

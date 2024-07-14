@@ -1,10 +1,9 @@
 <script setup>
 import { useAuthStore } from '~/stores/auth';
-// import type { User } from '~/types/user';
 
 const { logUserOut } = useAuthStore();
 
-const { authenticated } = storeToRefs(useAuthStore());
+const { authenticated, user } = storeToRefs(useAuthStore());
 </script>
 
 <template>
