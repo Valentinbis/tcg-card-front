@@ -24,7 +24,7 @@ export default defineNuxtRouteMiddleware((to) => {
   }
 
   // if token doesn't exist redirect to log in
-  if (!user.value?.apiToken && to?.name !== 'login') {
+  if (!user.value?.apiToken && to.path !== '/auth/login') {
     abortNavigation();
     return navigateTo('/auth/login');
   }

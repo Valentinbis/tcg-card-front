@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import type { UserPayloadInterface, User } from "~/types/user";
 
 export const useAuthStore = defineStore(
-  "auth",
+  "auth-store",
   () => {
     const user = ref<User | null>(null);
     const authenticated = ref(false);

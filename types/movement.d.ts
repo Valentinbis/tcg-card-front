@@ -1,11 +1,11 @@
 export interface Movement {
-    id: number;
-    amount: number;
-    description: string;
-    type: Type;
-    recurrence: Recurrence[];
-    date: string;
-    // category: Category;
+    id?: number | null;
+    amount?: number;
+    description?: string | null;
+    type?: Type | null;
+    recurrence?: Recurrence;
+    date?: string;
+    category: int;
 
 }
 
@@ -13,19 +13,10 @@ interface Type {
     name: TypeNameEnum;
 }
 
-interface Recurrence {
-    name: string;
-    startDate: string;
-    endDate: string;
-}
-
-enum RecurrenceNameEnum {
-    DAILY = 'daily',
-    WEEKLY = 'weekly',
-    MONTHLY = 'monthly',
-    BIMONTHLY = 'bimonthly',
-    QUARTERLY = 'quarterly',
-    YEARLY = 'yearly'
+export interface Recurrence {
+    name?: string;
+    startDate?: string;
+    endDate?: string;
 }
 
 enum TypeNameEnum {

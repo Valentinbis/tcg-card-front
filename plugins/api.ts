@@ -1,7 +1,7 @@
 import { useAuthStore } from '~/stores/auth';
 
 export default defineNuxtPlugin((nuxtApp) => {
-  const user = storeToRefs(useAuthStore());
+  const { user } = storeToRefs(useAuthStore());
 
     const api = $fetch.create({
       baseURL: 'http://localhost:8000/api/',
@@ -9,11 +9,11 @@ export default defineNuxtPlugin((nuxtApp) => {
         if (user.value?.apiToken) {
           const headers = options.headers ||= {}
           if (Array.isArray(headers)) {
-            headers.push(['Authorization', `Bearer ${user.value?.token}`])
+            headers.push(['Authorization', `Bearer ${user.value?.apiToken}`])
           } else if (headers instanceof Headers) {
-            headers.set('Authorization', `Bearer ${user.value?.token}`)
+            headers.set('Authorization', `Bearer ${user.value?.apiToken}`)
           } else {
-            headers.Authorization = `Bearer ${user.value?.token}`
+            headers.Authorization = `Bearer ${user.value?.apiToken}`
           }
         }
       },

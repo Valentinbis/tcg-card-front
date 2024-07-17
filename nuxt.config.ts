@@ -22,7 +22,8 @@ export default defineNuxtConfig({
     "@primevue/nuxt-module",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
-    "nuxt-auth-utils"
+    "nuxt-auth-utils",
+    'dayjs-nuxt'
   ],
 
   primevue: {

@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
 // import { useAuthStore } from "~/stores/auth";
 
-export const useRecurrenceStore = defineStore(
-  "recurrence-store",
+export const useCategoryStore = defineStore(
+  "category-store",
   () => {
     // const { user } = storeToRefs(useAuthStore());
-    const recurrences = ref<any>([]);
+    const categories = ref<any>([]);
 
-    const fetchRecurrences = async () => {
+    const fetchCategories = async () => {
       // const data = await useFetch("http://127.0.0.1:8000/api/recurrence", {
       //   method: "get",
       //   headers: {
@@ -15,18 +15,18 @@ export const useRecurrenceStore = defineStore(
       //     Authorization: `Bearer ${user.value?.apiToken}`,
       //   },
       // });
-        const data = await useAPI("/recurrence", {
+        const data = await useAPI("/categories", {
           default: () => null,
         });
       //   console.log(data.data.value);
-      recurrences.value = data.data.value;
+      categories.value = data.data.value;
     };
 
-    fetchRecurrences();
+    fetchCategories();
 
     return {
-      recurrences,
-      fetchRecurrences,
+      categories,
+      fetchCategories,
     };
   },
   {
