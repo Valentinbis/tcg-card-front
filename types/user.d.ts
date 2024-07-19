@@ -7,12 +7,7 @@ export interface User {
   apiToken?: string;
 }
 
-export interface UserPayloadInterface {
+export interface UserLoginInterface {
   email: string;
   password: string;
 }
-
-// interface UserSession {
-//   user: User;
-//   token: string;
-// }

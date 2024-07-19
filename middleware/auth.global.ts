@@ -1,30 +1,29 @@
-
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '~/stores/auth';
 
 export default defineNuxtRouteMiddleware((to) => {
   const { authenticated, user } = storeToRefs(useAuthStore());
 
-  if (user.value?.apiToken) {
-    const { data, error } = useFetch('http://127.0.0.1:8000/api/me', {
-      headers: { Authorization: `Bearer ${user.value.apiToken}` },
-    });
+  // if (user.value?.apiToken) {
+  //   const { data, error } = useFetch('http://127.0.0.1:8000/api/me', {
+  //     headers: { Authorization: `Bearer ${user.value.apiToken}` },
+  //   });
 
-    if (error.value) {
-      authenticated.value = false;
-      user.value = null;
-    } else {
-      authenticated.value = true;
-    }
-  }
+  //   if (error.value) {
+  //     authenticated.value = false;
+  //     user.value = null;
+  //   } else {
+  //     authenticated.value = true;
+  //   }
+  // }
 
-  // if token exists and url is /login redirect to homepage
-  if (user.value?.apiToken && to?.name === 'login') {
+  // if token exists and url is /login or /auth/register, redirect to homepage
+  if (user.value?.apiToken && (to?.name === 'login' || to.path === '/auth/register')) {
     return navigateTo('/app/dashboard');
   }
 
-  // if token doesn't exist redirect to log in
-  if (!user.value?.apiToken && to.path !== '/auth/login') {
+  // if token doesn't exist and url is not /auth/login or /auth/register, redirect to log in
+  if (!user.value?.apiToken && to.path !== '/auth/login' && to.path !== '/auth/register') {
     abortNavigation();
     return navigateTo('/auth/login');
   }

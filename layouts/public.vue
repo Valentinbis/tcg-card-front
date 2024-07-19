@@ -1,16 +1,4 @@
 <script lang="ts" setup>
-import { storeToRefs } from "pinia";
-import { useAuthStore } from "~/stores/auth";
-
-const router = useRouter();
-
-const { logUserOut } = useAuthStore();
-const { authenticated } = storeToRefs(useAuthStore()); // make authenticated state reactive
-
-const logout = () => {
-  logUserOut();
-  router.push("/auth/login");
-};
 </script>
 
 <template>
@@ -21,7 +9,7 @@ const logout = () => {
     <div class="mainContent">
       <slot />
     </div>
-    <footer v-if="authenticated">
+    <footer>
       <h1>Footer</h1>
     </footer>
   </div>

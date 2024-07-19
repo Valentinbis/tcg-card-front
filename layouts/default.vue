@@ -4,11 +4,11 @@ import { useAuthStore } from "~/stores/auth";
 
 const router = useRouter();
 
-const { logUserOut } = useAuthStore();
-const { authenticated } = storeToRefs(useAuthStore()); // make authenticated state reactive
+const { logout } = useAuthStore();
+const { authenticated } = storeToRefs(useAuthStore());
 
-const logout = () => {
-  logUserOut();
+const logoutEvent = () => {
+  logout();
   router.push("/login");
 };
 </script>
@@ -17,20 +17,20 @@ const logout = () => {
   <div>
     <header>
       <ul>
-        <li><nuxt-link to="/">Home</nuxt-link></li>
-        <li><nuxt-link to="/about">About</nuxt-link></li>
+        <li><nuxt-link to="/app/dashboard">Tableau de bord</nuxt-link></li>
+        <li><nuxt-link to="/app/movement">Transaction</nuxt-link></li>
         <li v-if="!authenticated" class="loginBtn" style="float: right">
           <nuxt-link to="/auth/login">Login</nuxt-link>
         </li>
         <li v-if="authenticated" class="loginBtn" style="float: right">
-          <nuxt-link @click="logout">Logout</nuxt-link>
+          <nuxt-link @click="logoutEvent">Logout</nuxt-link>
         </li>
       </ul>
     </header>
     <div class="mainContent">
       <slot />
     </div>
-    <footer v-if="authenticated">
+    <footer>
       <h1>Footer</h1>
     </footer>
   </div>

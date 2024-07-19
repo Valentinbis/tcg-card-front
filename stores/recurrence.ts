@@ -8,18 +8,16 @@ export const useRecurrenceStore = defineStore(
     const recurrences = ref<any>([]);
 
     const fetchRecurrences = async () => {
-      // const data = await useFetch("http://127.0.0.1:8000/api/recurrence", {
-      //   method: "get",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     Authorization: `Bearer ${user.value?.apiToken}`,
-      //   },
-      // });
-        const data = await useAPI("/recurrence", {
-          default: () => null,
-        });
-      //   console.log(data.data.value);
-      recurrences.value = data.data.value;
+    // const data = await useFetch("http://127.0.0.1:8000/api/recurrence", {
+    //   method: "get",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${user.value?.apiToken}`,
+    //   },
+    // });
+    const data = await useAPI("/recurrence");
+    //   console.log(data.data.value);
+    recurrences.value = data.data.value;
     };
 
     fetchRecurrences();

@@ -3,7 +3,7 @@ export interface Movement {
     amount?: number;
     description?: string | null;
     type?: Type | null;
-    recurrence?: Recurrence;
+    recurrence: Recurrence;
     date?: string;
     category: int;
 

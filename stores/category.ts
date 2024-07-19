@@ -15,9 +15,7 @@ export const useCategoryStore = defineStore(
       //     Authorization: `Bearer ${user.value?.apiToken}`,
       //   },
       // });
-        const data = await useAPI("/categories", {
-          default: () => null,
-        });
+      const data = await useAPI("/categories");
       //   console.log(data.data.value);
       categories.value = data.data.value;
     };
