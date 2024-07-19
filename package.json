@@ -14,7 +14,6 @@
     "@pinia/nuxt": "^0.5.1",
     "@primevue/themes": "^4.0.0-beta.5",
     "nuxt": "^3.11.1",
-    "nuxt-auth-utils": "^0.1.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "primevue": "^4.0.0-rc.2",
