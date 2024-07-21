@@ -69,6 +69,10 @@ export const useAuthStore = defineStore(
           method: "get",
         }
       );
+      clearUser();
+    };
+
+    const clearUser = () => {
       user.value = null;
       authenticated.value = false;
     };
@@ -80,6 +84,7 @@ export const useAuthStore = defineStore(
       login,
       register,
       logout,
+      clearUser,
     };
   },
   {
