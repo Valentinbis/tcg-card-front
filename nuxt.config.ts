@@ -22,11 +22,13 @@ export default defineNuxtConfig({
     "@primevue/nuxt-module",
     "@pinia/nuxt",
     "@pinia-plugin-persistedstate/nuxt",
-    'dayjs-nuxt'
+    'dayjs-nuxt',
+    '@nuxtjs/tailwindcss'
   ],
 
   primevue: {
     options: {
+      unstyled: true,
       ripple: true,
       locale: {
         dayNames: [
@@ -79,7 +81,7 @@ export default defineNuxtConfig({
     components: {
       include: "*",
     },
-    importTheme: { from: "@/themes/auratheme.ts" },
+    // importTheme: { from: "@/themes/auratheme.ts" },
   },
 
   css: ["@mdi/font/css/materialdesignicons.css"],
