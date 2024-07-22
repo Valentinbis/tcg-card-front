@@ -14,15 +14,18 @@
     "@pinia/nuxt": "^0.5.1",
     "@primevue/themes": "^4.0.0-beta.5",
     "nuxt": "^3.11.1",
-    "primevue": "^4.0.0-rc.2",
     "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.1",
+    "primevue": "^4.0.0-rc.2",
     "uuid": "^9.0.1",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@pinia-plugin-persistedstate/nuxt": "^1.2.0",
+    "@nuxtjs/tailwindcss": "^6.12.1",
+    "@pinia-plugin-persistedstate/nuxt": "^1.2.1",
     "@primevue/nuxt-module": "^4.0.0-rc.2",
+    "dayjs-nuxt": "^2.1.9",
     "sass": "^1.72.0"
   }
 }

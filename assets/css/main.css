@@ -6,6 +6,6 @@ body {
 
 /* Thème sombre */
 .dark body {
-  background-color: black;
+  background-color: rgba(29, 30, 39, 1);
   color: white;
 }
