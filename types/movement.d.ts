@@ -1,10 +1,10 @@
 export interface Movement {
-    id?: number | null;
-    amount?: number;
-    description?: string | null;
-    type?: Type | null;
+    id?: number;
+    amount?: number
+    description?: string;
+    type?: Type;
     recurrence: Recurrence;
-    date?: string;
+    date?: Date;
     category: int;
 
 }
@@ -15,8 +15,8 @@ interface Type {
 
 export interface Recurrence {
     name?: string;
-    startDate?: string;
-    endDate?: string;
+    startDate?: Date;
+    endDate?: Date;
 }
 
 enum TypeNameEnum {

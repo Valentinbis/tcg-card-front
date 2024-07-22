@@ -1,23 +1,23 @@
-// import type { UseFetchOptions } from 'nuxt/app'
-import { useRouter } from 'vue-router';
-import { useAuthStore } from "~/stores/auth";
+import type { UseFetchOptions } from 'nuxt/app'
+import { useNuxtApp } from '#imports';
 
-export function useAPI(
+export function useAPI<T>(
   url: string | (() => string),
-  // options: Omit<UseFetchOptions<T>, 'default'> & { default: () => T | Ref<T> },
+  options: Omit<UseFetchOptions<T>, 'default'> & { default: () => T | Ref<T> },
+  params?: Record<string, string | number>, // Ajout d'un objet params optionnel
 ) {
-  // const { nuxtApp } = useNuxtApp();
-  const router = useRouter();
-  const onResponseError = async ({ response }) => {
-    if (response.status === 401) {
-      useAuthStore().clearUser();
-      router.push('/auth/login');
-    }
-  };
+  const apiUrl = typeof url === 'function' ? url() : url;
+  // Construire l'URL avec les paramètres fournis
+  const queryParams = new URLSearchParams();
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      queryParams.append(key, value.toString());
+    });
+  }
+  const finalUrl = `${apiUrl}?${queryParams.toString()}`;
 
-  return useFetch(url, {
-    // ...options,
+  return useFetch(finalUrl, {
+    ...options,
     $fetch: useNuxtApp().$api,
-    onResponseError,
   })
 }
