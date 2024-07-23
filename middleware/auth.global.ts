@@ -5,7 +5,7 @@ export default defineNuxtRouteMiddleware((to) => {
   const { authenticated, user } = storeToRefs(useAuthStore());
 
   // if token exists and url is /login or /auth/register, redirect to homepage
-  if (user.value?.apiToken && (to?.name === 'login' || to.path === '/auth/register')) {
+  if (user.value?.apiToken && (to.path ===  '/auth/login' || to.path === '/auth/register')) {
     return navigateTo('/app/dashboard');
   }
 
