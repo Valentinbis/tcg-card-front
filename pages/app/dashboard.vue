@@ -10,13 +10,22 @@ const { user } = storeToRefs(useAuthStore());
 // };
 const test = async () => {
   useAPI("/movements/total", {
-    method: "GET", // Méthode HTTP
-    params: { startDate: "2023-01-01", endDate: "2025-01-31" }, // Paramètres de la requête pour une méthode GET
-    default: () => ({}), // Valeur par défaut en cas d'échec de la requête
+    method: "GET",
+    params: { startDate: "2023-01-01", endDate: "2025-01-31" },
+    default: () => ({}),
+  });
+};
+
+const expenseMovement = async () => {
+  useAPI("/movements", {
+    method: "GET",
+    params: { type: "expense", categoryId: "1" },
+    default: () => ({}),
   });
 };
 
 test();
+expenseMovement();
 
 </script>
 
