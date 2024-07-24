@@ -6,8 +6,11 @@ export const useRecurrenceStore = defineStore(
     const recurrences = ref<any>([]);
 
     const fetchRecurrences = async () => {
-    const data = await useAPI("/recurrence");
-    recurrences.value = data.data.value;
+      const data = await useAPI("/recurrence", {
+        method: "GET",
+        default: () => ({}),
+      });
+      recurrences.value = data.data.value;
     };
 
     fetchRecurrences();

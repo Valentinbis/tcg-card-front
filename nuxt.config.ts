@@ -28,7 +28,7 @@ export default defineNuxtConfig({
 
   primevue: {
     options: {
-      unstyled: true,
+      // unstyled: true,
       ripple: true,
       locale: {
         dayNames: [
@@ -81,7 +81,7 @@ export default defineNuxtConfig({
     components: {
       include: "*",
     },
-    // importTheme: { from: "@/themes/auratheme.ts" },
+    importTheme: { from: "@/themes/auratheme.ts" },
   },
 
   css: ["@mdi/font/css/materialdesignicons.css"],

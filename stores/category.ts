@@ -6,7 +6,10 @@ export const useCategoryStore = defineStore(
     const categories = ref<any>([]);
 
     const fetchCategories = async () => {
-      const data = await useAPI("/categories");
+      const data = await useAPI("/categories", {
+        method: "GET",
+        default: () => ({}),
+      });
       categories.value = data.data.value;
     };
 
