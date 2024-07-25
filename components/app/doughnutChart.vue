@@ -1,33 +1,25 @@
 <script setup lang="ts">
-
 const props = defineProps({
-  chartData: Object,
-  chartOptions: Object,
-  // chartDataProp: {
-  //   type: Object,
-  //   default: () => ({
-  //     labels: [],
-  //     datasets: [],
-  //   }),
-  // },
-  // chartOptionsProp: {
-  //   type: Object,
-  //   default: () => ({}),
-  // },
+  movements: {
+    type: Array,
+    required: true,
+  },
 });
-console.log(props.chartData);
-const chartData = ref(props.chartData);
-const chartOptions = ref(props.chartOptions);
 
+const chartData = computed(() => ({
+  labels: props.movements.map((movement: any) => movement.category),
+  datasets: [
+    {
+      data: props.movements.map((movement: any) => movement.total),
+      backgroundColor: ["#f97316", "#84cc16"],
+      hoverBackgroundColor: ["#fb923c", "#a3e635"],
+    },
+  ],
+}));
 </script>
 
 <template>
   <div class="card flex justify-center">
-    <Chart
-      type="doughnut"
-      :data="chartData"
-      :options="chartOptions"
-      class="w-full md:w-[30rem]"
-    />
+    <Chart type="doughnut" :data="chartData" class="w-40 md:w-[10rem]" />
   </div>
 </template>
