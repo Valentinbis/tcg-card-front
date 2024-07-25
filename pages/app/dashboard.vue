@@ -65,6 +65,12 @@ fetchExpenseMovements("expense");
     aria-labelledby="basic"
   />
   <AppDoughnutChart :movements="movements"/>
+  <div>
+    <template v-for="movement in movements">
+
+      <p>{{ formatPercentage(movement.percentage) }} {{ movement.category }} {{ formatCurrency(movement.total) }}</p>
+    </template>
+  </div>
   <div class="p-6">
     <h1 class="text-orange-950 text-2xl font-bold mb-4">
       Les dernières transactions
