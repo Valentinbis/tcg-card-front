@@ -1,9 +1,15 @@
 <script setup lang="ts">
+import dayjs from "#build/dayjs.imports.mjs";
+import { color } from "chart.js/helpers";
 import { useAuthStore } from "~/stores/auth";
 
 const { user } = storeToRefs(useAuthStore());
 const total = ref();
+const totalYearlyByMonth = ref<any>([]);
 const movements = ref<any>([]);
+const meterValue = ref([
+  { label: "nom du tag associé à la cagnotte", value: 50, color: "#f97399" },
+]);
 
 const value = ref({ name: "Vos dernières transactions", key: "" });
 const options = ref([
@@ -32,7 +38,7 @@ const fetchExpenseMovements = async (type: string | null) => {
 };
 
 const fetchTotalMovementsBetweenDates = async () => {
-  useAPI("/movements/total-between-dates", {
+  await useAPI("/movements/total-between-dates", {
     method: "GET",
     params: { startDate: "2023-01-01", endDate: "2025-01-31" },
     default: () => ({}),
@@ -40,16 +46,26 @@ const fetchTotalMovementsBetweenDates = async () => {
 };
 
 const fetchTotalMovements = async () => {
-  total.value = useAPI("/movements/total", {
+  total.value = await useAPI("/movements/total", {
     method: "GET",
     default: () => ({}),
   });
 };
 
+const fetchTotalMovementsYearlyByMonth = async () => {
+  const year = dayjs().year();
+  const data = await useAPI("/movements/total-yearly-by-month", {
+    method: "GET",
+    params: { year: year },
+    default: () => ({}),
+  });
+  totalYearlyByMonth.value = data.data.value;
+};
+
 fetchTotalMovementsBetweenDates();
 fetchTotalMovements();
 fetchExpenseMovements("expense");
-
+fetchTotalMovementsYearlyByMonth();
 </script>
 
 <template>
@@ -57,6 +73,15 @@ fetchExpenseMovements("expense");
   <h3>
     Votre solde total est de <span class="font-bold">{{ total?.data }}</span>
   </h3>
+
+  <MeterGroup :value="meterValue" />
+  <Card class="w-72">
+    <template #content>
+      <AppBarChart :movements="totalYearlyByMonth" />
+    </template>
+  </Card>
+  <Card class="w-72">
+    <template #content>
   <SelectButton
     v-model="valueChart"
     :options="optionsChart"
@@ -64,13 +89,17 @@ fetchExpenseMovements("expense");
     optionKey="key"
     aria-labelledby="basic"
   />
-  <AppDoughnutChart :movements="movements"/>
-  <div>
-    <template v-for="movement in movements">
-
-      <p>{{ formatPercentage(movement.percentage) }} {{ movement.category }} {{ formatCurrency(movement.total) }}</p>
+  <AppDoughnutChart :movements="movements" />
+  <Card class="w-64 mt-2" v-for="movement in movements">
+    <template #content>
+      <p>
+        {{ formatPercentage(movement.percentage) }} {{ movement.category }}
+        {{ formatCurrency(movement.total) }}
+      </p>
     </template>
-  </div>
+  </Card>
+</template>
+</Card>
   <div class="p-6">
     <h1 class="text-orange-950 text-2xl font-bold mb-4">
       Les dernières transactions
