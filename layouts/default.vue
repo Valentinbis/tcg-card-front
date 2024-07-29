@@ -9,7 +9,7 @@ const { authenticated } = storeToRefs(useAuthStore());
 
 const logoutEvent = () => {
   logout();
-  router.push("/login");
+  router.push("/auth/login");
 };
 </script>
 

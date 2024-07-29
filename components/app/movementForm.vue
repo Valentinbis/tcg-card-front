@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { useAuthStore } from "~/stores/auth";
 import { useRecurrenceStore } from "~/stores/recurrence";
 import { useCategoryStore } from "~/stores/category";
 import type { Movement } from "~/types/movement";
 import dayjs from "dayjs";
 
-const { user } = storeToRefs(useAuthStore());
 const { recurrences } = storeToRefs(useRecurrenceStore());
 const { categories } = storeToRefs(useCategoryStore());
 
@@ -38,15 +36,15 @@ const mappedRecurrences = recurrences.value.map((recurrence: string) => {
 
 const movement = ref<Movement>({
   date: undefined,
-  amount: 0,
-  type: null,
+  amount: undefined,
+  type: undefined,
   recurrence: {
     name: undefined,
     startDate: undefined,
     endDate: undefined,
   },
   category: null,
-  description: null,
+  description: undefined,
 });
 
 const type = [
@@ -77,7 +75,7 @@ const submitForm = () => {
       />
     </div>
     <div>
-      <InputText id="amount" v-model="movement.amount" placeholder="Montant" />
+      <InputNumber id="amount" v-model="movement.amount" placeholder="Montant" />
     </div>
     <div>
       <Select
