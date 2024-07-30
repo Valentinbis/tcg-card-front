@@ -2,7 +2,6 @@
 import { useRecurrenceStore } from "~/stores/recurrence";
 import { useCategoryStore } from "~/stores/category";
 import type { Movement } from "~/types/movement";
-import dayjs from "dayjs";
 
 const { recurrences } = storeToRefs(useRecurrenceStore());
 const { categories } = storeToRefs(useCategoryStore());
@@ -52,96 +51,126 @@ const type = [
   { name: "Dépense", code: "expense" },
 ];
 
-const submitForm = () => {
-  //format date to dd/mm/yyyy
-  const date = dayjs(movement.value.date).format("DD/MM/YYYY");
+const sendMovementForm = async () => {
+  const data = await useAPI("/movement", {
+    method: "POST",
+    body: { ...movement.value },
+    default: () => ({}),
+  });
+};
 
-  console.log(movement.value);
+const submitForm = () => {
+  movement.value.date = formatDateApi(movement.value.date);
+  sendMovementForm();
 };
 </script>
 
 <template>
-    Ajout d'une transaction
-  <div>
-    <div>
-      <DatePicker
-        id="movementDate"
-        v-model="movement.date"
-        dateFormat="dd/mm/yy"
-        showIcon
-        fluid
-        showButtonBar
-        placeholder="Date d'effet"
-      />
+  <div class="flex">
+    <div class="flex">
+      <Card>
+        <template #header>
+          <h2 class="font-bold">Les dernières transactions</h2>
+        </template>
+        <template #content>
+          <AppSelectButtonDataTable />
+        </template>
+      </Card>
     </div>
-    <div>
-      <InputNumber id="amount" v-model="movement.amount" placeholder="Montant" />
-    </div>
-    <div>
-      <Select
-        id="type"
-        v-model="movement.category"
-        :options="categories"
-        optionLabel="name"
-        optionValue="id"
-        placeholder="Catégorie"
-      />
-    </div>
-    <div>
-      <Select
-        id="type"
-        v-model="movement.type"
-        :options="type"
-        optionLabel="name"
-        optionValue="code"
-        placeholder="Type de dépense"
-      />
-    </div>
-    <div>
-      <Select
-        id="recurrence"
-        v-model="movement.recurrence.name"
-        :options="mappedRecurrences"
-        optionLabel="name"
-        optionValue="code"
-        placeholder="Récurrence"
-        showClear
-      />
-    </div>
-    <div>
-      <DatePicker
-        v-if="movement.recurrence?.name"
-        id="startDate"
-        v-model="movement.recurrence.startDate"
-        dateFormat="dd/mm/yy"
-        showIcon
-        fluid
-        showButtonBar
-        placeholder="Date de début"
-        required
-      />
-    </div>
-    <div>
-      <DatePicker
-        v-if="movement.recurrence?.name"
-        id="endDate"
-        v-model="movement.recurrence.endDate"
-        dateFormat="dd/mm/yy"
-        showIcon
-        fluid
-        showButtonBar
-        placeholder="Date de fin"
-      />
-    </div>
-    <div>
-      <Textarea
-        id="description"
-        v-model="movement.description"
-        placeholder="Description"
-      />
-    </div>
-    <div>
-      <Button label="Soumettre" @click="submitForm" />
+    <div class="flex">
+      <Card>
+        <template #header>
+          <h2 class="font-bold">Ajouter une transaction</h2>
+        </template>
+        <template #content class="flex justify-content center">
+          <div class="flex flex-wrap gap-2 pb-2">
+            <Select
+              id="type"
+              v-model="movement.type"
+              :options="type"
+              optionLabel="name"
+              optionValue="code"
+              placeholder="Type de dépense"
+            />
+          </div>
+          <div class="pb-2">
+            <DatePicker
+              id="movementDate"
+              v-model="movement.date"
+              dateFormat="dd/mm/yy"
+              showIcon
+              fluid
+              showButtonBar
+              placeholder="Date d'effet"
+            />
+          </div>
+          <div class="pb-2">
+            <Select
+              id="recurrence"
+              v-model="movement.recurrence.name"
+              :options="mappedRecurrences"
+              optionLabel="name"
+              optionValue="code"
+              placeholder="Récurrence"
+              showClear
+            />
+          </div>
+          <div class="pb-2">
+            <DatePicker
+              v-if="movement.recurrence?.name"
+              id="startDate"
+              v-model="movement.recurrence.startDate"
+              dateFormat="dd/mm/yy"
+              showIcon
+              fluid
+              showButtonBar
+              placeholder="Date début récurrence"
+              required
+            />
+          </div>
+          <div class="pb-2">
+            <DatePicker
+              v-if="movement.recurrence?.name"
+              id="endDate"
+              v-model="movement.recurrence.endDate"
+              dateFormat="dd/mm/yy"
+              showIcon
+              fluid
+              showButtonBar
+              placeholder="Date fin récurrence"
+            />
+          </div>
+          <div class="pb-2">
+            <InputNumber
+              id="amount"
+              v-model="movement.amount"
+              placeholder="Montant"
+            />
+          </div>
+          <div class="pb-2">
+            <Select
+              id="category"
+              v-model="movement.category"
+              :options="categories"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Catégorie"
+              filter
+            />
+          </div>
+
+          <div>
+            <Textarea
+              id="description"
+              v-model="movement.description"
+              placeholder="Description"
+            />
+          </div>
+          <div>
+            <Button label="Enregistrer" @click="submitForm" />
+          </div>
+        </template>
+      </Card>
     </div>
   </div>
 </template>

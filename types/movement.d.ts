@@ -4,7 +4,7 @@ export interface Movement {
     description?: string;
     type?: Type;
     recurrence: Recurrence;
-    date?: Date;
+    date?: string;
     category: int;
 
 }

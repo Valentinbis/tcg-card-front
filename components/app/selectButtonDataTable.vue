@@ -2,11 +2,11 @@
 const props = defineProps({
   value: {
     type: Object,
-    required: true,
+    required: false,
   },
   options: {
     type: Array,
-    required: true,
+    required: false,
   },
 });
 
@@ -35,7 +35,7 @@ const fetchExpenseMovements = async (type: string | null) => {
 watch(
   value,
   (newValue) => {
-    fetchExpenseMovements(newValue.key);
+    fetchExpenseMovements(newValue?.key);
   },
   { immediate: true }
 );
