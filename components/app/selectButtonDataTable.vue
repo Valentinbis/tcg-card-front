@@ -17,19 +17,21 @@ const value = ref(props.value);
 const options = ref(props.options);
 
 const fetchExpenseMovements = async (type: string | null) => {
-  let params: { sort: string; order: string; type?: string } = {
+  let params: { sort: string; order: string; type?: string, page?: number, limit?: number } = {
     sort: "date",
     order: "desc",
+    page: 1,
+    limit: 10,
   };
   if (type) {
     params = { ...params, type: type };
   }
-  const data = await useAPI("/movements", {
+  const data: { data: any } = await useAPI("/movements", {
     method: "GET",
     params: params,
     default: () => ({}),
   });
-  movements.value = data.data.value;
+  movements.value = data.data.value.data;
 };
 
 watch(
