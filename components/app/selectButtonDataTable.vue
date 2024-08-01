@@ -16,21 +16,35 @@ const expandedMovements = ref();
 const value = ref(props.value);
 const options = ref(props.options);
 
-const fetchExpenseMovements = async (type: string | null) => {
-  let params: { sort: string; order: string; type?: string } = {
+const fetchExpenseMovements = async (
+  type: string | null,
+  page?: number
+) => {
+  const params = {
     sort: "date",
     order: "desc",
+    type: type || undefined,
+    page: page || 1,
+    limit: 10,
   };
-  if (type) {
-    params = { ...params, type: type };
-  }
-  const data = await useAPI("/movements", {
+  const data: { data: any } = await useAPI("/movements", {
     method: "GET",
     params: params,
     default: () => ({}),
   });
   movements.value = data.data.value;
 };
+
+function onPage(event: any) {
+  const page = event.page + 1;
+  fetchExpenseMovements(value.value?.key, page);
+  // const from = (page - 1) * movements.value?.meta?.per_page;
+  // const to = from + movements.value?.meta?.per_page;
+}
+
+onMounted(() => {
+  onPage({ page: 0 });
+});
 
 watch(
   value,
@@ -49,11 +63,17 @@ watch(
     aria-labelledby="basic"
   />
   <DataTable
+    lazy
+    stripedRows
+    paginator
+    :rows="movements.meta?.per_page"
+    :totalRecords="movements.meta?.total_items"
     v-model:selection="selectedMovements"
     v-model:expandedRows="expandedMovements"
-    :value="movements"
+    :value="movements.data"
     dataKey="id"
     class="shadow-lg rounded"
+    @page="onPage"
   >
     <Column
       selectionMode="multiple"
