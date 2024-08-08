@@ -3,21 +3,31 @@ import { defineStore } from "pinia";
 export const useCategoryStore = defineStore(
   "category-store",
   () => {
-    const categories = ref<any>([]);
+    const categoriesParent = ref<any>([]);
 
-    const fetchCategories = async () => {
-      const data = await useAPI("/categories", {
+    const fetchCategoriesParent = async () => {
+      const data = await useAPI("/categories/parents", {
         method: "GET",
         default: () => ({}),
       });
-      categories.value = data.data.value;
+      categoriesParent.value = data.data.value;
     };
 
-    fetchCategories();
+    const fetchCategoryChildren = async (id: number) => {
+      const data = await useAPI(`/category/${id}/children`, {
+        method: "GET",
+        default: () => ({}),
+      });
+
+      return data.data.value;
+    };
+
+    fetchCategoriesParent();
 
     return {
-      categories,
-      fetchCategories,
+      categoriesParent,
+      fetchCategoriesParent,
+      fetchCategoryChildren,
     };
   },
   {

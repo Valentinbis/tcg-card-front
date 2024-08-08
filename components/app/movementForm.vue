@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import type { Movement } from "~/types/movement";
 import { useRecurrenceStore } from "~/stores/recurrence";
 import { useCategoryStore } from "~/stores/category";
-import type { Movement } from "~/types/movement";
 
 const { recurrences } = storeToRefs(useRecurrenceStore());
-const { categories } = storeToRefs(useCategoryStore());
+const { categoriesParent } = storeToRefs(useCategoryStore());
+const { fetchCategoryChildren } = useCategoryStore();
+const selectedCategory = ref<number | null>(null);
+const categoriesChildren = ref();
 
 const mappedRecurrences = recurrences.value.map((recurrence: string) => {
   let name;
@@ -63,6 +66,15 @@ const submitForm = () => {
   movement.value.date = formatDateApi(movement.value.date);
   sendMovementForm();
 };
+
+watch(selectedCategory, async (newCategory) => {
+  if (newCategory !== null) {
+    categoriesChildren.value = await fetchCategoryChildren(newCategory);
+    movement.value.category = selectedCategory.value;
+  } else {
+    categoriesChildren.value = [];
+  }
+});
 </script>
 
 <template>
@@ -137,15 +149,25 @@ const submitForm = () => {
         <div class="pb-2">
           <Select
             id="category"
-            v-model="movement.category"
-            :options="categories"
+            v-model="selectedCategory"
+            :options="categoriesParent"
             optionLabel="name"
             optionValue="id"
             placeholder="Catégorie"
             filter
           />
         </div>
-
+        <div class="pb-2">
+          <Select
+            id="category"
+            v-model="movement.category"
+            :options="categoriesChildren"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Sous catégorie"
+            filter
+          />
+        </div>
         <div>
           <Textarea
             id="description"
