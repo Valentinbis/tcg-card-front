@@ -4,10 +4,8 @@ import { useRecurrenceStore } from "~/stores/recurrence";
 import { useCategoryStore } from "~/stores/category";
 
 const { recurrences } = storeToRefs(useRecurrenceStore());
-const { categoriesParent } = storeToRefs(useCategoryStore());
-const { fetchCategoryChildren } = useCategoryStore();
+const { categories } = storeToRefs(useCategoryStore());
 const selectedCategory = ref<number | null>(null);
-const categoriesChildren = ref();
 
 const mappedRecurrences = recurrences.value.map((recurrence: string) => {
   let name;
@@ -75,16 +73,17 @@ const submitForm = () => {
     movement.value.recurrence.startDate = undefined;
     movement.value.recurrence.endDate = undefined;
   }
+  if (typeof movement.value.type === 'string' && movement.value.type === "expense" && movement.value.amount) {
+    movement.value.amount = -movement.value.amount;
+  }
   sendMovementForm();
 };
 
-watch(selectedCategory, async (newCategory) => {
-  if (newCategory !== null) {
-    categoriesChildren.value = await fetchCategoryChildren(newCategory);
-    movement.value.category = selectedCategory.value;
-  } else {
-    categoriesChildren.value = [];
-  }
+const subCategories = computed(() => {
+  const selected = categories.value.find(
+    (category: any) => category.id === selectedCategory.value
+  );
+  return selected ? selected.children : [];
 });
 </script>
 
@@ -149,6 +148,11 @@ watch(selectedCategory, async (newCategory) => {
         </div>
         <div class="pb-2">
           <InputNumber
+            :prefix="movement.type === 'income' ? '+' : '-'"
+            showButtons
+            mode="currency"
+            currency="EUR"
+            locale="fr-FR"
             id="amount"
             v-model="movement.amount"
             placeholder="Montant"
@@ -158,8 +162,8 @@ watch(selectedCategory, async (newCategory) => {
           <Select
             id="category"
             v-model="selectedCategory"
-            :options="categoriesParent"
-            optionLabel="name"
+            :options="categories"
+            optionLabel="label"
             optionValue="id"
             placeholder="Catégorie"
             filter
@@ -169,8 +173,8 @@ watch(selectedCategory, async (newCategory) => {
           <Select
             id="category"
             v-model="movement.category"
-            :options="categoriesChildren"
-            optionLabel="name"
+            :options="subCategories"
+            optionLabel="label"
             optionValue="id"
             placeholder="Sous catégorie"
             filter
