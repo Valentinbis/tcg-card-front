@@ -4,7 +4,7 @@
     <div class="flex">
       <Card>
         <template #header>
-          <h2 class="font-bold">Les dernières transactions</h2>
+          <h1 class="font-bold p-4">Les dernières transactions</h1>
         </template>
         <template #content>
           <AppSelectButtonDataTable />

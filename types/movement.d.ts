@@ -15,8 +15,8 @@ interface Type {
 
 export interface Recurrence {
     name?: string;
-    startDate?: Date;
-    endDate?: Date;
+    startDate?: string;
+    endDate?: string;
 }
 
 enum TypeNameEnum {

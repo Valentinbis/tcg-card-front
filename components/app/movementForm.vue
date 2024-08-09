@@ -55,7 +55,7 @@ const type = [
 ];
 
 const sendMovementForm = async () => {
-  const data = await useAPI("/movement", {
+  await useAPI("/movement", {
     method: "POST",
     body: { ...movement.value },
     default: () => ({}),
@@ -64,6 +64,17 @@ const sendMovementForm = async () => {
 
 const submitForm = () => {
   movement.value.date = formatDateApi(movement.value.date);
+  if (movement.value.recurrence.name) {
+    movement.value.recurrence.startDate = formatDateApi(
+      movement.value.recurrence.startDate
+    );
+    movement.value.recurrence.endDate = formatDateApi(
+      movement.value.recurrence.endDate
+    );
+  } else {
+    movement.value.recurrence.startDate = undefined;
+    movement.value.recurrence.endDate = undefined;
+  }
   sendMovementForm();
 };
 
@@ -98,7 +109,6 @@ watch(selectedCategory, async (newCategory) => {
           <DatePicker
             id="movementDate"
             v-model="movement.date"
-            dateFormat="dd/mm/yy"
             showIcon
             fluid
             showButtonBar
@@ -120,7 +130,6 @@ watch(selectedCategory, async (newCategory) => {
           <DatePicker
             id="startDate"
             v-model="movement.recurrence.startDate"
-            dateFormat="dd/mm/yy"
             showIcon
             fluid
             showButtonBar
@@ -132,7 +141,6 @@ watch(selectedCategory, async (newCategory) => {
           <DatePicker
             id="endDate"
             v-model="movement.recurrence.endDate"
-            dateFormat="dd/mm/yy"
             showIcon
             fluid
             showButtonBar

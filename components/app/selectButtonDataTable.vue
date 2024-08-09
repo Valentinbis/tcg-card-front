@@ -50,8 +50,7 @@ watch(
   value,
   (newValue) => {
     fetchExpenseMovements(newValue?.key);
-  },
-  { immediate: true }
+  }
 );
 </script>
 <template>
@@ -87,7 +86,8 @@ watch(
       bodyStyle="font-weight: bold;"
       class="pr-4"
     ></Column>
-    <Column field="category.name" header="Categorie" class="pr-4"></Column>
+    <Column field="category.parent.name" header="Categorie" class="pr-4"></Column>
+    <Column field="category.name" header="Sous-categorie" class="pr-4"></Column>
     <Column field="amount" header="Montant">
       <template #body="slotProps">
         <span :class="colorNumber(slotProps.data.amount)">
