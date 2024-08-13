@@ -25,52 +25,114 @@ const registerEvent = async () => {
 </script>
 
 <template>
-  <div>
-    <h2>Login</h2>
-    <form @submit.prevent="registerEvent">
+  <div
+    class="flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl"
+  >
+    <div class="flex flex-row gap-3 pb-4">
       <div>
-        <label for="firstName">Prénom</label>
-        <InputText
-          id="firstName"
-          v-model="user.firstName"
-          placeholder="Entrer votre prénom"
-        />
+        <img src="" width="50" alt="Logo" />
       </div>
-      <div>
-        <label for="lastName">Nom</label>
-        <InputText
-          id="lastName"
-          v-model="user.lastName"
-          placeholder="Entrer votre nom"
-        />
+      <h1 class="text-3xl font-bold text-[#4B5563] text-[#4B5563] my-auto">
+        CashTrack
+      </h1>
+    </div>
+    <div class="text-sm font-light text-[#6B7280] pb-8">
+      Créer un compte sur cashtrack
+    </div>
+    <form @submit.prevent="registerEvent" class="flex flex-col">
+      <div class="pb-2">
+        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]"
+          >Prénom</label
+        >
+        <div class="relative text-gray-400">
+          <InputText
+            v-model="user.firstName"
+            type="text"
+            name="name"
+            id="name"
+            class="mb-2 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
+            placeholder="Michel"
+            autocomplete="off"
+          />
+        </div>
       </div>
-      <div>
-        <label for="email">Email</label>
-        <InputText
-          id="email"
-          v-model="user.email"
-          placeholder="Entrer votre email"
-        />
+      <div class="pb-2">
+        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]"
+          >Nom</label
+        >
+        <div class="relative text-gray-400">
+          <input
+            v-model="user.lastName"
+            type="text"
+            name="name"
+            id="name"
+            class="mb-2 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
+            placeholder="Durant"
+            autocomplete="off"
+          />
+        </div>
       </div>
-      <div>
-        <label for="password">Mot de passe</label>
-        <Password id="password" v-model="user.password" toggleMask>
-          <template #header>
-            <div class="font-semibold text-xm mb-4">Entrer un mot de passe</div>
-          </template>
-          <template #footer>
-            <Divider />
-            <ul class="pl-2 ml-2 my-0 leading-normal">
-              <li>Au moins une minuscule</li>
-              <li>Au moins une majuscule</li>
-              <li>Au moins un chiffre</li>
-              <li>Minimum 8 caractères</li>
-            </ul>
-          </template>
-        </Password>
-        <!-- placeholder="Entrer votre mot de passe"  /> -->
+      <div class="pb-2">
+        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]"
+          >Email</label
+        >
+        <div class="relative text-gray-400">
+          <input
+            v-model="user.email"
+            type="email"
+            name="email"
+            id="email"
+            class="mb-2 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
+            placeholder="name@company.com"
+            autocomplete="off"
+          />
+        </div>
       </div>
-      <Button type="submit" class="button-register" label="Se connecter" />
+      <div class="pb-6">
+        <label
+          for="password"
+          class="block mb-2 text-sm font-medium text-[#111827]"
+          >Mot de passe</label
+        >
+        <div class="relative text-gray-400">
+          <Password
+            type="password"
+            id="password"
+            v-model="user.password"
+            toggleMask
+            :inputProps="{ autocomplete: true }"
+            fluid
+            placeholder="••••••••••"
+          >
+            <template #header>
+              <div class="font-semibold text-xm mb-4">
+                Entrer un mot de passe
+              </div>
+            </template>
+            <template #footer>
+              <Divider />
+              <ul class="pl-2 ml-2 my-0 leading-normal">
+                <li>Au moins une minuscule</li>
+                <li>Au moins une majuscule</li>
+                <li>Au moins un chiffre</li>
+                <li>Minimum 8 caractères</li>
+              </ul>
+            </template>
+          </Password>
+        </div>
+      </div>
+      <Button
+        type="submit"
+        class="w-full text-[#FFFFFF] bg-[#4F46E5] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6"
+      >
+        Créer un compte
+      </Button>
+      <div class="text-sm font-light text-[#6B7280] text-center">
+        Vous avez déjà un compte ?
+        <nuxt-link to="/auth/login">
+          <a class="font-medium text-[#4F46E5] hover:underline">Se connecter</a>
+        </nuxt-link>
+      </div>
     </form>
   </div>
 </template>

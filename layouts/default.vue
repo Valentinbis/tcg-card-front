@@ -20,7 +20,12 @@ const logoutEvent = () => {
 
 <template>
   <div class="flex flex-row">
-    <div :class="['transition-width duration-300 bg-gray-900 text-white h-screen', { 'w-16': !isSidebarOpen, 'w-64': isSidebarOpen }]">
+    <div
+      :class="[
+        'transition-width duration-300 bg-gray-900 text-white h-screen',
+        { 'w-16': !isSidebarOpen, 'w-64': isSidebarOpen },
+      ]"
+    >
       <ul>
         <li class="p-4">
           <nuxt-link to="/app/dashboard" class="flex items-center">
@@ -58,6 +63,24 @@ const logoutEvent = () => {
             <span v-if="isSidebarOpen" class="ml-2">Transaction</span>
           </nuxt-link>
         </li>
+        <li class="p-4">
+          <nuxt-link @click="logoutEvent" class="flex items-center">
+            <i>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                height="24px"
+                viewBox="0 -960 960 960"
+                width="24px"
+                fill="#e8eaed"
+              >
+                <path
+                  d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"
+                />
+              </svg>
+            </i>
+            <span v-if="isSidebarOpen" class="ml-2">Se déconnecter</span>
+          </nuxt-link>
+        </li>
       </ul>
     </div>
     <div class="ml-2">
@@ -83,4 +106,3 @@ const logoutEvent = () => {
     <h1>Footer</h1>
   </footer>
 </template>
-
