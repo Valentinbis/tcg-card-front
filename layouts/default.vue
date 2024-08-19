@@ -64,7 +64,7 @@ const logoutEvent = () => {
           </nuxt-link>
         </li>
         <li class="p-4">
-          <nuxt-link @click="logoutEvent" class="flex items-center">
+          <nuxt-link @click="logoutEvent" class="flex items-center cursor-pointer">
             <i>
               <svg
                 xmlns="http://www.w3.org/2000/svg"

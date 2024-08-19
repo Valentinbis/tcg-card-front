@@ -10,7 +10,7 @@ export const useAuthStore = defineStore(
 
     const login = async ({ email, password }: UserLoginInterface) => {
       const { data, pending }: any = await useFetch(
-        "http://127.0.0.1:8000/login",
+        "http://127.0.0.1:8000/api/login",
         {
           method: "post",
           headers: { "Content-Type": "application/json" },
@@ -30,7 +30,7 @@ export const useAuthStore = defineStore(
 
     const register = async ({ firstName, lastName, email, password }: User) => {
       const { data, pending, error }: any = await useFetch(
-        "http://127.0.0.1:8000/register",
+        "http://127.0.0.1:8000/api/register",
         {
           method: "post",
           headers: { "Content-Type": "application/json" },
@@ -63,10 +63,11 @@ export const useAuthStore = defineStore(
     };
 
     const logout = async () => {
-      const { data }: any = await useFetch(
-        "http://127.0.0.1:8000/logout",
-        {
-          method: "get",
+      await useAPI(
+        "http://127.0.0.1:8000/api/logout",
+         {
+          method: "GET",
+          default: () => ({}),
         }
       );
       clearUser();
