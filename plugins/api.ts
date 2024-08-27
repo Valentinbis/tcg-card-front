@@ -2,6 +2,7 @@ import { useAuthStore } from '~/stores/auth';
 
 export default defineNuxtPlugin((nuxtApp) => {
   const { user } = storeToRefs(useAuthStore());
+  const { clearUser } = useAuthStore();
 
     const api = $fetch.create({
       baseURL: 'http://localhost:8000/api/',
@@ -18,8 +19,9 @@ export default defineNuxtPlugin((nuxtApp) => {
         }
       },
       async onResponseError({ response }) {
-        if (response.status === 401) {
-          await nuxtApp.runWithContext(() => navigateTo('/auth/login'))
+        if (response.status == 401) {
+          clearUser(),
+          await navigateTo('/auth/login')
         }
       }
     })
