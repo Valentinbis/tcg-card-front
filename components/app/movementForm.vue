@@ -79,8 +79,14 @@ const submitForm = () => {
   sendMovementForm();
 };
 
+const filteredCategories = computed(() => {
+  return categories.value.filter(
+    (category: any) => category.type === movement.value.type
+  );
+});
+
 const subCategories = computed(() => {
-  const selected = categories.value.find(
+  const selected = filteredCategories.value.find(
     (category: any) => category.id === selectedCategory.value
   );
   return selected ? selected.children : [];
@@ -162,7 +168,7 @@ const subCategories = computed(() => {
           <Select
             id="category"
             v-model="selectedCategory"
-            :options="categories"
+            :options="filteredCategories"
             optionLabel="label"
             optionValue="id"
             placeholder="Catégorie"
