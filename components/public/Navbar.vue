@@ -20,7 +20,7 @@ const toggleTheme = () => {
           <!-- src="/logo.png"  -->
         <img alt="logo" 
         class="mr-2">
-        <span class="font-bold">CashTrack</span>
+        <span class="font-bold">TCG Card</span>
       </template>
       <template #end>
         <Button label="Se connecter" class="p-button-text mr-2" />

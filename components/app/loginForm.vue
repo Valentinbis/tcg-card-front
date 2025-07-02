@@ -16,7 +16,7 @@ const loginEvent = async () => {
   await login(user.value);
   // redirect to homepage if user is authenticated
   if (authenticated) {
-    router.push('/app/dashboard');
+    router.push('/app/home');
   }
 }
 </script>
@@ -27,7 +27,7 @@ const loginEvent = async () => {
         <div>
             <img src="" width="50" alt="Logo">
         </div>
-         <h1 class="text-3xl font-bold text-[#4B5563] text-[#4B5563] my-auto">Cashtrack</h1>
+         <h1 class="text-3xl font-bold text-[#4B5563] text-[#4B5563] my-auto">TCG Card</h1>
 
     </div>
     <div class="text-sm font-light text-[#6B7280] pb-8 ">Se connecter à votre compte.</div>

@@ -19,7 +19,7 @@ const registerEvent = async () => {
   await register(user.value);
   // redirect to homepage if user is authenticated
   if (authenticated) {
-    router.push("/app/dashboard");
+    router.push("/app/home");
   }
 };
 </script>
@@ -37,7 +37,7 @@ const registerEvent = async () => {
       </h1>
     </div>
     <div class="text-sm font-light text-[#6B7280] pb-8">
-      Créer un compte sur cashtrack
+      Créer un compte sur TCG Card.
     </div>
     <form @submit.prevent="registerEvent" class="flex flex-col">
       <div class="pb-2">

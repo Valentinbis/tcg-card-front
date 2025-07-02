@@ -12,6 +12,7 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@pinia/nuxt": "^0.5.1",
+    "@primevue/forms": "^4.3.6",
     "@primevue/themes": "^4.0.0-beta.5",
     "chart.js": "^4.4.3",
     "nuxt": "^3.13.2",
