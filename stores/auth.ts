@@ -89,8 +89,6 @@ export const useAuthStore = defineStore(
     };
   },
   {
-    persist: {
-      storage: persistedState.localStorage,
-    },
+    persist: true
   }
 );
