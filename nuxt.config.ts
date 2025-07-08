@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  // ssr: false, // Désactive le rendu côté serveur (SSR) pour une application SPA
   routeRules: {
     '/app/**': { ssr: false },
     '/auth/**': { ssr: false },
@@ -21,8 +22,7 @@ export default defineNuxtConfig({
   modules: [
     "@primevue/nuxt-module",
     "@pinia/nuxt",
-    "@pinia-plugin-persistedstate/nuxt",
-    'dayjs-nuxt',
+    'pinia-plugin-persistedstate/nuxt',
     '@nuxtjs/tailwindcss'
   ],
 

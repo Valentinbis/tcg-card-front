@@ -42,7 +42,7 @@ fetchCards();
         :alt="card.name"
         class="mb-2 w-32 h-44 object-contain"
       />
-      <h2 class="font-bold text-lg mb-1">{{ card.name }}</h2>
+      <h2 class="font-bold text-lg mb-1">{{ card.nameFr }}</h2>
       <div class="text-sm text-gray-600 mb-1">#{{ card.number }}</div>
       <div class="text-xs text-gray-500 mb-1">Rareté : {{ card.rarity }}</div>
       <div class="text-xs text-gray-500 mb-1">
