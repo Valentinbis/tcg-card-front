@@ -108,7 +108,16 @@ watch(page, fetchCards, { immediate: true });
         <option value="Fire">Feu</option>
         <option value="Water">Eau</option>
         <option value="Grass">Plante</option>
-        <option value="Electric">Électrique</option>
+        <option value="Lightning">Électrique</option>
+        <option value="Psychic">Psy</option>
+        <option value="Fighting">Combat</option>
+        <option value="Darkness">Obscurité</option>
+        <option value="Metal">Métal</option>
+        <option value="Dragon">Dragon</option>
+        <option value="Colorless">Incolore</option>
+        <option value="Normal">Normal</option>
+        <option value="Ghost">Spectre</option>
+
         <!-- Ajoute ici tous les types nécessaires -->
       </select>
     </div>
@@ -133,7 +142,9 @@ watch(page, fetchCards, { immediate: true });
   </div>
 
   <!-- Grille des cartes -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+  >
     <div
       v-for="card in cards"
       :key="card.id"
@@ -159,7 +170,11 @@ watch(page, fetchCards, { immediate: true });
           />
           🇫🇷
         </label>
-        <label class="flex items-center gap-1">
+        <!-- Affiche la case Reverse seulement si la rareté est autorisée -->
+        <label
+          v-if="['Common', 'Uncommon', 'Rare'].includes(card.rarity)"
+          class="flex items-center gap-1"
+        >
           <input
             type="checkbox"
             :checked="card.owned_languages.includes('reverse')"
