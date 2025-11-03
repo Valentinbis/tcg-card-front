@@ -6,22 +6,17 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     const api = $fetch.create({
       baseURL: 'http://localhost:8000/api/',
-      onRequest({ request, options, error }) {
+      onRequest({ request, options }) {
         if (user.value?.apiToken) {
-          const headers = options.headers ||= {}
-          if (Array.isArray(headers)) {
-            headers.push(['Authorization', `Bearer ${user.value?.apiToken}`])
-          } else if (headers instanceof Headers) {
-            headers.set('Authorization', `Bearer ${user.value?.apiToken}`)
-          } else {
-            headers.Authorization = `Bearer ${user.value?.apiToken}`
-          }
+          options.headers = options.headers || {};
+          (options.headers as any).Authorization = `Bearer ${user.value?.apiToken}`;
         }
       },
       async onResponseError({ response }) {
-        if (response.status == 401) {
-          clearUser(),
-          await navigateTo('/auth/login')
+        if (response.status === 401) {
+          console.warn('Token invalide ou expiré, déconnexion...');
+          clearUser();
+          await navigateTo('/auth/login');
         }
       }
     })

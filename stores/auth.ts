@@ -10,7 +10,7 @@ export const useAuthStore = defineStore(
 
     const login = async ({ email, password }: UserLoginInterface) => {
       const { data, pending }: any = await useFetch(
-        "http://127.0.0.1:8000/api/login",
+        "http://localhost:8000/api/login",
         {
           method: "post",
           headers: { "Content-Type": "application/json" },
@@ -30,7 +30,7 @@ export const useAuthStore = defineStore(
 
     const register = async ({ firstName, lastName, email, password }: User) => {
       const { data, pending, error }: any = await useFetch(
-        "http://127.0.0.1:8000/api/register",
+        "http://localhost:8000/api/register",
         {
           method: "post",
           headers: { "Content-Type": "application/json" },
@@ -64,7 +64,7 @@ export const useAuthStore = defineStore(
 
     const logout = async () => {
       await useAPI(
-        "http://127.0.0.1:8000/api/logout",
+        "logout",
          {
           method: "GET",
           default: () => ({}),
@@ -78,6 +78,34 @@ export const useAuthStore = defineStore(
       authenticated.value = false;
     };
 
+    // Vérifier la validité du token au refresh/démarrage
+    const verifyToken = async () => {
+      if (!user.value?.apiToken) {
+        clearUser();
+        return false;
+      }
+
+      try {
+        const { data } = await useAPI("user/me", {
+          method: "GET",
+          default: () => null,
+        });
+
+        if (data.value) {
+          user.value = data.value as User;
+          authenticated.value = true;
+          return true;
+        } else {
+          clearUser();
+          return false;
+        }
+      } catch (error) {
+        console.error("Token verification failed:", error);
+        clearUser();
+        return false;
+      }
+    };
+
     return {
       user,
       authenticated,
@@ -86,6 +114,7 @@ export const useAuthStore = defineStore(
       register,
       logout,
       clearUser,
+      verifyToken,
     };
   },
   {
