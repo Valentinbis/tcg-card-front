@@ -86,7 +86,7 @@ export const useAuthStore = defineStore(
       }
 
       try {
-        const { data } = await useAPI("user/me", {
+        const { data } = await useAPI("me", {
           method: "GET",
           default: () => null,
         });
