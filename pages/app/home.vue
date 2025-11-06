@@ -153,6 +153,7 @@ watch(page, fetchCards, { immediate: true });
       <img
         :src="getImageUrl(card.images.small)"
         :alt="card.name"
+        loading="lazy"
         class="mb-2 w-32 h-44 object-contain"
       />
       <h2 class="font-bold text-lg mb-1">{{ card.nameFr }}</h2>
