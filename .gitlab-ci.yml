@@ -40,16 +40,41 @@ build:dependencies:
     - merge_requests
 
 # =====================================
-# Stage: Quality (optionnel)
+# Stage: Quality
 # =====================================
-lint:
+eslint:
   stage: quality
   image: node:20-alpine
   dependencies:
     - build:dependencies
   script:
-    - echo "Ajoutez ESLint si besoin: npm run lint"
-    - echo "Pour l'instant, skip car pas configuré dans package.json"
+    - npm run lint
+  allow_failure: false
+  only:
+    - develop
+    - main
+    - merge_requests
+
+prettier:
+  stage: quality
+  image: node:20-alpine
+  dependencies:
+    - build:dependencies
+  script:
+    - npm run format:check
+  allow_failure: false
+  only:
+    - develop
+    - main
+    - merge_requests
+
+typecheck:
+  stage: quality
+  image: node:20-alpine
+  dependencies:
+    - build:dependencies
+  script:
+    - npm run type-check
   allow_failure: true
   only:
     - develop

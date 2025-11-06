@@ -1,8 +1,9 @@
-import { defineStore } from "pinia";
-import type { UserLoginInterface, User } from "~/types/user";
+import { defineStore } from 'pinia';
+import type { UserLoginInterface, User } from '~/types/user';
+import type { UseApiResponse } from '~/types/api';
 
 export const useAuthStore = defineStore(
-  "auth-store",
+  'auth-store',
   () => {
     const user = ref<User | null>(null);
     const authenticated = ref(false);
@@ -11,27 +12,27 @@ export const useAuthStore = defineStore(
 
     const login = async ({ email, password }: UserLoginInterface) => {
       errorMessage.value = null;
-      
+
       try {
-        const { data, pending, error }: any = await useAPI("login", {
-          method: "POST",
+        const { data, pending, error } = (await useAPI('login', {
+          method: 'POST',
           body: {
             email,
             password,
           },
           default: () => null,
-        });
-        
-        loading.value = pending;
+        })) as UseApiResponse<User>;
+
+        loading.value = pending.value;
 
         if (error.value) {
           const status = error.value.statusCode || error.value.status;
-          
+
           if (status === 429) {
             const retryAfter = error.value.data?.retryAfter || 60;
             errorMessage.value = `Trop de tentatives. Réessayez dans ${retryAfter} secondes.`;
           } else {
-            errorMessage.value = error.value.data?.error || "Erreur de connexion";
+            errorMessage.value = error.value.data?.error || 'Erreur de connexion';
           }
           return;
         }
@@ -40,18 +41,18 @@ export const useAuthStore = defineStore(
           user.value = data.value;
           authenticated.value = true;
         }
-      } catch (err: any) {
-        console.error("Login error:", err);
-        errorMessage.value = "Une erreur est survenue lors de la connexion";
+      } catch (err) {
+        console.error('Login error:', err);
+        errorMessage.value = 'Une erreur est survenue lors de la connexion';
       }
     };
 
     const register = async ({ firstName, lastName, email, password }: User) => {
       errorMessage.value = null;
-      
+
       try {
-        const { data, pending, error }: any = await useAPI("register", {
-          method: "POST",
+        const { data, pending, error } = (await useAPI('register', {
+          method: 'POST',
           body: {
             firstName,
             lastName,
@@ -59,13 +60,13 @@ export const useAuthStore = defineStore(
             password,
           },
           default: () => null,
-        });
-        
-        loading.value = pending;
+        })) as UseApiResponse<User>;
+
+        loading.value = pending.value;
 
         if (error.value) {
           const status = error.value.statusCode || error.value.status;
-          
+
           if (status === 429) {
             const retryAfter = error.value.data?.retryAfter || 60;
             errorMessage.value = `Trop de tentatives. Réessayez dans ${retryAfter} secondes.`;
@@ -73,9 +74,9 @@ export const useAuthStore = defineStore(
             // Formater le message d'erreur pour l'affichage
             const errorMessageRaw = error.value.data.message as string;
             const formattedErrorMessage = errorMessageRaw
-              .split("\n")[1] // Sélectionne la ligne contenant le message d'erreur
+              .split('\n')[1] // Sélectionne la ligne contenant le message d'erreur
               .trim() // Enlève les espaces inutiles au début et à la fin
-              .replace(/\s\(code\s[0-9a-f-]+\)$/i, ""); // Enlève la partie "(code xxxxx)" à la fin
+              .replace(/\s\(code\s[0-9a-f-]+\)$/i, ''); // Enlève la partie "(code xxxxx)" à la fin
 
             errorMessage.value = formattedErrorMessage;
             alert(formattedErrorMessage);
@@ -89,20 +90,17 @@ export const useAuthStore = defineStore(
           user.value = data.value;
           authenticated.value = true;
         }
-      } catch (err: any) {
-        console.error("Register error:", err);
+      } catch (err) {
+        console.error('Register error:', err);
         errorMessage.value = "Une erreur est survenue lors de l'inscription";
       }
     };
 
     const logout = async () => {
-      await useAPI(
-        "logout",
-         {
-          method: "GET",
-          default: () => ({}),
-        }
-      );
+      await useAPI('logout', {
+        method: 'GET',
+        default: () => ({}),
+      });
       clearUser();
     };
 
@@ -112,13 +110,13 @@ export const useAuthStore = defineStore(
       }
 
       try {
-        const { data } = await useAPI("token/refresh", {
-          method: "POST",
+        const { data } = (await useAPI('token/refresh', {
+          method: 'POST',
           default: () => null,
-        });
+        })) as UseApiResponse<User>;
 
         if (data.value) {
-          user.value = data.value as User;
+          user.value = data.value;
           authenticated.value = true;
           return true;
         } else {
@@ -126,7 +124,7 @@ export const useAuthStore = defineStore(
           return false;
         }
       } catch (error) {
-        console.error("Token refresh failed:", error);
+        console.error('Token refresh failed:', error);
         clearUser();
         return false;
       }
@@ -145,13 +143,13 @@ export const useAuthStore = defineStore(
       }
 
       try {
-        const { data } = await useAPI("me", {
-          method: "GET",
+        const { data } = (await useAPI('me', {
+          method: 'GET',
           default: () => null,
-        });
+        })) as UseApiResponse<User>;
 
         if (data.value) {
-          user.value = data.value as User;
+          user.value = data.value;
           authenticated.value = true;
           return true;
         } else {
@@ -159,7 +157,7 @@ export const useAuthStore = defineStore(
           return false;
         }
       } catch (error) {
-        console.error("Token verification failed:", error);
+        console.error('Token verification failed:', error);
         clearUser();
         return false;
       }
@@ -179,6 +177,6 @@ export const useAuthStore = defineStore(
     };
   },
   {
-    persist: true
+    persist: true,
   }
 );

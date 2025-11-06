@@ -8,7 +8,7 @@ const isAnyLoading = computed(() => loadingStore.isAnyLoading());
 <template>
   <div v-if="isAnyLoading" class="global-loading-overlay">
     <div class="loading-spinner">
-      <div class="spinner"></div>
+      <div class="spinner" />
       <p class="mt-4 text-white font-medium">Chargement...</p>
     </div>
   </div>
