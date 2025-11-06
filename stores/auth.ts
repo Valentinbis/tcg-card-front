@@ -7,58 +7,91 @@ export const useAuthStore = defineStore(
     const user = ref<User | null>(null);
     const authenticated = ref(false);
     const loading = ref(false);
+    const errorMessage = ref<string | null>(null);
 
     const login = async ({ email, password }: UserLoginInterface) => {
-      const { data, pending }: any = await useFetch(
-        "http://localhost:8000/api/login",
-        {
-          method: "post",
-          headers: { "Content-Type": "application/json" },
+      errorMessage.value = null;
+      
+      try {
+        const { data, pending, error }: any = await useAPI("login", {
+          method: "POST",
           body: {
             email,
             password,
           },
-        }
-      );
-      loading.value = pending;
+          default: () => null,
+        });
+        
+        loading.value = pending;
 
-      if (data.value) {
-        user.value = data?.value;
-        authenticated.value = true;
+        if (error.value) {
+          const status = error.value.statusCode || error.value.status;
+          
+          if (status === 429) {
+            const retryAfter = error.value.data?.retryAfter || 60;
+            errorMessage.value = `Trop de tentatives. Réessayez dans ${retryAfter} secondes.`;
+          } else {
+            errorMessage.value = error.value.data?.error || "Erreur de connexion";
+          }
+          return;
+        }
+
+        if (data.value) {
+          user.value = data.value;
+          authenticated.value = true;
+        }
+      } catch (err: any) {
+        console.error("Login error:", err);
+        errorMessage.value = "Une erreur est survenue lors de la connexion";
       }
     };
 
     const register = async ({ firstName, lastName, email, password }: User) => {
-      const { data, pending, error }: any = await useFetch(
-        "http://localhost:8000/api/register",
-        {
-          method: "post",
-          headers: { "Content-Type": "application/json" },
+      errorMessage.value = null;
+      
+      try {
+        const { data, pending, error }: any = await useAPI("register", {
+          method: "POST",
           body: {
             firstName,
             lastName,
             email,
             password,
           },
-          onResponseError({ request, response }) {
-            const errorMessageRaw = response._data;
+          default: () => null,
+        });
+        
+        loading.value = pending;
 
+        if (error.value) {
+          const status = error.value.statusCode || error.value.status;
+          
+          if (status === 429) {
+            const retryAfter = error.value.data?.retryAfter || 60;
+            errorMessage.value = `Trop de tentatives. Réessayez dans ${retryAfter} secondes.`;
+          } else if (error.value.data?.message) {
             // Formater le message d'erreur pour l'affichage
+            const errorMessageRaw = error.value.data.message as string;
             const formattedErrorMessage = errorMessageRaw
               .split("\n")[1] // Sélectionne la ligne contenant le message d'erreur
               .trim() // Enlève les espaces inutiles au début et à la fin
               .replace(/\s\(code\s[0-9a-f-]+\)$/i, ""); // Enlève la partie "(code xxxxx)" à la fin
 
-            console.log("error", formattedErrorMessage);
+            errorMessage.value = formattedErrorMessage;
             alert(formattedErrorMessage);
-          },
+          } else {
+            errorMessage.value = error.value.data?.error || "Erreur d'inscription";
+          }
+          return;
         }
-      );
-      loading.value = pending;
 
-      if (data.value) {
-        user.value = data?.value;
-        authenticated.value = true;
+        if (data.value) {
+          user.value = data.value;
+          authenticated.value = true;
+        }
+      } catch (err: any) {
+        console.error("Register error:", err);
+        errorMessage.value = "Une erreur est survenue lors de l'inscription";
       }
     };
 
@@ -71,6 +104,32 @@ export const useAuthStore = defineStore(
         }
       );
       clearUser();
+    };
+
+    const refreshToken = async () => {
+      if (!user.value?.apiToken) {
+        return false;
+      }
+
+      try {
+        const { data } = await useAPI("token/refresh", {
+          method: "POST",
+          default: () => null,
+        });
+
+        if (data.value) {
+          user.value = data.value as User;
+          authenticated.value = true;
+          return true;
+        } else {
+          clearUser();
+          return false;
+        }
+      } catch (error) {
+        console.error("Token refresh failed:", error);
+        clearUser();
+        return false;
+      }
     };
 
     const clearUser = () => {
@@ -110,9 +169,11 @@ export const useAuthStore = defineStore(
       user,
       authenticated,
       loading,
+      errorMessage,
       login,
       register,
       logout,
+      refreshToken,
       clearUser,
       verifyToken,
     };

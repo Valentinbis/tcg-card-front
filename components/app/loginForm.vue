@@ -5,7 +5,7 @@ import { useAuthStore } from '~/stores/auth';
 const router = useRouter();
 const { login } = useAuthStore();
 
-const { authenticated } = storeToRefs(useAuthStore());
+const { authenticated, errorMessage } = storeToRefs(useAuthStore());
 
 const user = ref({
   email: "",
@@ -15,7 +15,7 @@ const user = ref({
 const loginEvent = async () => {
   await login(user.value);
   // redirect to homepage if user is authenticated
-  if (authenticated) {
+  if (authenticated.value) {
     router.push('/app/home');
   }
 }
@@ -31,6 +31,12 @@ const loginEvent = async () => {
 
     </div>
     <div class="text-sm font-light text-[#6B7280] pb-8 ">Se connecter à votre compte.</div>
+    
+    <!-- Message d'erreur -->
+    <div v-if="errorMessage" class="mb-4 p-3 text-sm text-red-800 bg-red-100 rounded-lg" role="alert">
+      {{ errorMessage }}
+    </div>
+    
     <form @submit.prevent="loginEvent" class="flex flex-col">
         <div class="pb-2">
             <label for="email" class="block mb-2 text-sm font-medium text-[#111827]">Email</label>

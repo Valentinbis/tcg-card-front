@@ -6,7 +6,7 @@ import type { User } from "~/types/user";
 const router = useRouter();
 const { register } = useAuthStore();
 
-const { authenticated } = storeToRefs(useAuthStore());
+const { authenticated, errorMessage } = storeToRefs(useAuthStore());
 
 const user = ref<User>({
   firstName: "",
@@ -18,7 +18,7 @@ const user = ref<User>({
 const registerEvent = async () => {
   await register(user.value);
   // redirect to homepage if user is authenticated
-  if (authenticated) {
+  if (authenticated.value) {
     router.push("/app/home");
   }
 };
@@ -39,6 +39,12 @@ const registerEvent = async () => {
     <div class="text-sm font-light text-[#6B7280] pb-8">
       Créer un compte sur TCG Card.
     </div>
+    
+    <!-- Message d'erreur -->
+    <div v-if="errorMessage" class="mb-4 p-3 text-sm text-red-800 bg-red-100 rounded-lg" role="alert">
+      {{ errorMessage }}
+    </div>
+    
     <form @submit.prevent="registerEvent" class="flex flex-col">
       <div class="pb-2">
         <label for="email" class="block mb-2 text-sm font-medium text-[#111827]"
@@ -100,7 +106,7 @@ const registerEvent = async () => {
             id="password"
             v-model="user.password"
             toggleMask
-            :inputProps="{ autocomplete: true }"
+            :inputProps="{ autocomplete: 'new-password' }"
             fluid
             placeholder="••••••••••"
           >
