@@ -379,6 +379,84 @@ Un hook `pre-commit` est configuré avec **lint-staged** :
 
 ### Variables d'environnement
 
+````
+
+---
+
+## ✅ Tests
+
+### Configuration Vitest
+
+Tests configurés avec **Vitest** + **@vue/test-utils** + **Pinia Testing**
+
+```bash
+# Lancer les tests en mode watch
+npm run test
+
+# Lancer les tests une seule fois
+npm run test:run
+
+# Lancer les tests avec UI
+npm run test:ui
+
+# Générer le rapport de couverture
+npm run test:coverage
+````
+
+### Structure des tests
+
+```
+tests/
+├── setup.ts                          # Configuration globale Vitest
+├── composables/
+│   ├── useValidation.test.ts         # Tests validations (26 tests)
+│   └── useNotifications.test.ts      # Tests notifications (4 tests)
+└── stores/
+    ├── toast.test.ts                 # Tests store toast (12 tests)
+    └── loading.test.ts               # Tests store loading (13 tests)
+```
+
+### Couverture de code
+
+Objectifs de couverture :
+
+- **Statements**: 80%
+- **Branches**: 80%
+- **Functions**: 80%
+- **Lines**: 80%
+
+Couverture actuelle : **98%** ✅
+
+Les rapports sont disponibles dans `coverage/` après `npm run test:coverage`
+
+### Exemple de test
+
+```typescript
+import { describe, it, expect, beforeEach } from 'vitest';
+import { setActivePinia, createPinia } from 'pinia';
+import { useToastStore } from '~/stores/toast';
+
+describe('useToastStore', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
+  it('ajoute un toast de succès', () => {
+    const store = useToastStore();
+    store.success('Succès', 'Message');
+
+    expect(store.toasts.length).toBe(1);
+    expect(store.toasts[0].severity).toBe('success');
+  });
+});
+```
+
+---
+
+## 🔧 Configuration
+
+### Variables d'environnement
+
 Fichier `.env` :
 
 ```bash
@@ -389,6 +467,31 @@ Production (Vercel) :
 
 ```bash
 NUXT_PUBLIC_API_URL=https://your-api.railway.app/api/
+```
+
+---
+
+## 🚀 Prochaines améliorations possibles
+
+- [ ] Ajouter tests E2E avec Playwright
+- [ ] Augmenter couverture des stores complexes (auth, cards)
+- [ ] Ajouter Vee-Validate pour validation avancée
+- [ ] Intégrer Zod pour validation de schémas
+- [ ] Implémenter PWA avec offline support
+- [ ] Ajouter i18n pour multi-langue
+- [ ] Optimiser images avec Nuxt Image
+
+---
+
+## 📚 Ressources
+
+- [Pinia Documentation](https://pinia.vuejs.org/)
+- [Nuxt 3 Documentation](https://nuxt.com/)
+- [PrimeVue Components](https://primevue.org/)
+- [TailwindCSS](https://tailwindcss.com/)
+- [Vitest Documentation](https://vitest.dev/)
+- [Vue Test Utils](https://test-utils.vuejs.org/)
+
 ```
 
 ---
@@ -410,3 +513,4 @@ NUXT_PUBLIC_API_URL=https://your-api.railway.app/api/
 - [Nuxt 3 Documentation](https://nuxt.com/)
 - [PrimeVue Components](https://primevue.org/)
 - [TailwindCSS](https://tailwindcss.com/)
+```
