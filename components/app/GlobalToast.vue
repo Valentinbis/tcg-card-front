@@ -30,19 +30,19 @@ const toastIcons = {
           'rounded-lg shadow-lg',
           'p-4 flex items-start gap-3',
           'border-l-4',
-          toastClasses[toast.severity]
+          toastClasses[toast.severity],
         ]"
       >
         <i :class="[toastIcons[toast.severity], 'text-xl mt-0.5']" />
-        
+
         <div class="flex-1">
           <h4 class="font-semibold mb-1">{{ toast.summary }}</h4>
           <p v-if="toast.detail" class="text-sm opacity-90">{{ toast.detail }}</p>
         </div>
 
         <button
-          @click="toastStore.remove(toast.id)"
           class="ml-2 text-gray-400 hover:text-gray-600 transition-colors"
+          @click="toastStore.remove(toast.id)"
         >
           <i class="mdi mdi-close text-xl" />
         </button>

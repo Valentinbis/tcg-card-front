@@ -1,6 +1,6 @@
 export default defineNuxtPlugin(async () => {
   // Ce plugin ne s'exécute que côté client
-  if (process.server) return;
+  if (import.meta.server) return;
 
   const { user, verifyToken } = useAuthStore();
 

@@ -3,10 +3,10 @@ import { useToastStore } from '~/stores/toast';
 /**
  * Composable pour afficher des notifications toast
  * @example
- * const { showSuccess, showError } = useToast()
+ * const { showSuccess, showError } = useNotifications()
  * showSuccess('Opération réussie !')
  */
-export const useToast = () => {
+export const useNotifications = () => {
   const toastStore = useToastStore();
 
   const showSuccess = (message: string, detail?: string) => {

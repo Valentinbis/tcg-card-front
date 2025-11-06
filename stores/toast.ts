@@ -1,14 +1,5 @@
 import { defineStore } from 'pinia';
-
-export type ToastSeverity = 'success' | 'info' | 'warn' | 'error';
-
-export interface Toast {
-  id: string;
-  severity: ToastSeverity;
-  summary: string;
-  detail?: string;
-  life?: number;
-}
+import type { Toast } from '~/types/toast';
 
 export const useToastStore = defineStore('toast-store', () => {
   const toasts = ref<Toast[]>([]);

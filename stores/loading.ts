@@ -1,8 +1,5 @@
 import { defineStore } from 'pinia';
-
-export interface LoadingState {
-  [key: string]: boolean;
-}
+import type { LoadingState } from '~/types/loading';
 
 export const useLoadingStore = defineStore('loading-store', () => {
   const loadingStates = ref<LoadingState>({

@@ -1,16 +1,18 @@
 import { useAuthStore } from '~/stores/auth';
 import { useToastStore } from '~/stores/toast';
-import { useLoadingStore } from '~/stores/loading';
 import type { FetchContext } from 'ofetch';
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(_nuxtApp => {
   const { user } = storeToRefs(useAuthStore());
   const { clearUser, refreshToken } = useAuthStore();
-  
-  let isRefreshing = false;
-  let failedQueue: Array<{ resolve: Function; reject: Function }> = [];
 
-  const processQueue = (error: any = null) => {
+  let isRefreshing = false;
+  let failedQueue: Array<{
+    resolve: (value?: unknown) => void;
+    reject: (reason?: unknown) => void;
+  }> = [];
+
+  const processQueue = (error: Error | null = null) => {
     failedQueue.forEach(promise => {
       if (error) {
         promise.reject(error);
@@ -23,12 +25,13 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   const api = $fetch.create({
     baseURL: 'http://localhost:8000/api/',
-    
+
     onRequest({ request, options }) {
       // Ajouter le token d'authentification
       if (user.value?.apiToken) {
         options.headers = options.headers || {};
-        (options.headers as any).Authorization = `Bearer ${user.value?.apiToken}`;
+        (options.headers as unknown as Record<string, string>).Authorization =
+          `Bearer ${user.value?.apiToken}`;
       }
 
       // Logger les requêtes en dev
@@ -47,7 +50,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     async onResponseError(ctx: FetchContext) {
       const { response, request } = ctx;
       const toastStore = useToastStore();
-      
+
       if (!response) {
         toastStore.error('Erreur réseau', 'Impossible de contacter le serveur');
         return;
@@ -60,7 +63,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       if (status === 401 && !request.toString().includes('token/refresh')) {
         if (isRefreshing) {
           // Mettre en file d'attente les requêtes pendant le refresh
-          return new Promise((resolve, reject) => {
+          return new Promise<void>((resolve, reject) => {
             failedQueue.push({ resolve, reject });
           });
         }
@@ -69,7 +72,7 @@ export default defineNuxtPlugin((nuxtApp) => {
 
         try {
           const refreshed = await refreshToken();
-          
+
           if (refreshed) {
             processQueue();
             isRefreshing = false;
@@ -78,13 +81,15 @@ export default defineNuxtPlugin((nuxtApp) => {
             processQueue(new Error('Token refresh failed'));
             isRefreshing = false;
             clearUser();
+            const toastStore = useToastStore();
             toastStore.error('Session expirée', 'Veuillez vous reconnecter');
             await navigateTo('/auth/login');
           }
         } catch (error) {
-          processQueue(error);
+          processQueue(error instanceof Error ? error : new Error('Unknown error'));
           isRefreshing = false;
           clearUser();
+          const toastStore = useToastStore();
           toastStore.error('Session expirée', 'Veuillez vous reconnecter');
           await navigateTo('/auth/login');
         }
@@ -94,6 +99,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       // Token complètement expiré
       if (status === 401 && request.toString().includes('token/refresh')) {
         clearUser();
+        const toastStore = useToastStore();
         toastStore.error('Session expirée', 'Veuillez vous reconnecter');
         await navigateTo('/auth/login');
         return;
@@ -101,20 +107,27 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       // Gestion des autres erreurs HTTP
       switch (status) {
-        case 400:
+        case 400: {
+          const toastStore = useToastStore();
           toastStore.error('Requête invalide', errorData?.message || 'Données incorrectes');
           break;
+        }
 
-        case 403:
-          toastStore.error('Accès refusé', 'Vous n\'avez pas les permissions nécessaires');
+        case 403: {
+          const toastStore = useToastStore();
+          toastStore.error('Accès refusé', "Vous n'avez pas les permissions nécessaires");
           break;
+        }
 
-        case 404:
+        case 404: {
+          const toastStore = useToastStore();
           toastStore.error('Non trouvé', errorData?.message || 'Ressource introuvable');
           break;
+        }
 
-        case 422:
+        case 422: {
           // Erreurs de validation
+          const toastStore = useToastStore();
           const validationErrors = errorData?.errors || {};
           const firstError = Object.values(validationErrors)[0];
           toastStore.error(
@@ -122,34 +135,30 @@ export default defineNuxtPlugin((nuxtApp) => {
             Array.isArray(firstError) ? firstError[0] : 'Données invalides'
           );
           break;
+        }
 
-        case 429:
+        case 429: {
+          const toastStore = useToastStore();
           const retryAfter = errorData?.retryAfter || 60;
-          toastStore.warn(
-            'Trop de requêtes',
-            `Veuillez réessayer dans ${retryAfter} secondes`
-          );
+          toastStore.warn('Trop de requêtes', `Veuillez réessayer dans ${retryAfter} secondes`);
           break;
+        }
 
-        case 500:
+        case 500: {
+          const toastStore = useToastStore();
           toastStore.error(
             'Erreur serveur',
             'Une erreur est survenue, veuillez réessayer plus tard'
           );
           break;
+        }
 
         case 503:
-          toastStore.error(
-            'Service indisponible',
-            'Le serveur est temporairement indisponible'
-          );
+          toastStore.error('Service indisponible', 'Le serveur est temporairement indisponible');
           break;
 
         default:
-          toastStore.error(
-            'Erreur',
-            errorData?.message || 'Une erreur inattendue est survenue'
-          );
+          toastStore.error('Erreur', errorData?.message || 'Une erreur inattendue est survenue');
       }
 
       // Logger l'erreur en dev
@@ -166,4 +175,3 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   };
 });
-  

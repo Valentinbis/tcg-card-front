@@ -43,18 +43,18 @@ export const passwordsMatch = (password: string, confirm: string): boolean => {
  * Composable de validation pour formulaires
  */
 export const useValidation = () => {
-  const errors = ref<Record<string, string>>({});
+  const errors = ref<Record<string, string | undefined>>({});
 
   const validateEmail = (email: string, fieldName = 'email'): boolean => {
     if (!email) {
-      errors.value[fieldName] = 'L\'email est requis';
+      errors.value[fieldName] = "L'email est requis";
       return false;
     }
     if (!isValidEmail(email)) {
-      errors.value[fieldName] = 'L\'email n\'est pas valide';
+      errors.value[fieldName] = "L'email n'est pas valide";
       return false;
     }
-    delete errors.value[fieldName];
+    errors.value[fieldName] = undefined;
     return true;
   };
 
@@ -64,14 +64,15 @@ export const useValidation = () => {
       return false;
     }
     if (strong && !isStrongPassword(password)) {
-      errors.value[fieldName] = 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre';
+      errors.value[fieldName] =
+        'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre';
       return false;
     }
     if (!strong && !isValidPassword(password)) {
       errors.value[fieldName] = 'Le mot de passe doit contenir au moins 8 caractères';
       return false;
     }
-    delete errors.value[fieldName];
+    errors.value[fieldName] = undefined;
     return true;
   };
 
@@ -84,16 +85,20 @@ export const useValidation = () => {
       errors.value[fieldName] = 'Le nom doit contenir au moins 2 caractères';
       return false;
     }
-    delete errors.value[fieldName];
+    errors.value[fieldName] = undefined;
     return true;
   };
 
-  const validatePasswordMatch = (password: string, confirm: string, fieldName = 'confirmPassword'): boolean => {
+  const validatePasswordMatch = (
+    password: string,
+    confirm: string,
+    fieldName = 'confirmPassword'
+  ): boolean => {
     if (!passwordsMatch(password, confirm)) {
       errors.value[fieldName] = 'Les mots de passe ne correspondent pas';
       return false;
     }
-    delete errors.value[fieldName];
+    errors.value[fieldName] = undefined;
     return true;
   };
 
@@ -102,7 +107,7 @@ export const useValidation = () => {
   };
 
   const clearError = (fieldName: string) => {
-    delete errors.value[fieldName];
+    errors.value[fieldName] = undefined;
   };
 
   return {

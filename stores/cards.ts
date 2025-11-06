@@ -1,29 +1,6 @@
 import { defineStore } from 'pinia';
-import type { Ref } from 'vue';
-
-export interface Card {
-  id: string;
-  name: string;
-  number: string;
-  rarity: string;
-  image: string;
-  hp?: number;
-  types?: string[];
-  set?: {
-    id: string;
-    name: string;
-    logo: string;
-  };
-}
-
-export interface CardFilters {
-  search?: string;
-  set?: string;
-  type?: string;
-  rarity?: string;
-  page?: number;
-  limit?: number;
-}
+import type { UseApiResponse } from '~/types/api';
+import type { Card, CardFilters } from '~/types/card';
 
 export const useCardsStore = defineStore('cards-store', () => {
   // State
@@ -58,11 +35,19 @@ export const useCardsStore = defineStore('cards-store', () => {
     }
 
     try {
-      const { data, error: fetchError } = await useAPI<any>('cards', {
+      const { data, error: fetchError } = (await useAPI('cards', {
         method: 'GET',
-        params: filters.value as any,
+        params: filters.value,
         default: () => ({ data: [], pagination: {} }),
-      });
+      })) as UseApiResponse<{
+        data: Card[];
+        pagination: {
+          currentPage?: number;
+          totalPages?: number;
+          totalItems?: number;
+          itemsPerPage?: number;
+        };
+      }>;
 
       if (fetchError.value) {
         error.value = fetchError.value.data?.message || 'Erreur lors du chargement des cartes';
@@ -78,7 +63,7 @@ export const useCardsStore = defineStore('cards-store', () => {
           itemsPerPage: data.value.pagination?.itemsPerPage || 20,
         };
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Fetch cards error:', err);
       error.value = 'Une erreur est survenue';
     } finally {
@@ -91,10 +76,10 @@ export const useCardsStore = defineStore('cards-store', () => {
     error.value = null;
 
     try {
-      const { data, error: fetchError } = await useAPI<Card>(`cards/${id}`, {
+      const { data, error: fetchError } = (await useAPI(`cards/${id}`, {
         method: 'GET',
-        default: () => null as any,
-      });
+        default: () => null,
+      })) as UseApiResponse<Card>;
 
       if (fetchError.value) {
         error.value = fetchError.value.data?.message || 'Erreur lors du chargement de la carte';
@@ -105,7 +90,7 @@ export const useCardsStore = defineStore('cards-store', () => {
         selectedCard.value = data.value;
         return data.value;
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Fetch card error:', err);
       error.value = 'Une erreur est survenue';
     } finally {
@@ -161,7 +146,7 @@ export const useCardsStore = defineStore('cards-store', () => {
     error,
     pagination,
     filters,
-    
+
     // Actions
     fetchCards,
     fetchCardById,

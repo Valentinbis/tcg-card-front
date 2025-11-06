@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
-import { useAuthStore } from "~/stores/auth";
-import type { User } from "~/types/user";
+import { storeToRefs } from 'pinia';
+import { useAuthStore } from '~/stores/auth';
+import type { User } from '~/types/user';
 
 const router = useRouter();
 const { register } = useAuthStore();
@@ -9,17 +9,17 @@ const { register } = useAuthStore();
 const { authenticated, errorMessage } = storeToRefs(useAuthStore());
 
 const user = ref<User>({
-  firstName: "",
-  lastName: "",
-  email: "",
-  password: "",
+  firstName: '',
+  lastName: '',
+  email: '',
+  password: '',
 });
 
 const registerEvent = async () => {
   await register(user.value);
   // redirect to homepage if user is authenticated
   if (authenticated.value) {
-    router.push("/app/home");
+    router.push('/app/home');
   }
 };
 </script>
@@ -32,30 +32,28 @@ const registerEvent = async () => {
       <div>
         <img src="" width="50" alt="Logo" />
       </div>
-      <h1 class="text-3xl font-bold text-[#4B5563] text-[#4B5563] my-auto">
-        CashTrack
-      </h1>
+      <h1 class="text-3xl font-bold text-[#4B5563] text-[#4B5563] my-auto">CashTrack</h1>
     </div>
-    <div class="text-sm font-light text-[#6B7280] pb-8">
-      Créer un compte sur TCG Card.
-    </div>
-    
+    <div class="text-sm font-light text-[#6B7280] pb-8">Créer un compte sur TCG Card.</div>
+
     <!-- Message d'erreur -->
-    <div v-if="errorMessage" class="mb-4 p-3 text-sm text-red-800 bg-red-100 rounded-lg" role="alert">
+    <div
+      v-if="errorMessage"
+      class="mb-4 p-3 text-sm text-red-800 bg-red-100 rounded-lg"
+      role="alert"
+    >
       {{ errorMessage }}
     </div>
-    
-    <form @submit.prevent="registerEvent" class="flex flex-col">
+
+    <form class="flex flex-col" @submit.prevent="registerEvent">
       <div class="pb-2">
-        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]"
-          >Prénom</label
-        >
+        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]">Prénom</label>
         <div class="relative text-gray-400">
           <InputText
+            id="name"
             v-model="user.firstName"
             type="text"
             name="name"
-            id="name"
             class="mb-2 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
             placeholder="Michel"
             autocomplete="off"
@@ -63,15 +61,13 @@ const registerEvent = async () => {
         </div>
       </div>
       <div class="pb-2">
-        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]"
-          >Nom</label
-        >
+        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]">Nom</label>
         <div class="relative text-gray-400">
           <input
+            id="name"
             v-model="user.lastName"
             type="text"
             name="name"
-            id="name"
             class="mb-2 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
             placeholder="Durant"
             autocomplete="off"
@@ -79,15 +75,13 @@ const registerEvent = async () => {
         </div>
       </div>
       <div class="pb-2">
-        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]"
-          >Email</label
-        >
+        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]">Email</label>
         <div class="relative text-gray-400">
           <input
+            id="email"
             v-model="user.email"
             type="email"
             name="email"
-            id="email"
             class="mb-2 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
             placeholder="name@company.com"
             autocomplete="off"
@@ -95,25 +89,21 @@ const registerEvent = async () => {
         </div>
       </div>
       <div class="pb-6">
-        <label
-          for="password"
-          class="block mb-2 text-sm font-medium text-[#111827]"
+        <label for="password" class="block mb-2 text-sm font-medium text-[#111827]"
           >Mot de passe</label
         >
         <div class="relative text-gray-400">
           <Password
-            type="password"
             id="password"
             v-model="user.password"
-            toggleMask
-            :inputProps="{ autocomplete: 'new-password' }"
+            type="password"
+            toggle-mask
+            :input-props="{ autocomplete: 'new-password' }"
             fluid
             placeholder="••••••••••"
           >
             <template #header>
-              <div class="font-semibold text-xm mb-4">
-                Entrer un mot de passe
-              </div>
+              <div class="font-semibold text-xm mb-4">Entrer un mot de passe</div>
             </template>
             <template #footer>
               <Divider />
