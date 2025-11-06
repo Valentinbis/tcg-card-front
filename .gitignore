@@ -19,6 +19,13 @@ logs
 .env
 .env.*
 !.env.example
+
+# Vercel
+.vercel
+
+# Editor
+.idea
+.vscode
 .nuxt/manifest/latest.json
 app.vue
 .nuxt/manifest/meta
