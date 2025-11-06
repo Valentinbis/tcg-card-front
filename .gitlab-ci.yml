@@ -1,0 +1,112 @@
+# GitLab CI/CD Pipeline pour Nuxt Front-end
+# Déploiement sur Vercel (meilleur pour Nuxt SSR)
+
+stages:
+  - build
+  - quality
+  - deploy
+
+variables:
+  NODE_VERSION: "20"
+  NPM_CACHE_DIR: "$CI_PROJECT_DIR/.npm-cache"
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}-npm"
+  paths:
+    - .npm-cache/
+    - .nuxt/
+    - node_modules/
+
+# =====================================
+# Stage: Build
+# =====================================
+build:dependencies:
+  stage: build
+  image: node:20-alpine
+  before_script:
+    - npm config set cache $NPM_CACHE_DIR
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - node_modules/
+      - .output/
+      - .nuxt/
+    expire_in: 1 hour
+  only:
+    - develop
+    - main
+    - merge_requests
+
+# =====================================
+# Stage: Quality (optionnel)
+# =====================================
+lint:
+  stage: quality
+  image: node:20-alpine
+  dependencies:
+    - build:dependencies
+  script:
+    - echo "Ajoutez ESLint si besoin: npm run lint"
+    - echo "Pour l'instant, skip car pas configuré dans package.json"
+  allow_failure: true
+  only:
+    - develop
+    - main
+    - merge_requests
+
+# =====================================
+# Stage: Deploy to Vercel
+# =====================================
+deploy:production:
+  stage: deploy
+  image: node:20-alpine
+  dependencies:
+    - build:dependencies
+  before_script:
+    - npm install -g vercel
+  script:
+    - vercel --prod --token=$VERCEL_TOKEN --yes
+  environment:
+    name: production
+    url: https://your-app.vercel.app
+  only:
+    - main
+  when: manual
+
+deploy:preview:
+  stage: deploy
+  image: node:20-alpine
+  dependencies:
+    - build:dependencies
+  before_script:
+    - npm install -g vercel
+  script:
+    - vercel --token=$VERCEL_TOKEN --yes
+  environment:
+    name: preview
+  only:
+    - develop
+    - merge_requests
+  when: manual
+
+# =====================================
+# Alternative: Deploy sur Railway (si pas Vercel)
+# =====================================
+# deploy:railway:
+#   stage: deploy
+#   image: alpine:latest
+#   before_script:
+#     - apk add --no-cache curl bash nodejs npm
+#     - curl -fsSL https://railway.app/install.sh | sh
+#     - export PATH="/root/.railway/bin:$PATH"
+#   script:
+#     - railway link $RAILWAY_FRONTEND_PROJECT_ID
+#     - railway up --detach
+#   environment:
+#     name: production
+#     url: https://your-frontend.railway.app
+#   only:
+#     - main
+#   when: manual
