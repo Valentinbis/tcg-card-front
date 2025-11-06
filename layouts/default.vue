@@ -94,4 +94,8 @@ const logoutEvent = () => {
   <footer>
     <h1>Footer</h1>
   </footer>
+  
+  <!-- Composants globaux -->
+  <AppGlobalToast />
+  <AppGlobalLoading />
 </template>
