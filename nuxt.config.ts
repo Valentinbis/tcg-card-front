@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import viteCompression from 'vite-plugin-compression';
+import { visualizer } from 'rollup-plugin-visualizer';
+
 export default defineNuxtConfig({
   // ssr: false, // Désactive le rendu côté serveur (SSR) pour une application SPA
   routeRules: {
@@ -26,7 +29,92 @@ export default defineNuxtConfig({
     'pinia-plugin-persistedstate/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxt/eslint',
+    '@nuxt/image',
   ],
+
+  // Performance: Image optimization
+  image: {
+    format: ['webp', 'avif', 'jpeg'],
+    quality: 80,
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+    },
+  },
+
+  // Performance: Vite optimizations
+  vite: {
+    build: {
+      // Chunk splitting pour meilleur caching
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'primevue-core': ['primevue'],
+            pinia: ['pinia'],
+            vue: ['vue', 'vue-router'],
+          },
+        },
+        plugins: [
+          visualizer({
+            filename: './dist/stats.html',
+            open: false,
+            gzipSize: true,
+            brotliSize: true,
+          }) as Plugin,
+        ],
+      },
+      // Minification optimale
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true, // Retire les console.log en production
+          drop_debugger: true,
+        },
+      },
+      // Taille des chunks
+      chunkSizeWarningLimit: 1000,
+    },
+    optimizeDeps: {
+      include: ['pinia', 'vue', 'vue-router'],
+    },
+    plugins: [
+      viteCompression({
+        algorithm: 'gzip',
+        ext: '.gz',
+      }),
+      viteCompression({
+        algorithm: 'brotliCompress',
+        ext: '.br',
+      }),
+    ],
+  },
+
+  // Performance: Nitro optimizations
+  nitro: {
+    compressPublicAssets: true,
+    minify: true,
+  },
+
+  // Performance: Experimental features
+  experimental: {
+    payloadExtraction: true, // Extraction du payload pour SSR
+    viewTransition: true, // Transitions de page natives
+  },
+
+  // Performance: App config
+  app: {
+    head: {
+      link: [
+        // Preconnect aux domaines externes
+        { rel: 'preconnect', href: 'http://localhost:8000' },
+        { rel: 'dns-prefetch', href: 'http://localhost:8000' },
+      ],
+    },
+  },
 
   primevue: {
     options: {

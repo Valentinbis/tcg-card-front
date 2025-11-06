@@ -15,6 +15,10 @@ node_modules
 logs
 *.log
 
+# Test coverage
+coverage/
+*.lcov
+
 # Local env files
 .env
 .env.*
@@ -29,3 +33,4 @@ logs
 .nuxt/manifest/latest.json
 app.vue
 .nuxt/manifest/meta
+dist/stats.html
