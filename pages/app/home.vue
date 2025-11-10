@@ -123,16 +123,16 @@ watch(page, fetchCards, { immediate: true });
 <template>
   <div class="container mx-auto p-4 fade-in">
     <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-800 mb-2">
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
         Bienvenue {{ user?.firstName }} {{ user?.lastName }}
       </h1>
-      <p class="text-gray-600">Gérez votre collection de cartes Pokémon</p>
+      <p class="text-gray-600 dark:text-gray-400">Gérez votre collection de cartes Pokémon</p>
     </div>
 
     <!-- Filtres avec PrimeVue -->
-    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-lg shadow-md">
+    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-700">Possession</label>
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Possession</label>
         <Select
           v-model="filterOwned"
           :options="ownedOptions"
@@ -144,7 +144,7 @@ watch(page, fetchCards, { immediate: true });
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-700">Langue</label>
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Langue</label>
         <Select
           v-model="filterLang"
           :options="langOptions"
@@ -156,7 +156,7 @@ watch(page, fetchCards, { immediate: true });
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-700">Type</label>
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Type</label>
         <Select
           v-model="filterType"
           :options="typeOptions"
@@ -168,7 +168,7 @@ watch(page, fetchCards, { immediate: true });
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-700">Numéro</label>
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Numéro</label>
         <InputNumber
           v-model="filterNumber"
           :min="1"
@@ -179,7 +179,7 @@ watch(page, fetchCards, { immediate: true });
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-700">Par page</label>
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Par page</label>
         <Select
           v-model="limit"
           :options="limitOptions"
@@ -195,7 +195,7 @@ watch(page, fetchCards, { immediate: true });
       <Card
         v-for="(card, index) in cards"
         :key="card.id"
-        class="hover-lift transition-smooth stagger-item"
+        class="hover-lift transition-smooth stagger-item bg-white dark:bg-gray-800 border dark:border-gray-700"
         :style="{ animationDelay: `${index * 0.05}s` }"
       >
         <template #header>
@@ -208,17 +208,22 @@ watch(page, fetchCards, { immediate: true });
         </template>
 
         <template #title>
-          <h2 class="text-lg font-bold">{{ card.nameFr }}</h2>
+          <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ card.nameFr }}</h2>
         </template>
 
         <template #subtitle>
-          <div class="text-sm text-gray-600">#{{ card.number }}</div>
+          <div class="text-sm text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
         </template>
 
         <template #content>
           <div class="space-y-2">
-            <div class="text-xs text-gray-500"><strong>Rareté:</strong> {{ card.rarity }}</div>
-            <div v-if="card.nationalPokedexNumbers" class="text-xs text-gray-500">
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              <strong>Rareté:</strong> {{ card.rarity }}
+            </div>
+            <div
+              v-if="card.nationalPokedexNumbers"
+              class="text-xs text-gray-500 dark:text-gray-400"
+            >
               <strong>Pokédex:</strong> {{ card.nationalPokedexNumbers.join(', ') }}
             </div>
 
