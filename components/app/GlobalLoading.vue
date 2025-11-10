@@ -6,12 +6,14 @@ const isAnyLoading = computed(() => loadingStore.isAnyLoading());
 </script>
 
 <template>
-  <div v-if="isAnyLoading" class="global-loading-overlay">
-    <div class="loading-spinner">
-      <div class="spinner" />
-      <p class="mt-4 text-white font-medium">Chargement...</p>
+  <Transition name="fade">
+    <div v-if="isAnyLoading" class="global-loading-overlay fade-in">
+      <div class="loading-spinner scale-in">
+        <div class="spinner spin" />
+        <p class="mt-4 text-white font-medium">Chargement...</p>
+      </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <style scoped>
@@ -41,12 +43,16 @@ const isAnyLoading = computed(() => loadingStore.isAnyLoading());
   border: 4px solid rgba(255, 255, 255, 0.3);
   border-top-color: white;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+/* Transition pour l'apparition/disparition */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

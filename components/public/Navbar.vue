@@ -14,22 +14,28 @@ const toggleTheme = () => {
   }
 };
 </script>
+
 <template>
-    <Menubar :model="items">
-      <template #start>
-          <!-- src="/logo.png"  -->
-        <img alt="logo" 
-        class="mr-2">
-        <span class="font-bold">TCG Card</span>
-      </template>
-      <template #end>
-        <Button label="Se connecter" class="p-button-text mr-2" />
-        <Button label="Créer un compte" class="p-button-outlined" />
-        <Button icon="pi pi-sun" class="p-button-rounded p-button-success ml-2" @click="toggleTheme" />
-      </template>
-    </Menubar>
-  </template>
-  
-  <style scoped>
-  /* Ajoutez vos styles personnalisés ici */
-  </style>
+  <Menubar :model="items" class="fade-in-up">
+    <template #start>
+      <!-- src="/logo.png" -->
+      <img alt="logo" class="mr-2 hover-scale transition-smooth" />
+      <span class="font-bold">TCG Card</span>
+    </template>
+    <template #end>
+      <Button label="Se connecter" text class="transition-smooth hover-glow" />
+      <Button label="Créer un compte" outlined class="transition-smooth hover-glow ml-2" />
+      <Button
+        icon="pi pi-sun"
+        rounded
+        severity="success"
+        class="transition-smooth hover-scale ml-2"
+        @click="toggleTheme"
+      />
+    </template>
+  </Menubar>
+</template>
+
+<style scoped>
+/* Les animations sont gérées par animations.css */
+</style>

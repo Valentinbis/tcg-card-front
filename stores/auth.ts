@@ -38,6 +38,11 @@ export const useAuthStore = defineStore(
         }
 
         if (data.value) {
+          console.log(
+            '[Auth Store] Login réussi, token:',
+            data.value.apiToken?.substring(0, 20) + '...'
+          );
+          console.log('[Auth Store] Utilisateur:', data.value.email);
           user.value = data.value;
           authenticated.value = true;
         }
@@ -73,8 +78,8 @@ export const useAuthStore = defineStore(
           } else if (error.value.data?.message) {
             // Formater le message d'erreur pour l'affichage
             const errorMessageRaw = error.value.data.message as string;
-            const formattedErrorMessage = errorMessageRaw
-              .split('\n')[1] // Sélectionne la ligne contenant le message d'erreur
+            const errorLines = errorMessageRaw.split('\n');
+            const formattedErrorMessage = (errorLines[1] || errorMessageRaw)
               .trim() // Enlève les espaces inutiles au début et à la fin
               .replace(/\s\(code\s[0-9a-f-]+\)$/i, ''); // Enlève la partie "(code xxxxx)" à la fin
 
@@ -138,26 +143,36 @@ export const useAuthStore = defineStore(
     // Vérifier la validité du token au refresh/démarrage
     const verifyToken = async () => {
       if (!user.value?.apiToken) {
+        console.log('[Auth Store] Pas de token, nettoyage...');
         clearUser();
         return false;
       }
 
       try {
-        const { data } = (await useAPI('me', {
+        console.log('[Auth Store] Vérification du token via /me...');
+        const { data, error } = (await useAPI('me', {
           method: 'GET',
           default: () => null,
         })) as UseApiResponse<User>;
 
+        if (error.value) {
+          console.error('[Auth Store] Erreur lors de la vérification du token:', error.value);
+          clearUser();
+          return false;
+        }
+
         if (data.value) {
+          console.log('[Auth Store] Token valide, utilisateur:', data.value.email);
           user.value = data.value;
           authenticated.value = true;
           return true;
         } else {
+          console.log('[Auth Store] Pas de données utilisateur, nettoyage...');
           clearUser();
           return false;
         }
       } catch (error) {
-        console.error('Token verification failed:', error);
+        console.error('[Auth Store] Exception lors de la vérification du token:', error);
         clearUser();
         return false;
       }
