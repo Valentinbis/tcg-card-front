@@ -23,10 +23,12 @@ describe('useToastStore', () => {
       store.success('Succès', 'Message de succès');
 
       expect(store.toasts.length).toBe(1);
-      expect(store.toasts[0].severity).toBe('success');
-      expect(store.toasts[0].summary).toBe('Succès');
-      expect(store.toasts[0].detail).toBe('Message de succès');
-      expect(store.toasts[0].life).toBe(3000);
+      const firstToast = store.toasts[0];
+      expect(firstToast).toBeDefined();
+      expect(firstToast?.severity).toBe('success');
+      expect(firstToast?.summary).toBe('Succès');
+      expect(firstToast?.detail).toBe('Message de succès');
+      expect(firstToast?.life).toBe(3000);
     });
 
     it('génère un ID unique pour chaque toast', () => {
@@ -35,7 +37,7 @@ describe('useToastStore', () => {
       store.success('Second', 'Détail 2');
 
       expect(store.toasts.length).toBe(2);
-      expect(store.toasts[0].id).not.toBe(store.toasts[1].id);
+      expect(store.toasts[0]?.id).not.toBe(store.toasts[1]?.id);
     });
   });
 
@@ -45,8 +47,10 @@ describe('useToastStore', () => {
       store.error('Erreur', "Message d'erreur");
 
       expect(store.toasts.length).toBe(1);
-      expect(store.toasts[0].severity).toBe('error');
-      expect(store.toasts[0].life).toBe(5000);
+      const firstToast = store.toasts[0];
+      expect(firstToast).toBeDefined();
+      expect(firstToast?.severity).toBe('error');
+      expect(firstToast?.life).toBe(5000);
     });
   });
 
@@ -56,8 +60,10 @@ describe('useToastStore', () => {
       store.info('Info', "Message d'info");
 
       expect(store.toasts.length).toBe(1);
-      expect(store.toasts[0].severity).toBe('info');
-      expect(store.toasts[0].life).toBe(3000);
+      const firstToast = store.toasts[0];
+      expect(firstToast).toBeDefined();
+      expect(firstToast?.severity).toBe('info');
+      expect(firstToast?.life).toBe(3000);
     });
   });
 
@@ -67,8 +73,10 @@ describe('useToastStore', () => {
       store.warn('Attention', "Message d'avertissement");
 
       expect(store.toasts.length).toBe(1);
-      expect(store.toasts[0].severity).toBe('warn');
-      expect(store.toasts[0].life).toBe(4000);
+      const firstToast = store.toasts[0];
+      expect(firstToast).toBeDefined();
+      expect(firstToast?.severity).toBe('warn');
+      expect(firstToast?.life).toBe(4000);
     });
   });
 
@@ -78,11 +86,13 @@ describe('useToastStore', () => {
       store.success('Toast 1');
       store.success('Toast 2');
 
-      const idToRemove = store.toasts[0].id;
-      store.remove(idToRemove);
+      expect(store.toasts.length).toBe(2);
+      const idToRemove = store.toasts[0]?.id;
+      expect(idToRemove).toBeDefined();
+      store.remove(idToRemove!);
 
       expect(store.toasts.length).toBe(1);
-      expect(store.toasts[0].id).not.toBe(idToRemove);
+      expect(store.toasts[0]?.id).not.toBe(idToRemove);
     });
   });
 
@@ -134,9 +144,11 @@ describe('useToastStore', () => {
       });
 
       expect(store.toasts.length).toBe(1);
-      expect(store.toasts[0].severity).toBe('success');
-      expect(store.toasts[0].summary).toBe('Personnalisé');
-      expect(store.toasts[0].life).toBe(10000);
+      const firstToast = store.toasts[0];
+      expect(firstToast).toBeDefined();
+      expect(firstToast?.severity).toBe('success');
+      expect(firstToast?.summary).toBe('Personnalisé');
+      expect(firstToast?.life).toBe(10000);
     });
 
     it('utilise un life par défaut de 3000ms si non spécifié', () => {
@@ -146,7 +158,9 @@ describe('useToastStore', () => {
         summary: 'Sans life',
       });
 
-      expect(store.toasts[0].life).toBe(3000);
+      const firstToast = store.toasts[0];
+      expect(firstToast).toBeDefined();
+      expect(firstToast?.life).toBe(3000);
     });
   });
 });

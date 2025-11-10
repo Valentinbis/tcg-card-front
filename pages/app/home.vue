@@ -18,9 +18,45 @@ const limit = ref(20);
 const filterOwned = ref(''); // "", "true", "false"
 const filterLang = ref(''); // "", "fr", "jap", "reverse"
 const filterType = ref(''); // "", "Fire", "Water", etc.
-const filterNumber = ref(''); // "", "12", etc.
+const filterNumber = ref<number | null>(null); // null ou nombre
 
 const apiBase = useRuntimeConfig().public.apiBase.replace('/api/', '');
+
+// Options pour les dropdowns PrimeVue
+const ownedOptions = [
+  { label: 'Toutes', value: '' },
+  { label: 'Possédées', value: 'true' },
+  { label: 'Non possédées', value: 'false' },
+];
+
+const langOptions = [
+  { label: 'Toutes', value: '' },
+  { label: 'Français 🇫🇷', value: 'fr' },
+  { label: 'Japonais 🇯🇵', value: 'jap' },
+  { label: 'Reverse 🔁', value: 'reverse' },
+];
+
+const typeOptions = [
+  { label: 'Tous', value: '' },
+  { label: 'Feu', value: 'Fire' },
+  { label: 'Eau', value: 'Water' },
+  { label: 'Plante', value: 'Grass' },
+  { label: 'Électrique', value: 'Lightning' },
+  { label: 'Psy', value: 'Psychic' },
+  { label: 'Combat', value: 'Fighting' },
+  { label: 'Obscurité', value: 'Darkness' },
+  { label: 'Métal', value: 'Metal' },
+  { label: 'Dragon', value: 'Dragon' },
+  { label: 'Incolore', value: 'Colorless' },
+  { label: 'Normal', value: 'Normal' },
+  { label: 'Spectre', value: 'Ghost' },
+];
+
+const limitOptions = [
+  { label: '10', value: 10 },
+  { label: '20', value: 20 },
+  { label: '50', value: 50 },
+];
 
 function getImageUrl(path: string) {
   if (!path) return '';
@@ -36,7 +72,7 @@ const fetchCards = async () => {
   if (filterOwned.value) params.owned = filterOwned.value;
   if (filterLang.value) params.lang = filterLang.value;
   if (filterType.value) params.type = filterType.value;
-  if (filterNumber.value) params.number = filterNumber.value;
+  if (filterNumber.value) params.number = filterNumber.value.toString();
 
   const data = await useAPI<{ data: Card[]; pagination: Pagination }>('/cards', {
     method: 'GET',
@@ -85,139 +121,153 @@ watch(page, fetchCards, { immediate: true });
 </script>
 
 <template>
-  <div class="container mx-auto p-4">
-    <h1>Bienvenue sur la home page {{ user?.lastName }} {{ user?.firstName }}</h1>
+  <div class="container mx-auto p-4 fade-in">
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">
+        Bienvenue {{ user?.firstName }} {{ user?.lastName }}
+      </h1>
+      <p class="text-gray-600">Gérez votre collection de cartes Pokémon</p>
+    </div>
 
-    <!-- Filtres -->
-    <div class="flex flex-wrap gap-4 mb-4 items-end">
-      <div>
-        <label class="block text-xs font-bold mb-1">Possession</label>
-        <select v-model="filterOwned" class="border rounded px-2 py-1">
-          <option value="">Toutes</option>
-          <option value="true">Possédées</option>
-          <option value="false">Non possédées</option>
-        </select>
+    <!-- Filtres avec PrimeVue -->
+    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-lg shadow-md">
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700">Possession</label>
+        <Select
+          v-model="filterOwned"
+          :options="ownedOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Toutes"
+          class="w-44 transition-smooth"
+        />
       </div>
-      <div>
-        <label class="block text-xs font-bold mb-1">Langue</label>
-        <select v-model="filterLang" class="border rounded px-2 py-1">
-          <option value="">Toutes</option>
-          <option value="fr">Français 🇫🇷</option>
-          <option value="jap">Japonais 🇯🇵</option>
-          <option value="reverse">Reverse 🔁</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-xs font-bold mb-1">Type</label>
-        <select v-model="filterType" class="border rounded px-2 py-1">
-          <option value="">Tous</option>
-          <option value="Fire">Feu</option>
-          <option value="Water">Eau</option>
-          <option value="Grass">Plante</option>
-          <option value="Lightning">Électrique</option>
-          <option value="Psychic">Psy</option>
-          <option value="Fighting">Combat</option>
-          <option value="Darkness">Obscurité</option>
-          <option value="Metal">Métal</option>
-          <option value="Dragon">Dragon</option>
-          <option value="Colorless">Incolore</option>
-          <option value="Normal">Normal</option>
-          <option value="Ghost">Spectre</option>
 
-          <!-- Ajoute ici tous les types nécessaires -->
-        </select>
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700">Langue</label>
+        <Select
+          v-model="filterLang"
+          :options="langOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Toutes"
+          class="w-52 transition-smooth"
+        />
       </div>
-      <div>
-        <label class="block text-xs font-bold mb-1">Numéro</label>
-        <input
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700">Type</label>
+        <Select
+          v-model="filterType"
+          :options="typeOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Tous"
+          class="w-44 transition-smooth"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700">Numéro</label>
+        <InputNumber
           v-model="filterNumber"
-          type="number"
-          min="1"
-          class="border rounded px-2 py-1 w-20"
+          :min="1"
           placeholder="Numéro"
+          class="w-32 transition-smooth"
+          :use-grouping="false"
         />
       </div>
-      <div>
-        <label class="block text-xs font-bold mb-1">Par page</label>
-        <select v-model="limit" class="border rounded px-2 py-1">
-          <option :value="10">10</option>
-          <option :value="20">20</option>
-          <option :value="50">50</option>
-        </select>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700">Par page</label>
+        <Select
+          v-model="limit"
+          :options="limitOptions"
+          option-label="label"
+          option-value="value"
+          class="w-28 transition-smooth"
+        />
       </div>
     </div>
 
-    <!-- Grille des cartes -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      <div
-        v-for="card in cards"
+    <!-- Grille des cartes avec animations -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+      <Card
+        v-for="(card, index) in cards"
         :key="card.id"
-        class="bg-white rounded shadow p-4 flex flex-col items-center"
+        class="hover-lift transition-smooth stagger-item"
+        :style="{ animationDelay: `${index * 0.05}s` }"
       >
-        <img
-          :src="getImageUrl(card.images?.small || '')"
-          :alt="card.name"
-          loading="lazy"
-          class="mb-2 w-32 h-44 object-contain"
-        />
-        <h2 class="font-bold text-lg mb-1">{{ card.nameFr }}</h2>
-        <div class="text-sm text-gray-600 mb-1">#{{ card.number }}</div>
-        <div class="text-xs text-gray-500 mb-1">Rareté : {{ card.rarity }}</div>
-        <div v-if="card.nationalPokedexNumbers" class="text-xs text-gray-500 mb-1">
-          Pokédex : {{ card.nationalPokedexNumbers.join(', ') }}
-        </div>
-        <div class="flex gap-2 mt-2">
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="card.owned_languages?.includes('fr')"
-              @change="onCheckboxChange(card, 'fr', $event)"
-            />
-            🇫🇷
-          </label>
-          <!-- Affiche la case Reverse seulement si la rareté est autorisée -->
-          <label
-            v-if="['Common', 'Uncommon', 'Rare'].includes(card.rarity)"
-            class="flex items-center gap-1"
-          >
-            <input
-              type="checkbox"
-              :checked="card.owned_languages?.includes('reverse')"
-              @change="onCheckboxChange(card, 'reverse', $event)"
-            />
-            🔁
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="card.owned_languages?.includes('jap')"
-              @change="onCheckboxChange(card, 'jap', $event)"
-            />
-            🇯🇵
-          </label>
-        </div>
-      </div>
+        <template #header>
+          <img
+            :src="getImageUrl(card.images?.small || '')"
+            :alt="card.name"
+            loading="lazy"
+            class="w-full h-auto object-contain"
+          />
+        </template>
+
+        <template #title>
+          <h2 class="text-lg font-bold">{{ card.nameFr }}</h2>
+        </template>
+
+        <template #subtitle>
+          <div class="text-sm text-gray-600">#{{ card.number }}</div>
+        </template>
+
+        <template #content>
+          <div class="space-y-2">
+            <div class="text-xs text-gray-500"><strong>Rareté:</strong> {{ card.rarity }}</div>
+            <div v-if="card.nationalPokedexNumbers" class="text-xs text-gray-500">
+              <strong>Pokédex:</strong> {{ card.nationalPokedexNumbers.join(', ') }}
+            </div>
+
+            <div class="flex gap-2 mt-3 justify-center">
+              <label class="flex items-center gap-1 cursor-pointer hover-scale transition-fast">
+                <Checkbox
+                  :model-value="card.owned_languages?.includes('fr')"
+                  :binary="true"
+                  @change="onCheckboxChange(card, 'fr', $event)"
+                />
+                <span>🇫🇷</span>
+              </label>
+
+              <label
+                v-if="['Common', 'Uncommon', 'Rare'].includes(card.rarity)"
+                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast"
+              >
+                <Checkbox
+                  :model-value="card.owned_languages?.includes('reverse')"
+                  :binary="true"
+                  @change="onCheckboxChange(card, 'reverse', $event)"
+                />
+                <span>🔁</span>
+              </label>
+
+              <label class="flex items-center gap-1 cursor-pointer hover-scale transition-fast">
+                <Checkbox
+                  :model-value="card.owned_languages?.includes('jap')"
+                  :binary="true"
+                  @change="onCheckboxChange(card, 'jap', $event)"
+                />
+                <span>🇯🇵</span>
+              </label>
+            </div>
+          </div>
+        </template>
+      </Card>
     </div>
 
-    <!-- Pagination -->
-    <div class="flex justify-center mt-6 gap-2">
-      <button
-        class="px-3 py-1 rounded border"
-        :disabled="pagination.current_page <= 1"
-        @click="page--"
-      >
-        Précédent
-      </button>
-      <span class="px-2 py-1">
-        Page {{ pagination.current_page }} / {{ pagination.total_pages }}
-      </span>
-      <button
-        class="px-3 py-1 rounded border"
-        :disabled="pagination.current_page >= pagination.total_pages"
-        @click="page++"
-      >
-        Suivant
-      </button>
+    <!-- Pagination avec PrimeVue -->
+    <div class="flex justify-center">
+      <Paginator
+        v-model:first="page"
+        :rows="1"
+        :total-records="pagination.total_pages"
+        template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        :current-page-report-template="`Page ${pagination.current_page} sur ${pagination.total_pages}`"
+        @page="e => (page = e.page + 1)"
+      />
     </div>
   </div>
 </template>

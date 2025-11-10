@@ -22,14 +22,14 @@ const logoutEvent = () => {
       <div class="flex flex-row">
         <div
           :class="[
-            'transition-width duration-300 bg-gray-900 text-white h-screen',
+            'transition-all duration-300 ease-in-out bg-gray-900 text-white h-screen',
             { 'w-16': !isSidebarOpen, 'w-64': isSidebarOpen },
           ]"
         >
           <ul>
-            <li class="p-4">
+            <li class="p-4 transition-smooth hover:bg-gray-800">
               <nuxt-link to="/app/home" class="flex items-center">
-                <i>
+                <i class="transition-smooth hover-scale">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     height="24px"
@@ -42,12 +42,15 @@ const logoutEvent = () => {
                     />
                   </svg>
                 </i>
-                <span v-if="isSidebarOpen" class="ml-2">Accueil</span>
+                <Transition name="fade">
+                  <span v-if="isSidebarOpen" class="ml-2 fade-in">Accueil</span>
+                </Transition>
               </nuxt-link>
             </li>
-            <li class="p-4">
+            <li class="p-4 transition-smooth hover:bg-gray-800">
               <nuxt-link class="flex items-center cursor-pointer" @click="logoutEvent">
-                <i>
+                <i class="transition-smooth hover-scale"
+                  >>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     height="24px"
@@ -60,13 +63,15 @@ const logoutEvent = () => {
                     />
                   </svg>
                 </i>
-                <span v-if="isSidebarOpen" class="ml-2">Se déconnecter</span>
+                <Transition name="fade">
+                  <span v-if="isSidebarOpen" class="ml-2 fade-in">Se déconnecter</span>
+                </Transition>
               </nuxt-link>
             </li>
           </ul>
         </div>
         <div class="ml-2">
-          <button class="" @click="toggleSidebar">
+          <button class="transition-smooth hover-scale" @click="toggleSidebar">
             <i>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +96,7 @@ const logoutEvent = () => {
     </footer>
 
     <!-- Composants globaux -->
-    <AppGlobalToast />
+    <Toast position="top-right" />
     <AppGlobalLoading />
   </div>
 </template>

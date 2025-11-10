@@ -1,5 +1,4 @@
-<script lang="ts" setup>
-</script>
+<script lang="ts" setup></script>
 
 <template>
   <div>
@@ -12,6 +11,9 @@
     <footer>
       <h1>Footer</h1>
     </footer>
+
+    <!-- Toast PrimeVue pour les notifications -->
+    <Toast position="top-right" />
   </div>
 </template>
 

@@ -3,12 +3,11 @@ import { useToastStore } from '~/stores/toast';
 import type { FetchContext } from 'ofetch';
 
 export default defineNuxtPlugin(_nuxtApp => {
-  const { user } = storeToRefs(useAuthStore());
   const { clearUser, refreshToken } = useAuthStore();
 
   let isRefreshing = false;
   let failedQueue: Array<{
-    resolve: (value?: unknown) => void;
+    resolve: (value: void | PromiseLike<void>) => void;
     reject: (reason?: unknown) => void;
   }> = [];
 
@@ -26,25 +25,20 @@ export default defineNuxtPlugin(_nuxtApp => {
   const api = $fetch.create({
     baseURL: 'http://localhost:8000/api/',
 
-    onRequest({ request, options }) {
-      // Ajouter le token d'authentification
-      if (user.value?.apiToken) {
-        options.headers = options.headers || {};
-        (options.headers as unknown as Record<string, string>).Authorization =
-          `Bearer ${user.value?.apiToken}`;
-      }
+    onRequest({ options }) {
+      const authStore = useAuthStore();
+      const currentUser = authStore.user;
 
-      // Logger les requêtes en dev
-      if (import.meta.dev) {
-        console.log('[API Request]', request, options);
+      // Ajouter le token d'authentification
+      if (currentUser?.apiToken) {
+        const headers = new Headers(options.headers as HeadersInit);
+        headers.set('Authorization', `Bearer ${currentUser.apiToken}`);
+        options.headers = headers;
       }
     },
 
-    async onResponse({ response }) {
-      // Logger les réponses en dev
-      if (import.meta.dev) {
-        console.log('[API Response]', response.status, response._data);
-      }
+    async onResponse() {
+      // Optionnel: logger les réponses en dev si nécessaire
     },
 
     async onResponseError(ctx: FetchContext) {

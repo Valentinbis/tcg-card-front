@@ -1,124 +1,175 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '~/stores/auth';
+import { useToast } from 'primevue/usetoast';
 
 const router = useRouter();
 const { login } = useAuthStore();
-
 const { authenticated, errorMessage } = storeToRefs(useAuthStore());
+const toast = useToast();
 
 const user = ref({
   email: '',
   password: '',
 });
 
+const isSubmitting = ref(false);
+const errors = ref({
+  email: '',
+  password: '',
+});
+
+const validateEmail = (email: string): boolean => {
+  if (!email) {
+    errors.value.email = "L'email est requis";
+    return false;
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    errors.value.email = 'Email invalide';
+    return false;
+  }
+  errors.value.email = '';
+  return true;
+};
+
+const validatePassword = (password: string): boolean => {
+  if (!password) {
+    errors.value.password = 'Le mot de passe est requis';
+    return false;
+  }
+  if (password.length < 6) {
+    errors.value.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    return false;
+  }
+  errors.value.password = '';
+  return true;
+};
+
 const loginEvent = async () => {
+  // Validation
+  const emailValid = validateEmail(user.value.email);
+  const passwordValid = validatePassword(user.value.password);
+
+  if (!emailValid || !passwordValid) {
+    toast.add({
+      severity: 'error',
+      summary: 'Erreur de validation',
+      detail: 'Veuillez corriger les erreurs avant de continuer',
+      life: 4000,
+    });
+    return;
+  }
+
+  isSubmitting.value = true;
+
   await login(user.value);
-  // redirect to homepage if user is authenticated
+
   if (authenticated.value) {
-    router.push('/app/home');
+    toast.add({
+      severity: 'success',
+      summary: 'Connexion réussie',
+      detail: 'Redirection en cours...',
+      life: 2000,
+    });
+    setTimeout(() => {
+      router.push('/app/home');
+    }, 500);
+  } else {
+    toast.add({
+      severity: 'error',
+      summary: 'Erreur de connexion',
+      detail: errorMessage.value || 'Échec de la connexion',
+      life: 5000,
+    });
+  }
+
+  isSubmitting.value = false;
+};
+
+const handleEmailChange = () => {
+  if (errors.value.email) {
+    validateEmail(user.value.email);
+  }
+};
+
+const handlePasswordChange = () => {
+  if (errors.value.password) {
+    validatePassword(user.value.password);
   }
 };
 </script>
 
 <template>
   <div
-    class="flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl"
+    class="fade-in-up flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl hover-lift"
   >
     <div class="flex flex-row gap-3 pb-4">
       <div>
         <img src="" width="50" alt="Logo" />
       </div>
-      <h1 class="text-3xl font-bold text-[#4B5563] text-[#4B5563] my-auto">TCG Card</h1>
+      <h1 class="text-3xl font-bold text-[#4B5563] my-auto">TCG Card</h1>
     </div>
     <div class="text-sm font-light text-[#6B7280] pb-8">Se connecter à votre compte.</div>
 
-    <!-- Message d'erreur -->
-    <div
-      v-if="errorMessage"
-      class="mb-4 p-3 text-sm text-red-800 bg-red-100 rounded-lg"
-      role="alert"
-    >
-      {{ errorMessage }}
-    </div>
+    <form class="flex flex-col space-y-4" @submit.prevent="loginEvent">
+      <!-- Email -->
+      <div class="flex flex-col gap-2">
+        <label for="email" class="text-sm font-medium text-[#111827]">Email</label>
+        <InputText
+          id="email"
+          v-model="user.email"
+          type="email"
+          placeholder="name@company.com"
+          autocomplete="email"
+          :invalid="!!errors.email"
+          fluid
+          class="transition-smooth"
+          @input="handleEmailChange"
+        />
+        <small v-if="errors.email" class="text-red-600">{{ errors.email }}</small>
+      </div>
 
-    <form class="flex flex-col" @submit.prevent="loginEvent">
-      <div class="pb-2">
-        <label for="email" class="block mb-2 text-sm font-medium text-[#111827]">Email</label>
-        <div class="relative text-gray-400">
-          <span class="absolute inset-y-0 left-0 flex items-center p-1 pl-3"
-            ><svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-mail"
-            >
-              <rect width="20" height="16" x="2" y="4" rx="2" />
-              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg
-          ></span>
-          <input
-            id="email"
-            v-model="user.email"
-            type="email"
-            name="email"
-            class="pl-12 mb-2 bg-gray-50 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
-            placeholder="name@company.com"
-            autocomplete="off"
-          />
-        </div>
+      <!-- Mot de passe -->
+      <div class="flex flex-col gap-2">
+        <label for="password" class="text-sm font-medium text-[#111827]">Mot de passe</label>
+        <Password
+          id="password"
+          v-model="user.password"
+          :toggle-mask="true"
+          :feedback="false"
+          :invalid="!!errors.password"
+          autocomplete="current-password"
+          placeholder="••••••••••"
+          fluid
+          class="transition-smooth"
+          @input="handlePasswordChange"
+        />
+        <small v-if="errors.password" class="text-red-600">{{ errors.password }}</small>
       </div>
-      <div class="pb-6">
-        <label for="password" class="block mb-2 text-sm font-medium text-[#111827]">Password</label>
-        <div class="relative text-gray-400">
-          <span class="absolute inset-y-0 left-0 flex items-center p-1 pl-3"
-            ><svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="lucide lucide-square-asterisk"
-            >
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <path d="M12 8v8" />
-              <path d="m8.5 14 7-4" />
-              <path d="m8.5 10 7 4" /></svg
-          ></span>
-          <input
-            id="password"
-            v-model="user.password"
-            type="password"
-            name="password"
-            placeholder="••••••••••"
-            class="pl-12 mb-2 bg-gray-50 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring ring-transparent focus:ring-1 focus:outline-none focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
-            autocomplete="new-password"
-            aria-autocomplete="list"
-          />
-        </div>
-      </div>
+
+      <!-- Bouton de soumission -->
       <Button
         type="submit"
-        class="w-full text-[#FFFFFF] bg-[#4F46E5] focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6"
-        >Se connecter</Button
-      >
-      <div class="text-sm font-light text-[#6B7280] text-center">
+        :label="isSubmitting ? 'Connexion...' : 'Se connecter'"
+        :loading="isSubmitting"
+        :disabled="isSubmitting"
+        severity="primary"
+        size="large"
+        fluid
+        class="mt-4 transition-smooth hover-glow"
+      />
+
+      <!-- Lien vers register -->
+      <div class="text-sm font-light text-[#6B7280] text-center mt-4">
         Vous n'avez pas de compte ?
-        <a href="#" class="font-medium text-[#4F46E5] hover:underline"
-          ><nuxt-link to="/auth/register">Créez-en un maintenant.</nuxt-link></a
+        <NuxtLink
+          to="/auth/register"
+          class="font-medium text-[#4F46E5] hover:underline transition-smooth"
         >
+          Créez-en un maintenant.
+        </NuxtLink>
       </div>
     </form>
   </div>
 </template>
-
-<style lang="scss"></style>
