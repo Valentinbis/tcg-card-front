@@ -1,0 +1,347 @@
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useConfirm } from 'primevue/useconfirm';
+import type { Card, Pagination } from '~/types/card';
+
+const confirm = useConfirm();
+const { removeCardFromCollection } = useUserCards();
+
+const cards = ref<Card[]>([]);
+const pagination = ref<Pagination>({
+  current_page: 1,
+  per_page: 20,
+  total_items: 0,
+  total_pages: 1,
+});
+
+const page = ref(1);
+const limit = ref(20);
+const viewMode = ref<'grid' | 'list'>('grid');
+const loading = ref(false);
+const removingCards = ref<Set<string>>(new Set());
+
+// Filtres
+const filterLang = ref('');
+const filterType = ref('');
+const filterRarity = ref('');
+const searchQuery = ref('');
+
+const apiBase = useRuntimeConfig().public.apiBase.replace('/api/', '');
+
+const langOptions = [
+  { label: 'Toutes', value: '' },
+  { label: 'Français 🇫🇷', value: 'fr' },
+  { label: 'Japonais 🇯🇵', value: 'jap' },
+  { label: 'Reverse 🔁', value: 'reverse' },
+];
+
+const typeOptions = [
+  { label: 'Tous', value: '' },
+  { label: 'Feu', value: 'Fire' },
+  { label: 'Eau', value: 'Water' },
+  { label: 'Plante', value: 'Grass' },
+  { label: 'Électrique', value: 'Lightning' },
+  { label: 'Psy', value: 'Psychic' },
+  { label: 'Combat', value: 'Fighting' },
+  { label: 'Obscurité', value: 'Darkness' },
+  { label: 'Métal', value: 'Metal' },
+  { label: 'Dragon', value: 'Dragon' },
+  { label: 'Incolore', value: 'Colorless' },
+];
+
+const rarityOptions = [
+  { label: 'Toutes', value: '' },
+  { label: 'Common', value: 'Common' },
+  { label: 'Uncommon', value: 'Uncommon' },
+  { label: 'Rare', value: 'Rare' },
+  { label: 'Rare Holo', value: 'Rare Holo' },
+  { label: 'Ultra Rare', value: 'Ultra Rare' },
+];
+
+function getImageUrl(path: string) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return apiBase + path;
+}
+
+const fetchCards = async () => {
+  loading.value = true;
+  try {
+    const params: Record<string, string | number | boolean> = {
+      page: page.value,
+      limit: limit.value,
+      owned: 'true', // Seulement les cartes possédées
+    };
+    if (filterLang.value) params.lang = filterLang.value;
+    if (filterType.value) params.type = filterType.value;
+    if (filterRarity.value) params.rarity = filterRarity.value;
+    if (searchQuery.value) params.search = searchQuery.value;
+
+    const response = await $fetch<{ data: Card[]; pagination: Pagination }>('/api/cards', {
+      baseURL: useRuntimeConfig().public.apiBase,
+      params,
+    });
+    cards.value = response.data;
+    pagination.value = response.pagination;
+  } catch (error) {
+    console.error('Erreur lors du chargement des cartes:', error);
+    cards.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+async function confirmRemoveCard(card: Card) {
+  confirm.require({
+    message: `Voulez-vous vraiment retirer "${card.nameFr}" de votre collection ?`,
+    header: 'Confirmation',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Oui, supprimer',
+    rejectLabel: 'Annuler',
+    acceptClass: 'p-button-danger',
+    accept: () => removeCard(card),
+  });
+}
+
+async function removeCard(card: Card) {
+  const cardKey = String(card.id);
+  removingCards.value.add(cardKey);
+
+  try {
+    const { success } = await removeCardFromCollection(cardKey);
+    if (success) {
+      // Rafraîchir la liste
+      await fetchCards();
+    }
+  } finally {
+    removingCards.value.delete(cardKey);
+  }
+}
+
+const isCardRemoving = (cardId: string | number) => {
+  return removingCards.value.has(String(cardId));
+};
+
+watch([filterLang, filterType, filterRarity, searchQuery, limit], () => {
+  page.value = 1;
+  fetchCards();
+});
+
+watch(page, fetchCards, { immediate: true });
+</script>
+
+<template>
+  <div class="container mx-auto p-6 fade-in">
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Mes Cartes</h1>
+      <p class="text-gray-600 dark:text-gray-400">
+        Gérez vos {{ pagination.total_items }} cartes possédées
+      </p>
+    </div>
+
+    <!-- Barre de recherche et vue -->
+    <div class="flex flex-wrap gap-4 mb-6 items-center">
+      <div class="flex-1 min-w-[250px]">
+        <InputText
+          v-model="searchQuery"
+          placeholder="Rechercher une carte..."
+          class="w-full"
+          icon="pi pi-search"
+        />
+      </div>
+      <div class="flex gap-2">
+        <Button
+          :icon="viewMode === 'grid' ? 'pi pi-th-large' : 'pi pi-bars'"
+          :outlined="viewMode === 'list'"
+          @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
+        >
+          {{ viewMode === 'grid' ? 'Grille' : 'Liste' }}
+        </Button>
+      </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Langue</label>
+        <Select
+          v-model="filterLang"
+          :options="langOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Toutes"
+          class="w-52"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Type</label>
+        <Select
+          v-model="filterType"
+          :options="typeOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Tous"
+          class="w-44"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Rareté</label>
+        <Select
+          v-model="filterRarity"
+          :options="rarityOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Toutes"
+          class="w-44"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Par page</label>
+        <Select v-model="limit" :options="[10, 20, 50, 100]" class="w-28" />
+      </div>
+    </div>
+
+    <!-- Vue Grille -->
+    <div
+      v-if="loading && cards.length === 0"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6"
+    >
+      <Card
+        v-for="i in limit"
+        :key="i"
+        class="bg-white dark:bg-gray-800 border dark:border-gray-700"
+      >
+        <template #header>
+          <Skeleton width="100%" height="300px" />
+        </template>
+        <template #title>
+          <Skeleton width="80%" height="1.5rem" />
+        </template>
+        <template #subtitle>
+          <Skeleton width="40%" height="1rem" class="mt-2" />
+        </template>
+        <template #content>
+          <Skeleton width="60%" height="1rem" class="mt-2" />
+          <Skeleton width="30%" height="1rem" class="mt-2" />
+        </template>
+      </Card>
+    </div>
+
+    <Message
+      v-else-if="!loading && cards.length === 0"
+      severity="info"
+      :closable="false"
+      class="mb-6"
+    >
+      <p class="text-center">
+        <i class="pi pi-inbox text-4xl block mb-3" />
+        Aucune carte dans votre collection.<br />
+        Allez dans la
+        <NuxtLink to="/app/search" class="font-bold underline">recherche</NuxtLink> pour ajouter vos
+        premières cartes !
+      </p>
+    </Message>
+
+    <div
+      v-else-if="viewMode === 'grid'"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6"
+    >
+      <Card
+        v-for="card in cards"
+        :key="card.id"
+        class="hover-lift transition-smooth bg-white dark:bg-gray-800 border dark:border-gray-700"
+      >
+        <template #header>
+          <img
+            :src="getImageUrl(card.images?.small || '')"
+            :alt="card.name"
+            loading="lazy"
+            class="w-full h-auto object-contain"
+          />
+        </template>
+        <template #title>
+          <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ card.nameFr }}</h3>
+        </template>
+        <template #subtitle>
+          <div class="text-xs text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
+        </template>
+        <template #content>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <div><strong>Rareté:</strong> {{ card.rarity }}</div>
+            <div class="flex gap-1 mt-2">
+              <span v-if="card.owned_languages?.includes('fr')">🇫🇷</span>
+              <span v-if="card.owned_languages?.includes('reverse')">🔁</span>
+              <span v-if="card.owned_languages?.includes('jap')">🇯🇵</span>
+            </div>
+          </div>
+        </template>
+        <template #footer>
+          <Button
+            label="Retirer"
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            outlined
+            class="w-full"
+            :loading="isCardRemoving(card.id)"
+            @click="confirmRemoveCard(card)"
+          />
+        </template>
+      </Card>
+    </div>
+
+    <!-- Vue Liste -->
+    <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
+      <DataTable :value="cards" striped-rows class="dark:bg-gray-800">
+        <Column field="images.small" header="Image">
+          <template #body="slotProps">
+            <img
+              :src="getImageUrl(slotProps.data.images?.small || '')"
+              :alt="slotProps.data.name"
+              class="w-16 h-auto"
+            />
+          </template>
+        </Column>
+        <Column field="nameFr" header="Nom" sortable class="dark:text-gray-100" />
+        <Column field="number" header="Numéro" sortable class="dark:text-gray-100" />
+        <Column field="rarity" header="Rareté" sortable class="dark:text-gray-100" />
+        <Column field="owned_languages" header="Langues">
+          <template #body="slotProps">
+            <div class="flex gap-1">
+              <span v-if="slotProps.data.owned_languages?.includes('fr')">🇫🇷</span>
+              <span v-if="slotProps.data.owned_languages?.includes('reverse')">🔁</span>
+              <span v-if="slotProps.data.owned_languages?.includes('jap')">🇯🇵</span>
+            </div>
+          </template>
+        </Column>
+        <Column header="Actions">
+          <template #body="slotProps">
+            <Button
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              outlined
+              :loading="isCardRemoving(slotProps.data.id)"
+              @click="confirmRemoveCard(slotProps.data)"
+            />
+          </template>
+        </Column>
+      </DataTable>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center">
+      <Paginator
+        v-model:first="page"
+        :rows="1"
+        :total-records="pagination.total_pages"
+        template="FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+        :current-page-report-template="`Page ${pagination.current_page} sur ${pagination.total_pages}`"
+        @page="e => (page = e.page + 1)"
+      />
+    </div>
+  </div>
+</template>

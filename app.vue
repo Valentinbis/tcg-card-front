@@ -3,6 +3,8 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <Toast />
+    <ConfirmDialog />
   </div>
   <!-- <div class="dark:bg-gray-900 min-h-screen flex items-center justify-cneter"> -->
     <!-- <Button label="button" /> -->
