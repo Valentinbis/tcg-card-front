@@ -38,12 +38,16 @@ export interface UserSettings {
 }
 
 export interface UserCard {
+  id?: number;
   userId: number;
-  cardId: number;
+  cardId: string;
   languages?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ApiResponse<T> {
+  success?: boolean;
   data?: T;
   error?: string;
   message?: string;
