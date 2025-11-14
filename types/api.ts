@@ -46,6 +46,21 @@ export interface UserCard {
   updatedAt?: string;
 }
 
+export interface WishlistItem {
+  id: number;
+  cardId: string;
+  priority: number;
+  notes?: string;
+  maxPrice?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WishlistStats {
+  total: number;
+  byPriority: Record<number, number>;
+}
+
 export interface ApiResponse<T> {
   success?: boolean;
   data?: T;

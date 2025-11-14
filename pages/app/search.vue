@@ -302,6 +302,11 @@ watch(page, fetchCards, { immediate: true });
                 <template v-if="!isCardAdding(card.id, 'jap')" #default> 🇯🇵 </template>
               </Button>
             </div>
+
+            <!-- Bouton Wishlist -->
+            <div class="mt-2">
+              <AppAddToWishlistButton :card-id="String(card.id)" :card-name="card.nameFr" />
+            </div>
           </div>
         </template>
       </Card>
