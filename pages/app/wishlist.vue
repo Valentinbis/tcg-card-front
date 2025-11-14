@@ -3,277 +3,275 @@ import type { WishlistItem } from '~/types/api';
 
 definePageMeta({
   middleware: 'auth',
+  layout: 'default',
 });
 
 const {
-  wishlistItems,
-  isLoading,
+  wishlistItems: wishlist,
+  wishlistStats: stats,
+  isLoading: loading,
   fetchWishlist,
-  removeFromWishlist,
   fetchWishlistStats,
-  wishlistStats,
+  updateWishlistItem,
+  removeFromWishlist,
 } = useWishlist();
 
-const filters = ref({
-  minPriority: undefined as number | undefined,
-  maxPrice: undefined as number | undefined,
-  orderBy: 'priority' as 'priority' | 'createdAt' | 'maxPrice',
-  direction: 'DESC' as 'ASC' | 'DESC',
-});
+const minPriority = ref<number | null>(null);
+const maxPriceFilter = ref<number | null>(null);
+const sortBy = ref<'priority' | 'createdAt' | 'maxPrice'>('priority');
+const sortDirection = ref<'ASC' | 'DESC'>('DESC');
 
-const selectedItem = ref<WishlistItem | null>(null);
-const showEditDialog = ref(false);
-const editForm = ref({
-  priority: 0,
-  notes: '',
-  maxPrice: undefined as number | undefined,
-});
+const editDialogVisible = ref(false);
+const removeDialogVisible = ref(false);
+const editingItem = ref<WishlistItem | null>(null);
+const itemToRemove = ref<WishlistItem | null>(null);
 
-// Chargement initial
-onMounted(async () => {
-  await Promise.all([fetchWishlist(filters.value), fetchWishlistStats()]);
-});
+const sortOptions = [
+  { label: 'Priorité', value: 'priority' },
+  { label: "Date d'ajout", value: 'createdAt' },
+  { label: 'Prix max', value: 'maxPrice' },
+];
 
-// Filtre de recherche
-const applyFilters = async () => {
-  await fetchWishlist(filters.value);
-};
+const directionOptions = [
+  { label: 'Décroissant', value: 'DESC' },
+  { label: 'Croissant', value: 'ASC' },
+];
 
-const resetFilters = async () => {
-  filters.value = {
-    minPriority: undefined,
-    maxPrice: undefined,
-    orderBy: 'priority',
-    direction: 'DESC',
+// Stats calculées
+const computedStats = computed(() => {
+  if (!stats.value) return null;
+
+  const items = wishlist.value;
+  const totalCards = stats.value.total;
+  const averagePriority =
+    items.length > 0
+      ? Math.round((items.reduce((sum, item) => sum + item.priority, 0) / items.length) * 10) / 10
+      : 0;
+  const totalMaxPrice = items.reduce((sum, item) => sum + (item.maxPrice || 0), 0);
+
+  return {
+    totalCards,
+    averagePriority,
+    totalMaxPrice,
   };
-  await fetchWishlist(filters.value);
+});
+
+const applyFilters = () => {
+  const filters: {
+    minPriority?: number;
+    maxPrice?: number;
+    orderBy?: 'priority' | 'createdAt' | 'maxPrice';
+    direction?: 'ASC' | 'DESC';
+  } = {};
+
+  if (minPriority.value !== null) {
+    filters.minPriority = minPriority.value;
+  }
+  if (maxPriceFilter.value !== null) {
+    filters.maxPrice = maxPriceFilter.value;
+  }
+  if (sortBy.value) {
+    filters.orderBy = sortBy.value;
+  }
+  if (sortDirection.value) {
+    filters.direction = sortDirection.value;
+  }
+
+  fetchWishlist(filters);
 };
 
-// Édition d'un élément
 const openEditDialog = (item: WishlistItem) => {
-  selectedItem.value = item;
-  editForm.value = {
-    priority: item.priority,
-    notes: item.notes || '',
-    maxPrice: item.maxPrice,
-  };
-  showEditDialog.value = true;
+  editingItem.value = { ...item };
+  editDialogVisible.value = true;
+};
+
+const confirmRemove = (item: WishlistItem) => {
+  itemToRemove.value = item;
+  removeDialogVisible.value = true;
 };
 
 const saveEdit = async () => {
-  if (!selectedItem.value) return;
+  if (!editingItem.value) return;
 
-  const { updateWishlistItem } = useWishlist();
-  await updateWishlistItem(selectedItem.value.cardId, editForm.value);
+  await updateWishlistItem(editingItem.value.cardId, {
+    priority: editingItem.value.priority,
+    maxPrice: editingItem.value.maxPrice,
+    notes: editingItem.value.notes,
+  });
 
-  showEditDialog.value = false;
-  await fetchWishlist(filters.value);
+  editDialogVisible.value = false;
+  editingItem.value = null;
 };
 
-// Suppression d'un élément
-const confirmDelete = async (item: WishlistItem) => {
-  const confirm = window.confirm(`Remove "${item.cardId}" from wishlist?`);
-  if (confirm) {
-    await removeFromWishlist(item.cardId);
-    await fetchWishlistStats();
-  }
+const performRemove = async () => {
+  if (!itemToRemove.value) return;
+
+  await removeFromWishlist(itemToRemove.value.cardId);
+
+  removeDialogVisible.value = false;
+  itemToRemove.value = null;
+
+  // Rafraîchir les stats
+  await fetchWishlistStats();
 };
 
-// Priorités
-const priorityOptions = [
-  { label: 'Low (0)', value: 0 },
-  { label: 'Medium (1)', value: 1 },
-  { label: 'High (2)', value: 2 },
-  { label: 'Very High (3)', value: 3 },
-  { label: 'Critical (5)', value: 5 },
-];
-
-const getPriorityLabel = (priority: number) => {
-  const option = priorityOptions.find(o => o.value === priority);
-  return option?.label || `Priority ${priority}`;
+const getPrioritySeverity = (priority: number): string => {
+  if (priority >= 8) return 'success';
+  if (priority >= 6) return 'info';
+  if (priority >= 4) return 'warning';
+  return 'danger';
 };
 
-const getPriorityColor = (priority: number) => {
-  if (priority >= 5) return 'bg-red-500';
-  if (priority >= 3) return 'bg-orange-500';
-  if (priority >= 2) return 'bg-yellow-500';
-  if (priority >= 1) return 'bg-blue-500';
-  return 'bg-gray-400';
+const formatPrice = (price: number): string => {
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(price);
 };
+
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  img.src = '/images/card-placeholder.png';
+};
+
+onMounted(async () => {
+  await Promise.all([fetchWishlist(), fetchWishlistStats()]);
+});
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold mb-4">My Wishlist</h1>
+  <div class="wishlist-page">
+    <div class="wishlist-header">
+      <h1>Ma Wishlist</h1>
+    </div>
 
-      <!-- Statistiques -->
-      <div v-if="wishlistStats" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <template #content>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600">{{ wishlistStats.total }}</div>
-              <div class="text-sm text-gray-600">Total Cards</div>
-            </div>
-          </template>
-        </Card>
-
-        <Card>
-          <template #content>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600">
-                {{ Object.keys(wishlistStats.byPriority).length }}
-              </div>
-              <div class="text-sm text-gray-600">Priority Levels</div>
-            </div>
-          </template>
-        </Card>
-
-        <Card>
-          <template #content>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-green-600">
-                {{ wishlistStats.byPriority[5] || 0 }}
-              </div>
-              <div class="text-sm text-gray-600">High Priority</div>
-            </div>
-          </template>
-        </Card>
-      </div>
-
-      <!-- Filtres -->
-      <Card class="mb-6">
+    <div v-if="computedStats" class="wishlist-stats">
+      <Card class="stat-card">
         <template #content>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-2">Min Priority</label>
-              <InputNumber
-                v-model="filters.minPriority"
-                :min="0"
-                :max="5"
-                placeholder="Any"
-                class="w-full"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-2">Max Price</label>
-              <InputNumber
-                v-model="filters.maxPrice"
-                :min="0"
-                mode="currency"
-                currency="USD"
-                placeholder="Any"
-                class="w-full"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-2">Sort By</label>
-              <Select
-                v-model="filters.orderBy"
-                :options="[
-                  { label: 'Priority', value: 'priority' },
-                  { label: 'Date Added', value: 'createdAt' },
-                  { label: 'Max Price', value: 'maxPrice' },
-                ]"
-                option-label="label"
-                option-value="value"
-                class="w-full"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-2">Direction</label>
-              <Select
-                v-model="filters.direction"
-                :options="[
-                  { label: 'Descending', value: 'DESC' },
-                  { label: 'Ascending', value: 'ASC' },
-                ]"
-                option-label="label"
-                option-value="value"
-                class="w-full"
-              />
-            </div>
+          <div class="stat-item">
+            <span class="stat-label">Cartes souhaitées</span>
+            <span class="stat-value">{{ computedStats.totalCards }}</span>
           </div>
-
-          <div class="flex gap-2 mt-4">
-            <Button label="Apply Filters" @click="applyFilters" />
-            <Button label="Reset" severity="secondary" @click="resetFilters" />
+        </template>
+      </Card>
+      <Card class="stat-card">
+        <template #content>
+          <div class="stat-item">
+            <span class="stat-label">Priorité moyenne</span>
+            <span class="stat-value">{{ computedStats.averagePriority }}/10</span>
+          </div>
+        </template>
+      </Card>
+      <Card class="stat-card">
+        <template #content>
+          <div class="stat-item">
+            <span class="stat-label">Budget max total</span>
+            <span class="stat-value">{{ formatPrice(computedStats.totalMaxPrice) }}</span>
           </div>
         </template>
       </Card>
     </div>
 
-    <!-- Liste des cartes -->
-    <div v-if="isLoading" class="text-center py-12">
-      <ProgressSpinner />
+    <div class="wishlist-filters">
+      <div class="filter-group">
+        <label for="priority-filter">Priorité min.</label>
+        <InputNumber
+          id="priority-filter"
+          v-model="minPriority"
+          :min="0"
+          :max="10"
+          placeholder="Min"
+          @input="applyFilters"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="max-price-filter">Prix max</label>
+        <InputNumber
+          id="max-price-filter"
+          v-model="maxPriceFilter"
+          mode="currency"
+          currency="EUR"
+          locale="fr-FR"
+          placeholder="Prix max"
+          @input="applyFilters"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="sort-filter">Trier par</label>
+        <Dropdown
+          id="sort-filter"
+          v-model="sortBy"
+          :options="sortOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Trier par"
+          @change="applyFilters"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="direction-filter">Ordre</label>
+        <Dropdown
+          id="direction-filter"
+          v-model="sortDirection"
+          :options="directionOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Ordre"
+          @change="applyFilters"
+        />
+      </div>
     </div>
 
-    <div v-else-if="wishlistItems.length === 0" class="text-center py-12">
-      <Message severity="info">
-        <p class="text-lg">Your wishlist is empty</p>
-        <p class="text-sm mt-2">Start adding cards you want to collect!</p>
-      </Message>
+    <ProgressBar v-if="loading" mode="indeterminate" class="loading-bar" />
+
+    <div v-if="!loading && wishlist.length === 0" class="empty-state">
+      <i class="pi pi-heart" style="font-size: 3rem; color: var(--text-color-secondary)" />
+      <p>Votre wishlist est vide</p>
+      <Button label="Parcourir les cartes" @click="navigateTo('/app/cards')" />
     </div>
 
-    <div v-else class="grid grid-cols-1 gap-4">
-      <Card v-for="item in wishlistItems" :key="item.id" class="hover:shadow-lg transition-shadow">
+    <div v-else class="wishlist-grid">
+      <Card v-for="item in wishlist" :key="item.cardId" class="wishlist-card">
+        <template #header>
+          <img
+            :src="`https://images.pokemontcg.io/${item.cardId}_hires.png`"
+            :alt="item.cardId"
+            @error="handleImageError"
+          />
+        </template>
         <template #content>
-          <div class="flex flex-col md:flex-row gap-4">
-            <!-- Image de la carte (placeholder) -->
-            <div
-              class="w-full md:w-48 h-64 bg-gray-200 rounded-lg flex items-center justify-center"
-            >
-              <span class="text-gray-500">{{ item.cardId }}</span>
-            </div>
-
-            <!-- Détails -->
-            <div class="flex-1">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <h3 class="text-xl font-bold">{{ item.cardId }}</h3>
-                  <div class="flex items-center gap-2 mt-2">
-                    <span
-                      class="px-3 py-1 rounded-full text-white text-sm font-medium"
-                      :class="getPriorityColor(item.priority)"
-                    >
-                      {{ getPriorityLabel(item.priority) }}
-                    </span>
-                    <span v-if="item.maxPrice" class="text-sm text-gray-600">
-                      Max: ${{ item.maxPrice }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="flex gap-2">
-                  <Button
-                    icon="pi pi-pencil"
-                    severity="info"
-                    text
-                    rounded
-                    @click="openEditDialog(item)"
-                  />
-                  <Button
-                    icon="pi pi-trash"
-                    severity="danger"
-                    text
-                    rounded
-                    @click="confirmDelete(item)"
-                  />
-                </div>
+          <div class="card-info">
+            <h3>{{ item.cardId }}</h3>
+            <div class="card-details">
+              <div class="detail-row">
+                <span class="label">Priorité:</span>
+                <Badge :value="item.priority" :severity="getPrioritySeverity(item.priority)" />
               </div>
-
-              <div v-if="item.notes" class="bg-gray-50 p-3 rounded-lg mb-3">
-                <p class="text-sm text-gray-700">{{ item.notes }}</p>
+              <div v-if="item.maxPrice" class="detail-row">
+                <span class="label">Prix max:</span>
+                <span class="value">{{ formatPrice(item.maxPrice) }}</span>
               </div>
-
-              <div class="flex gap-4 text-xs text-gray-500">
-                <span>Added: {{ new Date(item.createdAt).toLocaleDateString() }}</span>
-                <span>Updated: {{ new Date(item.updatedAt).toLocaleDateString() }}</span>
+              <div v-if="item.notes" class="detail-row">
+                <span class="label">Notes:</span>
+                <span class="notes">{{ item.notes }}</span>
               </div>
             </div>
+          </div>
+        </template>
+        <template #footer>
+          <div class="card-actions">
+            <Button
+              label="Modifier"
+              icon="pi pi-pencil"
+              size="small"
+              text
+              @click="openEditDialog(item)"
+            />
+            <Button
+              label="Retirer"
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              text
+              @click="confirmRemove(item)"
+            />
           </div>
         </template>
       </Card>
@@ -281,49 +279,228 @@ const getPriorityColor = (priority: number) => {
 
     <!-- Dialog d'édition -->
     <Dialog
-      v-model:visible="showEditDialog"
-      header="Edit Wishlist Item"
+      v-model:visible="editDialogVisible"
+      header="Modifier la carte souhaitée"
       :modal="true"
-      class="w-full md:w-1/2"
+      :style="{ width: '450px' }"
     >
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium mb-2">Priority</label>
-          <Select
-            v-model="editForm.priority"
-            :options="priorityOptions"
-            option-label="label"
-            option-value="value"
-            class="w-full"
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-2">Max Price</label>
+      <div v-if="editingItem" class="edit-form">
+        <div class="field">
+          <label for="priority">Priorité (0-10)</label>
           <InputNumber
-            v-model="editForm.maxPrice"
+            id="priority"
+            v-model="editingItem.priority"
             :min="0"
-            mode="currency"
-            currency="USD"
-            class="w-full"
+            :max="10"
+            placeholder="Priorité"
           />
         </div>
-
-        <div>
-          <label class="block text-sm font-medium mb-2">Notes</label>
+        <div class="field">
+          <label for="maxPrice">Prix maximum</label>
+          <InputNumber
+            id="maxPrice"
+            v-model="editingItem.maxPrice"
+            mode="currency"
+            currency="EUR"
+            locale="fr-FR"
+            placeholder="Prix maximum souhaité"
+          />
+        </div>
+        <div class="field">
+          <label for="notes">Notes</label>
           <Textarea
-            v-model="editForm.notes"
-            rows="4"
-            class="w-full"
-            placeholder="Add notes about this card..."
+            id="notes"
+            v-model="editingItem.notes"
+            rows="3"
+            placeholder="Notes personnelles"
           />
         </div>
       </div>
-
       <template #footer>
-        <Button label="Cancel" severity="secondary" @click="showEditDialog = false" />
-        <Button label="Save" @click="saveEdit" />
+        <Button label="Annuler" icon="pi pi-times" text @click="editDialogVisible = false" />
+        <Button label="Enregistrer" icon="pi pi-check" :loading="loading" @click="saveEdit" />
+      </template>
+    </Dialog>
+
+    <!-- Dialog de confirmation de suppression -->
+    <Dialog
+      v-model:visible="removeDialogVisible"
+      header="Confirmer la suppression"
+      :modal="true"
+      :style="{ width: '450px' }"
+    >
+      <p>Êtes-vous sûr de vouloir retirer cette carte de votre wishlist ?</p>
+      <template #footer>
+        <Button label="Annuler" icon="pi pi-times" text @click="removeDialogVisible = false" />
+        <Button
+          label="Supprimer"
+          icon="pi pi-trash"
+          severity="danger"
+          :loading="loading"
+          @click="performRemove"
+        />
       </template>
     </Dialog>
   </div>
 </template>
+
+<style scoped>
+.wishlist-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.wishlist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.wishlist-header h1 {
+  font-size: 2rem;
+  color: var(--text-color);
+}
+
+.wishlist-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card :deep(.p-card-body) {
+  padding: 1rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.wishlist-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.filter-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+
+.loading-bar {
+  margin-bottom: 2rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-state p {
+  font-size: 1.125rem;
+  color: var(--text-color-secondary);
+}
+
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.wishlist-card :deep(.p-card-header img) {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.card-info h3 {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.detail-row .label {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  font-weight: 500;
+}
+
+.detail-row .value {
+  font-size: 0.875rem;
+  color: var(--text-color);
+}
+
+.detail-row .notes {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  font-style: italic;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-top: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+</style>
