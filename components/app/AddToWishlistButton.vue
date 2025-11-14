@@ -93,9 +93,11 @@ const openDialog = () => {
           Carte: <strong>{{ cardName }}</strong>
         </p>
       </div>
-      <div class="add-form">
-        <div class="field">
-          <label for="priority">Priorité (0-10)</label>
+      <div class="flex flex-col gap-6 pt-4">
+        <div class="flex flex-col gap-2">
+          <label for="priority" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Priorité (0-10)</label
+          >
           <Dropdown
             id="priority"
             v-model="formData.priority"
@@ -105,8 +107,10 @@ const openDialog = () => {
             placeholder="Sélectionner une priorité"
           />
         </div>
-        <div class="field">
-          <label for="maxPrice">Prix maximum souhaité</label>
+        <div class="flex flex-col gap-2">
+          <label for="maxPrice" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Prix maximum souhaité</label
+          >
           <InputNumber
             id="maxPrice"
             v-model="formData.maxPrice"
@@ -116,8 +120,10 @@ const openDialog = () => {
             placeholder="Prix maximum"
           />
         </div>
-        <div class="field">
-          <label for="notes">Notes</label>
+        <div class="flex flex-col gap-2">
+          <label for="notes" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Notes</label
+          >
           <Textarea
             id="notes"
             v-model="formData.notes"
@@ -138,28 +144,3 @@ const openDialog = () => {
     </Dialog>
   </div>
 </template>
-
-<style scoped>
-.add-to-wishlist {
-  display: inline-block;
-}
-
-.add-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding-top: 1rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.field label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-color-secondary);
-}
-</style>

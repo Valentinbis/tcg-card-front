@@ -7,9 +7,14 @@ const isAnyLoading = computed(() => loadingStore.isAnyLoading());
 
 <template>
   <Transition name="fade">
-    <div v-if="isAnyLoading" class="global-loading-overlay fade-in">
-      <div class="loading-spinner scale-in">
-        <div class="spinner spin" />
+    <div
+      v-if="isAnyLoading"
+      class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-[9999] fade-in"
+    >
+      <div class="flex flex-col items-center scale-in">
+        <div
+          class="w-12 h-12 border-4 border-white border-opacity-30 border-t-white rounded-full animate-spin"
+        />
         <p class="mt-4 text-white font-medium">Chargement...</p>
       </div>
     </div>
@@ -17,34 +22,6 @@ const isAnyLoading = computed(() => loadingStore.isAnyLoading());
 </template>
 
 <style scoped>
-.global-loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.loading-spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-}
-
 /* Transition pour l'apparition/disparition */
 .fade-enter-active,
 .fade-leave-active {

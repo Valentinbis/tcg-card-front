@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { WishlistItem } from '~/types/api';
 import { useViewMode } from '~/composables/useViewMode';
+import CardSkeletonGrid from '~/components/CardSkeletonGrid.vue';
 
 definePageMeta({
   middleware: 'auth',
@@ -140,44 +141,50 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="wishlist-page">
-    <div class="wishlist-header">
-      <h1>Ma Wishlist</h1>
-      <div class="header-actions">
+  <div class="p-8 max-w-7xl mx-auto">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-2xl text-gray-800 dark:text-gray-100">Ma Wishlist</h1>
+      <div class="flex items-center gap-2">
         <ViewModeToggle />
       </div>
     </div>
 
-    <div v-if="computedStats" class="wishlist-stats">
+    <div v-if="computedStats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
       <Card class="stat-card">
         <template #content>
-          <div class="stat-item">
-            <span class="stat-label">Cartes souhaitées</span>
-            <span class="stat-value">{{ computedStats.totalCards }}</span>
+          <div class="flex flex-col gap-2 p-4">
+            <span class="text-sm text-gray-600 dark:text-gray-400">Cartes souhaitées</span>
+            <span class="text-xl font-bold text-blue-600">{{ computedStats.totalCards }}</span>
           </div>
         </template>
       </Card>
       <Card class="stat-card">
         <template #content>
-          <div class="stat-item">
-            <span class="stat-label">Priorité moyenne</span>
-            <span class="stat-value">{{ computedStats.averagePriority }}/10</span>
+          <div class="flex flex-col gap-2 p-4">
+            <span class="text-sm text-gray-600 dark:text-gray-400">Priorité moyenne</span>
+            <span class="text-xl font-bold text-blue-600"
+              >{{ computedStats.averagePriority }}/10</span
+            >
           </div>
         </template>
       </Card>
       <Card class="stat-card">
         <template #content>
-          <div class="stat-item">
-            <span class="stat-label">Budget max total</span>
-            <span class="stat-value">{{ formatPrice(computedStats.totalMaxPrice) }}</span>
+          <div class="flex flex-col gap-2 p-4">
+            <span class="text-sm text-gray-600 dark:text-gray-400">Budget max total</span>
+            <span class="text-xl font-bold text-blue-600">{{
+              formatPrice(computedStats.totalMaxPrice)
+            }}</span>
           </div>
         </template>
       </Card>
     </div>
 
-    <div class="wishlist-filters">
-      <div class="filter-group">
-        <label for="priority-filter">Priorité min.</label>
+    <div class="flex gap-4 mb-8 flex-wrap">
+      <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="priority-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Priorité min.</label
+        >
         <InputNumber
           id="priority-filter"
           v-model="minPriority"
@@ -187,8 +194,10 @@ onMounted(async () => {
           @input="applyFilters"
         />
       </div>
-      <div class="filter-group">
-        <label for="max-price-filter">Prix max</label>
+      <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="max-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Prix max</label
+        >
         <InputNumber
           id="max-price-filter"
           v-model="maxPriceFilter"
@@ -199,8 +208,10 @@ onMounted(async () => {
           @input="applyFilters"
         />
       </div>
-      <div class="filter-group">
-        <label for="sort-filter">Trier par</label>
+      <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="sort-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Trier par</label
+        >
         <Dropdown
           id="sort-filter"
           v-model="sortBy"
@@ -211,8 +222,10 @@ onMounted(async () => {
           @change="applyFilters"
         />
       </div>
-      <div class="filter-group">
-        <label for="direction-filter">Ordre</label>
+      <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="direction-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Ordre</label
+        >
         <Dropdown
           id="direction-filter"
           v-model="sortDirection"
@@ -225,13 +238,22 @@ onMounted(async () => {
       </div>
     </div>
 
-    <ProgressBar v-if="loading" mode="indeterminate" class="loading-bar" />
+    <ProgressBar v-if="loading" mode="indeterminate" class="mb-8" />
 
-    <div v-if="!loading && wishlist.length === 0" class="empty-state">
-      <i class="pi pi-heart" style="font-size: 3rem; color: var(--text-color-secondary)" />
-      <p>Votre wishlist est vide</p>
+    <div
+      v-if="!loading && wishlist.length === 0"
+      class="text-center py-16 flex flex-col items-center gap-4"
+    >
+      <i class="pi pi-heart text-6xl text-gray-400" />
+      <p class="text-lg text-gray-600 dark:text-gray-400">Votre wishlist est vide</p>
       <Button label="Parcourir les cartes" @click="navigateTo('/app/cards')" />
     </div>
+
+    <CardSkeletonGrid
+      v-else-if="loading && wishlist.length === 0"
+      :count="20"
+      :view-mode="viewMode"
+    />
 
     <div v-else :class="['wishlist-container', `view-${viewMode}`]">
       <Card v-for="item in wishlist" :key="item.cardId" class="wishlist-card">
@@ -247,25 +269,30 @@ onMounted(async () => {
         </template>
         <template #content>
           <div class="card-info">
-            <h3>{{ item.cardId }}</h3>
-            <div class="card-details">
-              <div class="detail-row">
-                <span class="label">Priorité:</span>
+            <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100">{{ item.cardId }}</h3>
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Priorité:</span>
                 <Badge :value="item.priority" :severity="getPrioritySeverity(item.priority)" />
               </div>
-              <div v-if="item.maxPrice" class="detail-row">
-                <span class="label">Prix max:</span>
-                <span class="value">{{ formatPrice(item.maxPrice) }}</span>
+              <div v-if="item.maxPrice" class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Prix max:</span>
+                <span class="text-sm text-gray-800 dark:text-gray-100">{{
+                  formatPrice(item.maxPrice)
+                }}</span>
               </div>
-              <div v-if="item.notes" class="detail-row">
-                <span class="label">Notes:</span>
-                <span class="notes">{{ item.notes }}</span>
+              <div v-if="item.notes" class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Notes:</span>
+                <span
+                  class="text-sm text-gray-600 dark:text-gray-400 italic max-w-full break-words"
+                  >{{ item.notes }}</span
+                >
               </div>
             </div>
           </div>
         </template>
         <template #footer>
-          <div class="card-actions">
+          <div class="flex justify-between gap-2">
             <Button
               label="Modifier"
               icon="pi pi-pencil"
@@ -293,9 +320,11 @@ onMounted(async () => {
       :modal="true"
       :style="{ width: '450px' }"
     >
-      <div v-if="editingItem" class="edit-form">
-        <div class="field">
-          <label for="priority">Priorité (0-10)</label>
+      <div v-if="editingItem" class="flex flex-col gap-6 pt-4">
+        <div class="flex flex-col gap-2">
+          <label for="priority" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Priorité (0-10)</label
+          >
           <InputNumber
             id="priority"
             v-model="editingItem.priority"
@@ -304,8 +333,10 @@ onMounted(async () => {
             placeholder="Priorité"
           />
         </div>
-        <div class="field">
-          <label for="maxPrice">Prix maximum</label>
+        <div class="flex flex-col gap-2">
+          <label for="maxPrice" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Prix maximum</label
+          >
           <InputNumber
             id="maxPrice"
             v-model="editingItem.maxPrice"
@@ -315,8 +346,10 @@ onMounted(async () => {
             placeholder="Prix maximum souhaité"
           />
         </div>
-        <div class="field">
-          <label for="notes">Notes</label>
+        <div class="flex flex-col gap-2">
+          <label for="notes" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >Notes</label
+          >
           <Textarea
             id="notes"
             v-model="editingItem.notes"
@@ -354,171 +387,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.wishlist-page {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.wishlist-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.wishlist-header h1 {
-  font-size: 2rem;
-  color: var(--text-color);
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.wishlist-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card :deep(.p-card-body) {
-  padding: 1rem;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: var(--text-color-secondary);
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-color);
-}
-
-.wishlist-filters {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 200px;
-}
-
-.filter-group label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-color-secondary);
-}
-
-.loading-bar {
-  margin-bottom: 2rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.empty-state p {
-  font-size: 1.125rem;
-  color: var(--text-color-secondary);
-}
-
-.wishlist-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.wishlist-card :deep(.p-card-header img) {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.card-info h3 {
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
-  color: var(--text-color);
-}
-
-.card-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.detail-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.detail-row .label {
-  font-size: 0.875rem;
-  color: var(--text-color-secondary);
-  font-weight: 500;
-}
-
-.detail-row .value {
-  font-size: 0.875rem;
-  color: var(--text-color);
-}
-
-.detail-row .notes {
-  font-size: 0.875rem;
-  color: var(--text-color-secondary);
-  font-style: italic;
-  max-width: 100%;
-  word-break: break-word;
-}
-
-.card-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding-top: 1rem;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.field label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-color-secondary);
-}
-
 /* Modes de vue */
 .wishlist-container.view-grid {
   display: grid;

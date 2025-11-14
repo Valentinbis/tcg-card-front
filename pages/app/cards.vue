@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import type { Card, Pagination } from '~/types/card';
+import CardSkeletonGrid from '~/components/CardSkeletonGrid.vue';
+import CardSkeletonList from '~/components/CardSkeletonList.vue';
 
 const confirm = useConfirm();
 const { removeCardFromCollection } = useUserCards();
@@ -205,30 +207,7 @@ watch(page, fetchCards, { immediate: true });
     </div>
 
     <!-- Vue Grille -->
-    <div
-      v-if="loading && cards.length === 0"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6"
-    >
-      <Card
-        v-for="i in limit"
-        :key="i"
-        class="bg-white dark:bg-gray-800 border dark:border-gray-700"
-      >
-        <template #header>
-          <Skeleton width="100%" height="300px" />
-        </template>
-        <template #title>
-          <Skeleton width="80%" height="1.5rem" />
-        </template>
-        <template #subtitle>
-          <Skeleton width="40%" height="1rem" class="mt-2" />
-        </template>
-        <template #content>
-          <Skeleton width="60%" height="1rem" class="mt-2" />
-          <Skeleton width="30%" height="1rem" class="mt-2" />
-        </template>
-      </Card>
-    </div>
+    <CardSkeletonGrid v-if="loading && cards.length === 0" :count="limit" view-mode="grid" />
 
     <Message
       v-else-if="!loading && cards.length === 0"
@@ -296,6 +275,7 @@ watch(page, fetchCards, { immediate: true });
     </div>
 
     <!-- Vue Liste -->
+    <CardSkeletonList v-if="loading && cards.length === 0" :count="limit" />
     <div v-else class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden mb-6">
       <DataTable :value="cards" striped-rows class="dark:bg-gray-800">
         <Column field="images.small" header="Image">
