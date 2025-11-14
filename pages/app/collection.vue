@@ -77,9 +77,13 @@
     <div v-else :class="['collection-container', `view-${viewMode}`]">
       <Card v-for="item in collection" :key="item.cardId" class="collection-card">
         <template #header>
-          <img
+          <OptimizedImage
             :src="`https://images.pokemontcg.io/${item.cardId}_hires.png`"
             :alt="item.cardId"
+            class="card-image"
+            :width="200"
+            :height="280"
+            :quality="85"
             @error="handleImageError"
           />
         </template>

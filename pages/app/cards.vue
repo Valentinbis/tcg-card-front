@@ -255,11 +255,13 @@ watch(page, fetchCards, { immediate: true });
         class="hover-lift transition-smooth bg-white dark:bg-gray-800 border dark:border-gray-700"
       >
         <template #header>
-          <img
+          <OptimizedImage
             :src="getImageUrl(card.images?.small || '')"
             :alt="card.name"
-            loading="lazy"
             class="w-full h-auto object-contain"
+            :width="200"
+            :height="280"
+            :quality="85"
           />
         </template>
         <template #title>
@@ -298,10 +300,13 @@ watch(page, fetchCards, { immediate: true });
       <DataTable :value="cards" striped-rows class="dark:bg-gray-800">
         <Column field="images.small" header="Image">
           <template #body="slotProps">
-            <img
+            <OptimizedImage
               :src="getImageUrl(slotProps.data.images?.small || '')"
               :alt="slotProps.data.name"
               class="w-16 h-auto"
+              :width="64"
+              :height="90"
+              :quality="85"
             />
           </template>
         </Column>

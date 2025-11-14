@@ -236,9 +236,12 @@ onMounted(async () => {
     <div v-else :class="['wishlist-container', `view-${viewMode}`]">
       <Card v-for="item in wishlist" :key="item.cardId" class="wishlist-card">
         <template #header>
-          <img
+          <OptimizedImage
             :src="`https://images.pokemontcg.io/${item.cardId}_hires.png`"
             :alt="item.cardId"
+            :width="200"
+            :height="280"
+            :quality="85"
             @error="handleImageError"
           />
         </template>

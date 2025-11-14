@@ -199,11 +199,13 @@ watch(page, fetchCards, { immediate: true });
         :style="{ animationDelay: `${index * 0.05}s` }"
       >
         <template #header>
-          <img
+          <OptimizedImage
             :src="getImageUrl(card.images?.small || '')"
             :alt="card.name"
-            loading="lazy"
             class="w-full h-auto object-contain"
+            :width="200"
+            :height="280"
+            :quality="85"
           />
         </template>
 

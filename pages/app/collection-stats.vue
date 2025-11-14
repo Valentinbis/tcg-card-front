@@ -182,7 +182,14 @@ onMounted(() => {
           <div
             class="p-4 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800"
           >
-            <img :src="set.setLogo" :alt="set.setName" class="h-16 mx-auto object-contain" />
+            <OptimizedImage
+              :src="set.setLogo"
+              :alt="set.setName"
+              class="h-16 mx-auto object-contain"
+              :width="64"
+              :height="64"
+              :quality="85"
+            />
           </div>
         </template>
         <template #title>
@@ -224,7 +231,14 @@ onMounted(() => {
       <DataTable :value="sortedSets" striped-rows>
         <Column field="setLogo" header="Logo">
           <template #body="slotProps">
-            <img :src="slotProps.data.setLogo" :alt="slotProps.data.setName" class="h-12" />
+            <OptimizedImage
+              :src="slotProps.data.setLogo"
+              :alt="slotProps.data.setName"
+              class="h-12"
+              :width="48"
+              :height="48"
+              :quality="85"
+            />
           </template>
         </Column>
         <Column field="setName" header="Nom" sortable class="dark:text-gray-100" />
