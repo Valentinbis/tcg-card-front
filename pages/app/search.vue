@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { Card, Pagination } from '~/types/card';
+import CardPrice from '~/components/CardPrice.vue';
 
 const { addCardToCollection } = useUserCards();
 
@@ -260,6 +261,9 @@ watch(page, fetchCards, { immediate: true });
               <div><strong>Rareté:</strong> {{ card.rarity }}</div>
               <div v-if="card.hp"><strong>HP:</strong> {{ card.hp }}</div>
             </div>
+
+            <!-- Prix de la carte -->
+            <CardPrice :card="card" compact class="mt-2" />
 
             <!-- Boutons d'ajout rapide -->
             <div class="flex gap-1 mt-3">

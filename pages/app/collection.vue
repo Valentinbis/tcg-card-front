@@ -2,9 +2,11 @@
 import type { CollectionItem } from '~/composables/useCollection';
 import { useViewMode } from '~/composables/useViewMode';
 import CardSkeletonGrid from '~/components/CardSkeletonGrid.vue';
+import CollectionStats from '~/components/CollectionStats.vue';
+import CardPrice from '~/components/CardPrice.vue';
 
 definePageMeta({
-  middleware: 'auth',
+  middleware: ['auth'],
   layout: 'default',
 });
 
@@ -22,6 +24,8 @@ const {
 
 const selectedCondition = ref<string | null>(null);
 const minQuantity = ref<number | null>(null);
+const minPrice = ref<number | null>(null);
+const maxPrice = ref<number | null>(null);
 
 const editDialogVisible = ref(false);
 const removeDialogVisible = ref(false);
@@ -39,13 +43,24 @@ const conditionOptions = [
 ];
 
 const applyFilters = () => {
-  const filters: { condition?: string; minQuantity?: number } = {};
+  const filters: {
+    condition?: string;
+    minQuantity?: number;
+    minPrice?: number;
+    maxPrice?: number;
+  } = {};
 
   if (selectedCondition.value) {
     filters.condition = selectedCondition.value;
   }
   if (minQuantity.value) {
     filters.minQuantity = minQuantity.value;
+  }
+  if (minPrice.value !== null) {
+    filters.minPrice = minPrice.value;
+  }
+  if (maxPrice.value !== null) {
+    filters.maxPrice = maxPrice.value;
   }
 
   fetchCollection(filters);
@@ -134,32 +149,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div v-if="stats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-      <Card class="stat-card">
-        <template #content>
-          <div class="flex flex-col gap-2 p-4">
-            <span class="text-sm text-gray-600 dark:text-gray-400">Cartes totales</span>
-            <span class="text-xl font-bold text-blue-600">{{ stats.totalCards }}</span>
-          </div>
-        </template>
-      </Card>
-      <Card class="stat-card">
-        <template #content>
-          <div class="flex flex-col gap-2 p-4">
-            <span class="text-sm text-gray-600 dark:text-gray-400">Cartes uniques</span>
-            <span class="text-xl font-bold text-blue-600">{{ stats.uniqueCards }}</span>
-          </div>
-        </template>
-      </Card>
-      <Card class="stat-card">
-        <template #content>
-          <div class="flex flex-col gap-2 p-4">
-            <span class="text-sm text-gray-600 dark:text-gray-400">Valeur totale</span>
-            <span class="text-xl font-bold text-blue-600">{{ formatPrice(stats.totalValue) }}</span>
-          </div>
-        </template>
-      </Card>
-    </div>
+    <CollectionStats v-if="stats" :stats="stats" :loading="loading" class="mb-8" />
 
     <div class="flex gap-4 mb-8 flex-wrap">
       <div class="flex flex-col gap-2 min-w-[200px]">
@@ -186,6 +176,30 @@ onMounted(async () => {
           v-model="minQuantity"
           :min="1"
           placeholder="Min"
+          @input="applyFilters"
+        />
+      </div>
+      <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="min-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Prix min.</label
+        >
+        <InputNumber
+          id="min-price-filter"
+          v-model="minPrice"
+          :min="0"
+          placeholder="Min €"
+          @input="applyFilters"
+        />
+      </div>
+      <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="max-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Prix max.</label
+        >
+        <InputNumber
+          id="max-price-filter"
+          v-model="maxPrice"
+          :min="0"
+          placeholder="Max €"
           @input="applyFilters"
         />
       </div>
@@ -243,6 +257,22 @@ onMounted(async () => {
                 <span class="text-sm text-gray-800 dark:text-gray-100">{{
                   formatPrice(item.purchasePrice)
                 }}</span>
+              </div>
+
+              <!-- Prix du marché -->
+              <div class="mt-2">
+                <CardPrice
+                  :card="{
+                    id: item.cardId,
+                    name: item.cardId,
+                    number: '001',
+                    rarity: 'Common',
+                    marketPrice: 15.99,
+                    lowPrice: 12.5,
+                    highPrice: 25.0,
+                  }"
+                  compact
+                />
               </div>
               <div
                 v-if="item.languages && item.languages.length > 0"

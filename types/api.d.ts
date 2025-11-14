@@ -8,7 +8,7 @@ export interface ApiError {
   };
 }
 
-export interface UseApiResponse<T> {
+export interface ApiResponse<T> {
   data: globalThis.Ref<T | null>;
   pending: globalThis.Ref<boolean>;
   error: globalThis.Ref<ApiError | null>;

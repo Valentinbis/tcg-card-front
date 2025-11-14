@@ -21,6 +21,7 @@ const {
 } = useWishlist();
 
 const minPriority = ref<number | null>(null);
+const minPriceFilter = ref<number | null>(null);
 const maxPriceFilter = ref<number | null>(null);
 const sortBy = ref<'priority' | 'createdAt' | 'maxPrice'>('priority');
 const sortDirection = ref<'ASC' | 'DESC'>('DESC');
@@ -63,6 +64,7 @@ const computedStats = computed(() => {
 const applyFilters = () => {
   const filters: {
     minPriority?: number;
+    minPrice?: number;
     maxPrice?: number;
     orderBy?: 'priority' | 'createdAt' | 'maxPrice';
     direction?: 'ASC' | 'DESC';
@@ -70,6 +72,9 @@ const applyFilters = () => {
 
   if (minPriority.value !== null) {
     filters.minPriority = minPriority.value;
+  }
+  if (minPriceFilter.value !== null) {
+    filters.minPrice = minPriceFilter.value;
   }
   if (maxPriceFilter.value !== null) {
     filters.maxPrice = maxPriceFilter.value;
@@ -191,6 +196,20 @@ onMounted(async () => {
           :min="0"
           :max="10"
           placeholder="Min"
+          @input="applyFilters"
+        />
+      </div>
+      <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="min-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Prix min</label
+        >
+        <InputNumber
+          id="min-price-filter"
+          v-model="minPriceFilter"
+          mode="currency"
+          currency="EUR"
+          locale="fr-FR"
+          placeholder="Prix min"
           @input="applyFilters"
         />
       </div>

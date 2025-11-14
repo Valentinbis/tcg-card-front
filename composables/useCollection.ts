@@ -4,12 +4,12 @@ import type { Ref } from 'vue';
 export interface CollectionItem {
   id?: number;
   cardId: string;
+  variant: 'normal' | 'reverse' | 'holo';
   quantity: number;
   condition?: 'mint' | 'near_mint' | 'excellent' | 'good' | 'light_played' | 'played' | 'poor';
   purchasePrice?: number;
   purchaseDate?: string;
   notes?: string;
-  languages?: ('fr' | 'jap' | 'reverse')[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -24,12 +24,12 @@ export interface CollectionStats {
 
 export interface AddToCollectionPayload {
   cardId: string;
+  variant: 'normal' | 'reverse' | 'holo';
   quantity?: number;
   condition?: string;
   purchasePrice?: number;
   purchaseDate?: string;
   notes?: string;
-  languages?: string[];
 }
 
 export interface UpdateCollectionPayload {
@@ -38,7 +38,7 @@ export interface UpdateCollectionPayload {
   purchasePrice?: number;
   purchaseDate?: string;
   notes?: string;
-  languages?: string[];
+  variant?: 'normal' | 'reverse' | 'holo';
 }
 
 export const useCollection = () => {
@@ -134,7 +134,9 @@ export const useCollection = () => {
       });
 
       // Mise à jour de la collection locale
-      const existingIndex = collection.value.findIndex(item => item.cardId === data.cardId);
+      const existingIndex = collection.value.findIndex(
+        item => item.cardId === data.cardId && item.variant === data.variant
+      );
       if (existingIndex >= 0) {
         collection.value[existingIndex] = data;
       } else {
@@ -249,14 +251,23 @@ export const useCollection = () => {
   /**
    * Vérifie si une carte est dans la collection
    */
-  const isInCollection = (cardId: string): boolean => {
+  const isInCollection = (cardId: string, variant?: 'normal' | 'reverse' | 'holo'): boolean => {
+    if (variant) {
+      return collection.value.some(item => item.cardId === cardId && item.variant === variant);
+    }
     return collection.value.some(item => item.cardId === cardId);
   };
 
   /**
    * Récupère une carte spécifique de la collection
    */
-  const getCollectionItem = (cardId: string): CollectionItem | undefined => {
+  const getCollectionItem = (
+    cardId: string,
+    variant?: 'normal' | 'reverse' | 'holo'
+  ): CollectionItem | undefined => {
+    if (variant) {
+      return collection.value.find(item => item.cardId === cardId && item.variant === variant);
+    }
     return collection.value.find(item => item.cardId === cardId);
   };
 

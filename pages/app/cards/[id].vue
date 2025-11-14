@@ -2,7 +2,7 @@
 import type { Card } from '~/types/card';
 
 definePageMeta({
-  middleware: 'auth',
+  middleware: ['auth'],
 });
 
 const route = useRoute();
@@ -83,7 +83,11 @@ const getRarityColor = (rarity: string) => {
 
         <!-- Actions -->
         <div class="flex gap-4 mt-6 w-full max-w-md">
-          <AppAddToWishlistButton :card-id="card.id" :card-name="card.name" class="flex-1" />
+          <AppAddToWishlistButton
+            :card-id="String(card.id)"
+            :card-name="card.name"
+            class="flex-1"
+          />
           <Button
             icon="pi pi-star"
             label="Add to Collection"

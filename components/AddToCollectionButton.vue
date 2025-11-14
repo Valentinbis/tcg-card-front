@@ -4,10 +4,10 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 const { addToCollection, isInCollection, loading } = useCollection();
 
 const visible = ref(false);
+const selectedVariant = ref<'normal' | 'reverse' | 'holo'>('normal');
 const formData = ref<{
   cardId: string;
   quantity: number;
@@ -15,7 +15,6 @@ const formData = ref<{
   purchasePrice?: number;
   purchaseDate?: Date;
   notes?: string;
-  languages?: string[];
 }>({
   cardId: props.cardId,
   quantity: 1,
@@ -23,7 +22,6 @@ const formData = ref<{
   purchasePrice: undefined,
   purchaseDate: undefined,
   notes: undefined,
-  languages: [],
 });
 
 const conditionOptions = [
@@ -36,15 +34,8 @@ const conditionOptions = [
   { label: 'Poor', value: 'poor' },
 ];
 
-const languageOptions = [
-  { label: 'Français', value: 'fr' },
-  { label: 'Japonais', value: 'jap' },
-  { label: 'Reverse', value: 'reverse' },
-];
-
-const handleAddToCollection = async () => {
+const handleAddToCollection = async (variant: 'normal' | 'reverse' | 'holo') => {
   try {
-    // Formater la date si elle existe
     let formattedDate: string | undefined;
     if (formData.value.purchaseDate) {
       const date = formData.value.purchaseDate as Date;
@@ -58,7 +49,7 @@ const handleAddToCollection = async () => {
       purchasePrice: formData.value.purchasePrice,
       purchaseDate: formattedDate,
       notes: formData.value.notes,
-      languages: formData.value.languages,
+      variant,
     });
 
     visible.value = false;
@@ -76,7 +67,6 @@ const resetForm = () => {
     purchasePrice: undefined,
     purchaseDate: undefined,
     notes: undefined,
-    languages: [],
   };
 };
 </script>
@@ -84,14 +74,32 @@ const resetForm = () => {
 <template>
   <div class="add-to-collection">
     <Button
-      v-if="!isInCollection(cardId)"
-      label="Ajouter à ma collection"
+      v-if="!isInCollection(cardId, 'normal')"
+      label="Ajouter version normale"
       icon="pi pi-plus"
       :loading="loading"
-      @click="visible = true"
+      @click="
+        () => {
+          selectedVariant.value = 'normal';
+          visible = true;
+        }
+      "
     />
     <Button
-      v-else
+      v-if="!isInCollection(cardId, 'reverse')"
+      label="Ajouter version reverse"
+      icon="pi pi-plus"
+      :loading="loading"
+      class="ml-2"
+      @click="
+        () => {
+          selectedVariant.value = 'reverse';
+          visible = true;
+        }
+      "
+    />
+    <Button
+      v-if="isInCollection(cardId, selectedVariant)"
       label="Dans ma collection"
       icon="pi pi-check"
       severity="success"
@@ -120,18 +128,6 @@ const resetForm = () => {
             option-label="label"
             option-value="value"
             placeholder="Sélectionner un état"
-          />
-        </div>
-
-        <div class="field">
-          <label for="languages">Langues</label>
-          <MultiSelect
-            id="languages"
-            v-model="formData.languages"
-            :options="languageOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="Sélectionner les langues"
           />
         </div>
 
@@ -171,10 +167,10 @@ const resetForm = () => {
       <template #footer>
         <Button label="Annuler" icon="pi pi-times" text @click="visible = false" />
         <Button
-          label="Ajouter"
+          :label="selectedVariant.value === 'normal' ? 'Ajouter normale' : 'Ajouter reverse'"
           icon="pi pi-check"
           :loading="loading"
-          @click="handleAddToCollection"
+          @click="() => handleAddToCollection(selectedVariant.value)"
         />
       </template>
     </Dialog>
