@@ -3,6 +3,7 @@
     <div class="collection-header">
       <h1>Ma Collection</h1>
       <div class="header-actions">
+        <ViewModeToggle />
         <Button
           label="Stats par set"
           icon="pi pi-chart-bar"
@@ -73,7 +74,7 @@
       <Button label="Parcourir les cartes" @click="navigateTo('/app/cards')" />
     </div>
 
-    <div v-else class="collection-grid">
+    <div v-else :class="['collection-container', `view-${viewMode}`]">
       <Card v-for="item in collection" :key="item.cardId" class="collection-card">
         <template #header>
           <img
@@ -209,11 +210,14 @@
 
 <script setup lang="ts">
 import type { CollectionItem } from '~/composables/useCollection';
+import { useViewMode } from '~/composables/useViewMode';
 
 definePageMeta({
   middleware: 'auth',
   layout: 'default',
 });
+
+const { viewMode } = useViewMode();
 
 const {
   collection,
@@ -341,6 +345,12 @@ onMounted(async () => {
 .collection-header h1 {
   font-size: 2rem;
   color: var(--text-color);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .collection-stats {
@@ -488,5 +498,101 @@ onMounted(async () => {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-color-secondary);
+}
+
+/* Modes de vue */
+.collection-container.view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.collection-container.view-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.collection-container.view-list .collection-card {
+  display: flex;
+  flex-direction: row;
+  height: auto;
+  min-height: 120px;
+}
+
+.collection-container.view-list .collection-card :deep(.p-card-header) {
+  flex: 0 0 120px;
+  margin-right: 1rem;
+}
+
+.collection-container.view-list .collection-card :deep(.p-card-header img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collection-container.view-list .card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.collection-container.view-list .card-info h3 {
+  margin-bottom: 0.5rem;
+}
+
+.collection-container.view-list .card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.collection-container.view-list .card-actions {
+  flex: 0 0 auto;
+  margin-top: 0;
+  align-self: center;
+}
+
+.collection-container.view-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.collection-container.view-compact .collection-card {
+  padding: 0.75rem;
+}
+
+.collection-container.view-compact .collection-card :deep(.p-card-header) {
+  margin-bottom: 0.5rem;
+}
+
+.collection-container.view-compact .collection-card :deep(.p-card-header img) {
+  height: 80px;
+  object-fit: cover;
+}
+
+.collection-container.view-compact .card-info h3 {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.collection-container.view-compact .card-details {
+  gap: 0.5rem;
+}
+
+.collection-container.view-compact .detail-row {
+  gap: 0.25rem;
+}
+
+.collection-container.view-compact .card-actions {
+  margin-top: 0.5rem;
+  gap: 0.25rem;
+}
+
+.collection-container.view-compact .card-actions .p-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
 }
 </style>

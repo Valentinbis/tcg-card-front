@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import type { WishlistItem } from '~/types/api';
+import { useViewMode } from '~/composables/useViewMode';
 
 definePageMeta({
   middleware: 'auth',
   layout: 'default',
 });
+
+const { viewMode } = useViewMode();
 
 const {
   wishlistItems: wishlist,
@@ -140,6 +143,9 @@ onMounted(async () => {
   <div class="wishlist-page">
     <div class="wishlist-header">
       <h1>Ma Wishlist</h1>
+      <div class="header-actions">
+        <ViewModeToggle />
+      </div>
     </div>
 
     <div v-if="computedStats" class="wishlist-stats">
@@ -227,7 +233,7 @@ onMounted(async () => {
       <Button label="Parcourir les cartes" @click="navigateTo('/app/cards')" />
     </div>
 
-    <div v-else class="wishlist-grid">
+    <div v-else :class="['wishlist-container', `view-${viewMode}`]">
       <Card v-for="item in wishlist" :key="item.cardId" class="wishlist-card">
         <template #header>
           <img
@@ -361,6 +367,12 @@ onMounted(async () => {
 .wishlist-header h1 {
   font-size: 2rem;
   color: var(--text-color);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .wishlist-stats {
@@ -502,5 +514,101 @@ onMounted(async () => {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-color-secondary);
+}
+
+/* Modes de vue */
+.wishlist-container.view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.wishlist-container.view-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wishlist-container.view-list .wishlist-card {
+  display: flex;
+  flex-direction: row;
+  height: auto;
+  min-height: 120px;
+}
+
+.wishlist-container.view-list .wishlist-card :deep(.p-card-header) {
+  flex: 0 0 120px;
+  margin-right: 1rem;
+}
+
+.wishlist-container.view-list .wishlist-card :deep(.p-card-header img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.wishlist-container.view-list .card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.wishlist-container.view-list .card-info h3 {
+  margin-bottom: 0.5rem;
+}
+
+.wishlist-container.view-list .card-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.wishlist-container.view-list .card-actions {
+  flex: 0 0 auto;
+  margin-top: 0;
+  align-self: center;
+}
+
+.wishlist-container.view-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.wishlist-container.view-compact .wishlist-card {
+  padding: 0.75rem;
+}
+
+.wishlist-container.view-compact .wishlist-card :deep(.p-card-header) {
+  margin-bottom: 0.5rem;
+}
+
+.wishlist-container.view-compact .wishlist-card :deep(.p-card-header img) {
+  height: 80px;
+  object-fit: cover;
+}
+
+.wishlist-container.view-compact .card-info h3 {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.wishlist-container.view-compact .card-details {
+  gap: 0.5rem;
+}
+
+.wishlist-container.view-compact .detail-row {
+  gap: 0.25rem;
+}
+
+.wishlist-container.view-compact .card-actions {
+  margin-top: 0.5rem;
+  gap: 0.25rem;
+}
+
+.wishlist-container.view-compact .card-actions .p-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
 }
 </style>
