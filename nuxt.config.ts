@@ -168,5 +168,5 @@ export default defineNuxtConfig({
 
   css: ['@mdi/font/css/materialdesignicons.css', '@/assets/css/animations.css'],
 
-  compatibilityDate: '2024-07-09',
+  compatibilityDate: '2024-11-01',
 });
