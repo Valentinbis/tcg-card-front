@@ -25,7 +25,10 @@ const removingCards = ref<Set<string>>(new Set());
 // Filtres
 const filterType = ref('');
 const filterRarity = ref('');
+const filterSet = ref('');
 const searchQuery = ref('');
+
+const sets = ref<Array<{ id: string; name: string }>>([]);
 
 const apiBase = useRuntimeConfig().public.apiBase.replace('/api/', '');
 
@@ -52,11 +55,27 @@ const rarityOptions = [
   { label: 'Ultra Rare', value: 'Ultra Rare' },
 ];
 
+const setOptions = computed(() => [
+  { label: 'Tous', value: '' },
+  ...sets.value.map(set => ({ label: set.name, value: set.id })),
+]);
+
 function getImageUrl(path: string) {
   if (!path) return '';
   if (path.startsWith('http')) return path;
   return apiBase + path;
 }
+
+const fetchSets = async () => {
+  try {
+    const response = await $fetch<Array<{ id: string; name: string }>>('/api/sets', {
+      baseURL: useRuntimeConfig().public.apiBase,
+    });
+    sets.value = response;
+  } catch (error) {
+    console.error('Erreur lors du chargement des sets:', error);
+  }
+};
 
 const fetchCards = async () => {
   loading.value = true;
@@ -68,6 +87,7 @@ const fetchCards = async () => {
     };
     if (filterType.value) params.type = filterType.value;
     if (filterRarity.value) params.rarity = filterRarity.value;
+    if (filterSet.value) params.set = filterSet.value;
     if (searchQuery.value) params.search = searchQuery.value;
 
     const response = await $fetch<{ data: Card[]; pagination: Pagination }>('/api/cards', {
@@ -115,12 +135,15 @@ const isCardRemoving = (cardId: string | number) => {
   return removingCards.value.has(String(cardId));
 };
 
-watch([filterLang, filterType, filterRarity, searchQuery, limit], () => {
+watch([filterType, filterRarity, filterSet, searchQuery, limit], () => {
   page.value = 1;
   fetchCards();
 });
 
 watch(page, fetchCards, { immediate: true });
+
+// Charger les sets au montage
+onMounted(fetchSets);
 </script>
 
 <template>
@@ -175,6 +198,18 @@ watch(page, fetchCards, { immediate: true });
           option-label="label"
           option-value="value"
           placeholder="Toutes"
+          class="w-44"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Set</label>
+        <Select
+          v-model="filterSet"
+          :options="setOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Tous"
           class="w-44"
         />
       </div>
