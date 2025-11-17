@@ -12,6 +12,7 @@ export interface CollectionItem {
   notes?: string;
   createdAt?: string;
   updatedAt?: string;
+  prices?: Record<string, number | null>;
 }
 
 export interface CollectionStats {

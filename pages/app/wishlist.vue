@@ -21,6 +21,7 @@ const {
 } = useWishlist();
 
 const minPriority = ref<number | null>(null);
+const selectedVariant = ref<'normal' | 'reverse' | 'holo' | null>(null);
 const minPriceFilter = ref<number | null>(null);
 const maxPriceFilter = ref<number | null>(null);
 const sortBy = ref<'priority' | 'createdAt' | 'maxPrice'>('priority');
@@ -64,6 +65,7 @@ const computedStats = computed(() => {
 const applyFilters = () => {
   const filters: {
     minPriority?: number;
+    variant?: string;
     minPrice?: number;
     maxPrice?: number;
     orderBy?: 'priority' | 'createdAt' | 'maxPrice';
@@ -72,6 +74,9 @@ const applyFilters = () => {
 
   if (minPriority.value !== null) {
     filters.minPriority = minPriority.value;
+  }
+  if (selectedVariant.value) {
+    filters.variant = selectedVariant.value;
   }
   if (minPriceFilter.value !== null) {
     filters.minPrice = minPriceFilter.value;
@@ -194,24 +199,28 @@ onMounted(async () => {
           id="priority-filter"
           v-model="minPriority"
           :min="0"
-          :max="10"
-          placeholder="Min"
-          @input="applyFilters"
-        />
-      </div>
-      <div class="flex flex-col gap-2 min-w-[200px]">
-        <label for="min-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
-          >Prix min</label
-        >
-        <InputNumber
-          id="min-price-filter"
-          v-model="minPriceFilter"
-          mode="currency"
-          currency="EUR"
-          locale="fr-FR"
           placeholder="Prix min"
           @input="applyFilters"
         />
+        <div v-for="item in wishlist" :key="item.cardId" class="wishlist-card">
+          <img :src="item.cardImage" :alt="item.cardName" class="card-img" />
+          <div class="card-info">
+            <h3>{{ item.cardName }}</h3>
+            <span class="variant-badge">{{ item.variant }}</span>
+            <div class="price-section">
+              <h4>Cardmarket</h4>
+              <div>Prix : {{ item.prices?.cardmarket ?? 'N/A' }} €</div>
+              <div>Prix tendance : {{ item.prices?.cardmarket_trend ?? 'N/A' }} €</div>
+              <div>Prix suggéré : {{ item.prices?.cardmarket_suggested ?? 'N/A' }} €</div>
+            </div>
+            <div class="price-section">
+              <h4>TCGPlayer</h4>
+              <div>Prix : {{ item.prices?.tcgplayer ?? 'N/A' }} $</div>
+              <div>Prix marché : {{ item.prices?.tcgplayer_market ?? 'N/A' }} $</div>
+              <div>Prix suggéré : {{ item.prices?.tcgplayer_suggested ?? 'N/A' }} $</div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="flex flex-col gap-2 min-w-[200px]">
         <label for="max-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -278,8 +287,8 @@ onMounted(async () => {
       <Card v-for="item in wishlist" :key="item.cardId" class="wishlist-card">
         <template #header>
           <OptimizedImage
-            :src="`https://images.pokemontcg.io/${item.cardId}_hires.png`"
-            :alt="item.cardId"
+            :src="item.cardImage || '/images/card-placeholder.png'"
+            :alt="item.cardName || item.cardId"
             :width="200"
             :height="280"
             :quality="85"
@@ -288,7 +297,12 @@ onMounted(async () => {
         </template>
         <template #content>
           <div class="card-info">
-            <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100">{{ item.cardId }}</h3>
+            <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100">
+              {{ item.cardName || item.cardId }}
+            </h3>
+            <div class="flex items-center gap-2 mb-2">
+              <Badge :value="item.variant" severity="info" />
+            </div>
             <div class="flex flex-col gap-3">
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Priorité:</span>
@@ -306,6 +320,22 @@ onMounted(async () => {
                   class="text-sm text-gray-600 dark:text-gray-400 italic max-w-full break-words"
                   >{{ item.notes }}</span
                 >
+              </div>
+              <div v-if="item.prices" class="mt-4 space-y-2">
+                <div>
+                  <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Cardmarket</h4>
+                  <div class="text-sm">Prix : {{ item.prices.cardmarket ?? 'N/A' }} €</div>
+                  <div class="text-sm">
+                    Prix tendance : {{ item.prices.cardmarket_trend ?? 'N/A' }} €
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">TCGPlayer</h4>
+                  <div class="text-sm">Prix : {{ item.prices.tcgplayer ?? 'N/A' }} $</div>
+                  <div class="text-sm">
+                    Prix marché : {{ item.prices.tcgplayer_market ?? 'N/A' }} $
+                  </div>
+                </div>
               </div>
             </div>
           </div>

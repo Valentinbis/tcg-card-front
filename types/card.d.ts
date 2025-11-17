@@ -10,7 +10,7 @@ export interface Card {
     small: string;
     large?: string;
   };
-  owned_languages?: string[];
+  owned?: boolean;
   hp?: number;
   type?: string;
   types?: string[];
@@ -123,7 +123,6 @@ export interface CardParams {
   page: number;
   limit: number;
   owned?: string;
-  lang?: string;
   type?: string;
   number?: string;
 }

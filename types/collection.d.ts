@@ -3,6 +3,7 @@ export interface UserCard {
   quantity: number;
   languages: string[];
   condition?: 'mint' | 'near_mint' | 'excellent' | 'good' | 'light_played' | 'played' | 'poor';
+  variant?: 'normal' | 'reverse' | 'holo';
   purchasePrice?: number;
   purchaseDate?: string;
   notes?: string;
@@ -15,6 +16,7 @@ export interface CollectionItem extends UserCard {
   currentValue?: number;
   profitLoss?: number;
   profitLossPercentage?: number;
+  prices?: Record<string, number | null>;
 }
 
 export interface CollectionStats {

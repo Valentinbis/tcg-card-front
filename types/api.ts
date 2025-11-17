@@ -49,11 +49,15 @@ export interface UserCard {
 export interface WishlistItem {
   id: number;
   cardId: string;
+  cardName?: string;
+  cardImage?: string;
+  variant: 'normal' | 'reverse' | 'holo';
   priority: number;
   notes?: string;
   maxPrice?: number;
   createdAt: string;
   updatedAt: string;
+  prices?: Record<string, number | null>;
 }
 
 export interface WishlistStats {

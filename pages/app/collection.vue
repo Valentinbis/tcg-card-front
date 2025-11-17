@@ -3,7 +3,6 @@ import type { CollectionItem } from '~/composables/useCollection';
 import { useViewMode } from '~/composables/useViewMode';
 import CardSkeletonGrid from '~/components/CardSkeletonGrid.vue';
 import CollectionStats from '~/components/CollectionStats.vue';
-import CardPrice from '~/components/CardPrice.vue';
 
 definePageMeta({
   middleware: ['auth'],
@@ -23,6 +22,7 @@ const {
 } = useCollection();
 
 const selectedCondition = ref<string | null>(null);
+const selectedVariant = ref<'normal' | 'reverse' | 'holo' | null>(null);
 const minQuantity = ref<number | null>(null);
 const minPrice = ref<number | null>(null);
 const maxPrice = ref<number | null>(null);
@@ -42,9 +42,16 @@ const conditionOptions = [
   { label: 'Poor', value: 'poor' },
 ];
 
+const variantOptions = [
+  { label: 'Normale', value: 'normal' },
+  { label: 'Reverse', value: 'reverse' },
+  { label: 'Holo', value: 'holo' },
+];
+
 const applyFilters = () => {
   const filters: {
     condition?: string;
+    variant?: string;
     minQuantity?: number;
     minPrice?: number;
     maxPrice?: number;
@@ -52,6 +59,9 @@ const applyFilters = () => {
 
   if (selectedCondition.value) {
     filters.condition = selectedCondition.value;
+  }
+  if (selectedVariant.value) {
+    filters.variant = selectedVariant.value;
   }
   if (minQuantity.value) {
     filters.minQuantity = minQuantity.value;
@@ -168,6 +178,21 @@ onMounted(async () => {
         />
       </div>
       <div class="flex flex-col gap-2 min-w-[200px]">
+        <label for="variant-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Variante</label
+        >
+        <Dropdown
+          id="variant-filter"
+          v-model="selectedVariant"
+          :options="variantOptions"
+          option-label="label"
+          option-value="value"
+          placeholder="Toutes les variantes"
+          show-clear
+          @change="applyFilters"
+        />
+      </div>
+      <div class="flex flex-col gap-2 min-w-[200px]">
         <label for="quantity-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >Quantité min.</label
         >
@@ -238,6 +263,9 @@ onMounted(async () => {
         <template #content>
           <div class="card-info">
             <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100">{{ item.cardId }}</h3>
+            <div class="flex items-center gap-2 mb-2">
+              <Badge :value="item.variant || 'normal'" severity="info" />
+            </div>
             <div class="flex flex-col gap-3">
               <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Quantité:</span>
@@ -260,33 +288,17 @@ onMounted(async () => {
               </div>
 
               <!-- Prix du marché -->
-              <div class="mt-2">
-                <CardPrice
-                  :card="{
-                    id: item.cardId,
-                    name: item.cardId,
-                    number: '001',
-                    rarity: 'Common',
-                    marketPrice: 15.99,
-                    lowPrice: 12.5,
-                    highPrice: 25.0,
-                  }"
-                  compact
-                />
-              </div>
-              <div
-                v-if="item.languages && item.languages.length > 0"
-                class="flex items-center gap-2 flex-wrap"
-              >
-                <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Langues:</span>
-                <div class="flex gap-1 flex-wrap">
-                  <Tag
-                    v-for="lang in item.languages"
-                    :key="lang"
-                    :value="lang"
-                    severity="secondary"
-                  />
+              <div v-if="item.prices" class="mt-2 space-y-1">
+                <div class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Prix Cardmarket
                 </div>
+                <div class="text-sm">Prix : {{ item.prices.cardmarket ?? 'N/A' }} €</div>
+                <div class="text-sm">Tendance : {{ item.prices.cardmarket_trend ?? 'N/A' }} €</div>
+                <div class="text-sm font-medium text-gray-700 dark:text-gray-300 mt-2">
+                  Prix TCGPlayer
+                </div>
+                <div class="text-sm">Prix : {{ item.prices.tcgplayer ?? 'N/A' }} $</div>
+                <div class="text-sm">Marché : {{ item.prices.tcgplayer_market ?? 'N/A' }} $</div>
               </div>
               <div v-if="item.notes" class="flex items-center gap-2 flex-wrap">
                 <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">Notes:</span>

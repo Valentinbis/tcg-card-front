@@ -68,7 +68,8 @@ export const useWishlist = () => {
     cardId: string,
     priority: number = 0,
     notes?: string,
-    maxPrice?: number
+    maxPrice?: number,
+    variant: 'normal' | 'reverse' | 'holo' = 'normal'
   ) => {
     isLoading.value = true;
     try {
@@ -81,6 +82,7 @@ export const useWishlist = () => {
           priority,
           notes,
           maxPrice,
+          variant,
         },
       });
 
@@ -118,6 +120,7 @@ export const useWishlist = () => {
       priority?: number;
       notes?: string;
       maxPrice?: number;
+      variant?: 'normal' | 'reverse' | 'holo';
     }
   ) => {
     isLoading.value = true;

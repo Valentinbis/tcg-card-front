@@ -23,19 +23,11 @@ const loading = ref(false);
 const removingCards = ref<Set<string>>(new Set());
 
 // Filtres
-const filterLang = ref('');
 const filterType = ref('');
 const filterRarity = ref('');
 const searchQuery = ref('');
 
 const apiBase = useRuntimeConfig().public.apiBase.replace('/api/', '');
-
-const langOptions = [
-  { label: 'Toutes', value: '' },
-  { label: 'Français 🇫🇷', value: 'fr' },
-  { label: 'Japonais 🇯🇵', value: 'jap' },
-  { label: 'Reverse 🔁', value: 'reverse' },
-];
 
 const typeOptions = [
   { label: 'Tous', value: '' },
@@ -74,7 +66,6 @@ const fetchCards = async () => {
       limit: limit.value,
       owned: 'true', // Seulement les cartes possédées
     };
-    if (filterLang.value) params.lang = filterLang.value;
     if (filterType.value) params.type = filterType.value;
     if (filterRarity.value) params.rarity = filterRarity.value;
     if (searchQuery.value) params.search = searchQuery.value;
@@ -165,18 +156,6 @@ watch(page, fetchCards, { immediate: true });
     <!-- Filtres -->
     <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
       <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Langue</label>
-        <Select
-          v-model="filterLang"
-          :options="langOptions"
-          option-label="label"
-          option-value="value"
-          placeholder="Toutes"
-          class="w-52"
-        />
-      </div>
-
-      <div class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Type</label>
         <Select
           v-model="filterType"
@@ -252,11 +231,6 @@ watch(page, fetchCards, { immediate: true });
         <template #content>
           <div class="text-xs text-gray-500 dark:text-gray-400">
             <div><strong>Rareté:</strong> {{ card.rarity }}</div>
-            <div class="flex gap-1 mt-2">
-              <span v-if="card.owned_languages?.includes('fr')">🇫🇷</span>
-              <span v-if="card.owned_languages?.includes('reverse')">🔁</span>
-              <span v-if="card.owned_languages?.includes('jap')">🇯🇵</span>
-            </div>
           </div>
         </template>
         <template #footer>
@@ -293,15 +267,6 @@ watch(page, fetchCards, { immediate: true });
         <Column field="nameFr" header="Nom" sortable class="dark:text-gray-100" />
         <Column field="number" header="Numéro" sortable class="dark:text-gray-100" />
         <Column field="rarity" header="Rareté" sortable class="dark:text-gray-100" />
-        <Column field="owned_languages" header="Langues">
-          <template #body="slotProps">
-            <div class="flex gap-1">
-              <span v-if="slotProps.data.owned_languages?.includes('fr')">🇫🇷</span>
-              <span v-if="slotProps.data.owned_languages?.includes('reverse')">🔁</span>
-              <span v-if="slotProps.data.owned_languages?.includes('jap')">🇯🇵</span>
-            </div>
-          </template>
-        </Column>
         <Column header="Actions">
           <template #body="slotProps">
             <Button
