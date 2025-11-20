@@ -75,6 +75,6 @@ export interface ApiResponse<T> {
 export interface UseApiResponse<T> {
   data: Ref<T | null>;
   pending: Ref<boolean>;
-  error: Ref<any>;
+  error: Ref<Error | null>;
   refresh: () => Promise<void>;
 }

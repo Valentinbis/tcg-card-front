@@ -2,6 +2,19 @@
 import { ref } from 'vue';
 import type { CollectionStats } from '~/types/api';
 
+interface CollectionSetData {
+  id: string;
+  name: string;
+  total: number;
+  owned: number;
+  percentage: number;
+  releaseDate: string;
+}
+
+interface CollectionStatsResponse {
+  sets: CollectionSetData[];
+}
+
 interface SetStats {
   setId: string;
   setName: string;
@@ -35,7 +48,7 @@ const fetchCollectionStats = async () => {
     });
 
     if (data.value) {
-      sets.value = (data.value as { sets: any[] }).sets.map((set: any) => ({
+      sets.value = (data.value as CollectionStatsResponse).sets.map((set: CollectionSetData) => ({
         setId: set.id,
         setName: set.name,
         setLogo: `https://images.pokemontcg.io/${set.id}/logo.png`,
