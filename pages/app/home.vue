@@ -14,6 +14,7 @@ const pagination = ref<Pagination>({
 
 const page = ref(1);
 const limit = ref(20);
+const showFilters = ref(false);
 
 const filterOwned = ref(''); // "", "true", "false"
 const filterLang = ref(''); // "", "fr", "jap", "reverse"
@@ -121,7 +122,7 @@ watch(page, fetchCards, { immediate: true });
 </script>
 
 <template>
-  <div class="container mx-auto p-4 fade-in">
+  <div class="container mx-auto p-4 md:p-6 fade-in">
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
         Bienvenue {{ user?.firstName }} {{ user?.lastName }}
@@ -129,8 +130,22 @@ watch(page, fetchCards, { immediate: true });
       <p class="text-gray-600 dark:text-gray-400">Gérez votre collection de cartes Pokémon</p>
     </div>
 
+    <!-- Bouton toggle filtres mobile -->
+    <div class="md:hidden mb-4">
+      <Button
+        :icon="showFilters ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+        :label="showFilters ? 'Masquer les filtres' : 'Afficher les filtres'"
+        class="w-full touch-manipulation transition-smooth"
+        severity="secondary"
+        @click="showFilters = !showFilters"
+      />
+    </div>
+
     <!-- Filtres avec PrimeVue -->
-    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div
+      class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md"
+      :class="{ 'hidden md:flex': !showFilters }"
+    >
       <div class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Possession</label>
         <Select
@@ -191,7 +206,9 @@ watch(page, fetchCards, { immediate: true });
     </div>
 
     <!-- Grille des cartes avec animations -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+    <div
+      class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-6"
+    >
       <Card
         v-for="(card, index) in cards"
         :key="card.id"
@@ -210,7 +227,9 @@ watch(page, fetchCards, { immediate: true });
         </template>
 
         <template #title>
-          <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ card.nameFr }}</h2>
+          <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 line-clamp-2">
+            {{ card.nameFr }}
+          </h2>
         </template>
 
         <template #subtitle>
@@ -230,7 +249,9 @@ watch(page, fetchCards, { immediate: true });
             </div>
 
             <div class="flex gap-2 mt-3 justify-center">
-              <label class="flex items-center gap-1 cursor-pointer hover-scale transition-fast">
+              <label
+                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast touch-manipulation"
+              >
                 <Checkbox
                   :model-value="card.owned_languages?.includes('fr')"
                   :binary="true"
@@ -241,7 +262,7 @@ watch(page, fetchCards, { immediate: true });
 
               <label
                 v-if="['Common', 'Uncommon', 'Rare'].includes(card.rarity)"
-                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast"
+                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast touch-manipulation"
               >
                 <Checkbox
                   :model-value="card.owned_languages?.includes('reverse')"
@@ -251,7 +272,9 @@ watch(page, fetchCards, { immediate: true });
                 <span>🔁</span>
               </label>
 
-              <label class="flex items-center gap-1 cursor-pointer hover-scale transition-fast">
+              <label
+                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast touch-manipulation"
+              >
                 <Checkbox
                   :model-value="card.owned_languages?.includes('jap')"
                   :binary="true"
@@ -278,3 +301,39 @@ watch(page, fetchCards, { immediate: true });
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Styles mobiles */
+@media (max-width: 768px) {
+  .p-card-body {
+    padding: 0.75rem !important;
+  }
+
+  .p-card-content {
+    padding: 0 !important;
+  }
+
+  .p-card-title {
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+  }
+
+  .p-card-subtitle {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* Touch manipulation pour les interactions tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+</style>

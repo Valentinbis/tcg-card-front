@@ -5,6 +5,7 @@ const router = useRouter();
 const { logout } = useAuthStore();
 
 const isSidebarOpen = ref(false);
+const isMobile = ref(false);
 const isDarkMode = ref(true); // Dark mode par défaut
 
 const toggleSidebar = () => {
@@ -36,6 +37,17 @@ onMounted(() => {
     isDarkMode.value = true;
     document.documentElement.classList.add('dark');
   }
+
+  // Détecter si on est sur mobile
+  isMobile.value = window.innerWidth < 768;
+  const handleResize = () => {
+    isMobile.value = window.innerWidth < 768;
+    // Fermer la sidebar automatiquement sur mobile quand on redimensionne
+    if (isMobile.value) {
+      isSidebarOpen.value = false;
+    }
+  };
+  window.addEventListener('resize', handleResize);
 });
 
 const logoutEvent = () => {
@@ -85,13 +97,29 @@ const menuItems = [
 
 <template>
   <div class="flex h-screen bg-gray-100 dark:bg-gray-950">
+    <!-- Overlay pour mobile -->
+    <div
+      v-if="isMobile && isSidebarOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40"
+      @click="toggleSidebar"
+    />
+
     <!-- Sidebar -->
-    <aside class="flex flex-shrink-0">
+    <aside :class="['flex flex-shrink-0 z-50', isMobile ? 'fixed' : 'relative']">
       <!-- Barre latérale principale -->
       <div
         :class="[
           'transition-all duration-300 ease-in-out bg-gray-900 text-white flex flex-col',
-          { 'w-16': !isSidebarOpen, 'w-64': isSidebarOpen },
+          isMobile
+            ? {
+                'w-64': isSidebarOpen,
+                '-translate-x-full': !isSidebarOpen,
+                'translate-x-0': isSidebarOpen,
+              }
+            : {
+                'w-16': !isSidebarOpen,
+                'w-64': isSidebarOpen,
+              },
         ]"
       >
         <!-- Logo / Header -->
@@ -112,7 +140,10 @@ const menuItems = [
               <span class="text-xl font-bold">TCG Card</span>
             </div>
           </Transition>
-          <button class="p-2 hover:bg-gray-800 rounded-lg transition-colors" @click="toggleSidebar">
+          <button
+            class="p-2 hover:bg-gray-800 rounded-lg transition-colors touch-manipulation"
+            @click="toggleSidebar"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               height="24px"
@@ -169,7 +200,7 @@ const menuItems = [
         <div class="border-t border-gray-700 p-2 space-y-2">
           <!-- Toggle Theme -->
           <button
-            class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all hover:bg-gray-800 w-full group relative text-white"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all hover:bg-gray-800 w-full group relative text-white touch-manipulation"
             @click="toggleTheme"
           >
             <svg
@@ -214,7 +245,7 @@ const menuItems = [
 
           <!-- Déconnexion -->
           <button
-            class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all hover:bg-gray-800 w-full group relative text-red-400 hover:text-red-300"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all hover:bg-gray-800 w-full group relative text-red-400 hover:text-red-300 touch-manipulation"
             @click="logoutEvent"
           >
             <svg
@@ -248,10 +279,28 @@ const menuItems = [
     <div class="flex flex-col flex-1 overflow-hidden">
       <!-- Top Bar (optionnel) -->
       <header
-        class="bg-white dark:bg-gray-900 shadow-sm h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800"
+        class="bg-white dark:bg-gray-900 shadow-sm h-16 flex items-center px-4 md:px-6 border-b border-gray-200 dark:border-gray-800"
       >
         <div class="flex items-center justify-between w-full">
-          <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
+          <!-- Bouton hamburger pour mobile -->
+          <button
+            v-if="isMobile"
+            class="p-2 mr-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors touch-manipulation"
+            @click="toggleSidebar"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="currentColor"
+              class="text-gray-600 dark:text-gray-400"
+            >
+              <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z" />
+            </svg>
+          </button>
+
+          <h1 class="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200 truncate">
             {{ $route.name }}
           </h1>
           <div class="flex items-center gap-4">
@@ -261,7 +310,7 @@ const menuItems = [
       </header>
 
       <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950 p-6">
+      <main class="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-950 p-4 md:p-6">
         <slot />
       </main>
     </div>
@@ -300,5 +349,27 @@ aside::-webkit-scrollbar-thumb {
 
 aside::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
+}
+
+/* Touch manipulation pour les interactions tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Styles mobiles pour la sidebar */
+@media (max-width: 768px) {
+  .sidebar-mobile {
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Assurer que les boutons de navigation ont une taille minimale pour le toucher */
+  nav ul li a {
+    min-height: 44px;
+  }
+
+  /* Ajuster les tooltips sur mobile */
+  .group:hover .absolute {
+    display: none;
+  }
 }
 </style>

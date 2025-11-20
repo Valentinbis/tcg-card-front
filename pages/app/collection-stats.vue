@@ -69,7 +69,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mx-auto p-6 fade-in">
+  <div class="container mx-auto p-4 md:p-6 fade-in">
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Ma Collection</h1>
       <p class="text-gray-600 dark:text-gray-400">Vue d'ensemble de vos sets et extensions</p>
@@ -124,6 +124,7 @@ onMounted(() => {
       <Button
         :icon="viewMode === 'grid' ? 'pi pi-th-large' : 'pi pi-bars'"
         :outlined="viewMode === 'list'"
+        class="touch-manipulation"
         @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
       >
         {{ viewMode === 'grid' ? 'Grille' : 'Liste' }}
@@ -218,7 +219,7 @@ onMounted(() => {
               label="Voir les détails"
               outlined
               icon="pi pi-arrow-right"
-              class="w-full"
+              class="w-full touch-manipulation"
               size="small"
             />
           </div>
@@ -272,7 +273,47 @@ onMounted(() => {
     <!-- Message si aucun set -->
     <div v-if="!loading && sets.length === 0" class="text-center py-12">
       <p class="text-gray-500 dark:text-gray-400 mb-4">Aucun set dans votre collection</p>
-      <Button label="Ajouter des cartes" icon="pi pi-plus" @click="$router.push('/app/search')" />
+      <Button
+        label="Ajouter des cartes"
+        icon="pi pi-plus"
+        class="touch-manipulation"
+        @click="$router.push('/app/search')"
+      />
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Touch manipulation pour les interactions tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Styles mobiles pour la grille des statistiques */
+@media (max-width: 768px) {
+  .grid.grid-cols-1.md\\:grid-cols-3 {
+    gap: 0.75rem;
+  }
+
+  .p-card-body {
+    padding: 1rem !important;
+  }
+}
+
+/* Styles mobiles pour la DataTable */
+@media (max-width: 768px) {
+  .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .p-datatable .p-datatable-thead > tr > th {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .p-progressbar {
+    height: 1rem;
+  }
+}
+</style>

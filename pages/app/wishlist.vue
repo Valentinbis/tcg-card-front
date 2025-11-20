@@ -31,6 +31,7 @@ const editDialogVisible = ref(false);
 const removeDialogVisible = ref(false);
 const editingItem = ref<WishlistItem | null>(null);
 const itemToRemove = ref<WishlistItem | null>(null);
+const showFilters = ref(false);
 
 const sortOptions = [
   { label: 'Priorité', value: 'priority' },
@@ -190,7 +191,18 @@ onMounted(async () => {
       </Card>
     </div>
 
-    <div class="flex gap-4 mb-8 flex-wrap">
+    <!-- Bouton Filtres Mobile -->
+    <div class="flex justify-center sm:hidden mb-4">
+      <Button
+        :label="showFilters ? 'Masquer les filtres' : 'Afficher les filtres'"
+        icon="pi pi-filter"
+        outlined
+        class="touch-manipulation transition-all duration-200"
+        @click="showFilters = !showFilters"
+      />
+    </div>
+
+    <div :class="['flex gap-4 mb-8 flex-wrap', showFilters ? 'block' : 'hidden sm:flex']">
       <div class="flex flex-col gap-2 min-w-[200px]">
         <label for="priority-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >Priorité min.</label
@@ -202,25 +214,6 @@ onMounted(async () => {
           placeholder="Prix min"
           @input="applyFilters"
         />
-        <div v-for="item in wishlist" :key="item.cardId" class="wishlist-card">
-          <img :src="item.cardImage" :alt="item.cardName" class="card-img" />
-          <div class="card-info">
-            <h3>{{ item.cardName }}</h3>
-            <span class="variant-badge">{{ item.variant }}</span>
-            <div class="price-section">
-              <h4>Cardmarket</h4>
-              <div>Prix : {{ item.prices?.cardmarket ?? 'N/A' }} €</div>
-              <div>Prix tendance : {{ item.prices?.cardmarket_trend ?? 'N/A' }} €</div>
-              <div>Prix suggéré : {{ item.prices?.cardmarket_suggested ?? 'N/A' }} €</div>
-            </div>
-            <div class="price-section">
-              <h4>TCGPlayer</h4>
-              <div>Prix : {{ item.prices?.tcgplayer ?? 'N/A' }} $</div>
-              <div>Prix marché : {{ item.prices?.tcgplayer_market ?? 'N/A' }} $</div>
-              <div>Prix suggéré : {{ item.prices?.tcgplayer_suggested ?? 'N/A' }} $</div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="flex flex-col gap-2 min-w-[200px]">
         <label for="max-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -297,7 +290,7 @@ onMounted(async () => {
         </template>
         <template #content>
           <div class="card-info">
-            <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100">
+            <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100 line-clamp-2">
               {{ item.cardName || item.cardId }}
             </h3>
             <div class="flex items-center gap-2 mb-2">
@@ -347,6 +340,7 @@ onMounted(async () => {
               icon="pi pi-pencil"
               size="small"
               text
+              class="touch-manipulation"
               @click="openEditDialog(item)"
             />
             <Button
@@ -355,6 +349,7 @@ onMounted(async () => {
               severity="danger"
               size="small"
               text
+              class="touch-manipulation"
               @click="confirmRemove(item)"
             />
           </div>
@@ -439,8 +434,34 @@ onMounted(async () => {
 /* Modes de vue */
 .wishlist-container.view-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .wishlist-container.view-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .wishlist-container.view-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wishlist-container.view-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .wishlist-container.view-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
 .wishlist-container.view-list {
@@ -530,5 +551,44 @@ onMounted(async () => {
 .wishlist-container.view-compact .card-actions .p-button {
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .p-8 {
+    padding: 1rem;
+  }
+
+  .wishlist-container.view-grid {
+    gap: 0.75rem;
+  }
+
+  .wishlist-container.view-compact {
+    gap: 0.5rem;
+  }
+
+  .wishlist-card :deep(.p-card) {
+    padding: 0.75rem;
+  }
+
+  .wishlist-card :deep(.p-card-header img) {
+    height: 120px;
+  }
+
+  .wishlist-card :deep(.p-card-content) {
+    padding: 0.5rem 0;
+  }
+
+  .wishlist-card :deep(.p-card-footer) {
+    padding: 0.5rem 0 0 0;
+  }
+
+  .wishlist-container.view-list .wishlist-card :deep(.p-card-header) {
+    flex: 0 0 100px;
+  }
+
+  .wishlist-container.view-compact .wishlist-card :deep(.p-card-header img) {
+    height: 60px;
+  }
 }
 </style>

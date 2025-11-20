@@ -91,7 +91,7 @@ const saveSettings = async () => {
 </script>
 
 <template>
-  <div class="container mx-auto p-6 fade-in">
+  <div class="container mx-auto p-4 md:p-6 fade-in">
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Paramètres</h1>
       <p class="text-gray-600 dark:text-gray-400">Personnalisez votre expérience TCG Card</p>
@@ -305,6 +305,7 @@ const saveSettings = async () => {
         icon="pi pi-check"
         size="large"
         :loading="loading"
+        class="touch-manipulation"
         @click="saveSettings"
       />
     </div>

@@ -21,6 +21,7 @@ const {
   removeFromCollection,
 } = useCollection();
 
+const showFilters = ref(false);
 const selectedCondition = ref<string | null>(null);
 const selectedVariant = ref<'normal' | 'reverse' | 'holo' | null>(null);
 const minQuantity = ref<number | null>(null);
@@ -161,8 +162,22 @@ onMounted(async () => {
 
     <CollectionStats v-if="stats" :stats="stats" :loading="loading" class="mb-8" />
 
-    <div class="flex gap-4 mb-8 flex-wrap">
-      <div class="flex flex-col gap-2 min-w-[200px]">
+    <!-- Bouton Filtres Mobile -->
+    <div class="flex justify-center sm:hidden mb-4">
+      <Button
+        :label="showFilters ? 'Masquer les filtres' : 'Afficher les filtres'"
+        icon="pi pi-filter"
+        outlined
+        class="touch-manipulation transition-all duration-200"
+        @click="showFilters = !showFilters"
+      />
+    </div>
+
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8"
+      :class="[showFilters ? 'block' : 'hidden sm:grid']"
+    >
+      <div class="flex flex-col gap-2">
         <label for="condition-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >État</label
         >
@@ -174,10 +189,11 @@ onMounted(async () => {
           option-value="value"
           placeholder="Tous les états"
           show-clear
+          class="w-full"
           @change="applyFilters"
         />
       </div>
-      <div class="flex flex-col gap-2 min-w-[200px]">
+      <div class="flex flex-col gap-2">
         <label for="variant-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >Variante</label
         >
@@ -189,10 +205,11 @@ onMounted(async () => {
           option-value="value"
           placeholder="Toutes les variantes"
           show-clear
+          class="w-full"
           @change="applyFilters"
         />
       </div>
-      <div class="flex flex-col gap-2 min-w-[200px]">
+      <div class="flex flex-col gap-2">
         <label for="quantity-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >Quantité min.</label
         >
@@ -201,10 +218,11 @@ onMounted(async () => {
           v-model="minQuantity"
           :min="1"
           placeholder="Min"
+          class="w-full"
           @input="applyFilters"
         />
       </div>
-      <div class="flex flex-col gap-2 min-w-[200px]">
+      <div class="flex flex-col gap-2">
         <label for="min-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >Prix min.</label
         >
@@ -213,10 +231,11 @@ onMounted(async () => {
           v-model="minPrice"
           :min="0"
           placeholder="Min €"
+          class="w-full"
           @input="applyFilters"
         />
       </div>
-      <div class="flex flex-col gap-2 min-w-[200px]">
+      <div class="flex flex-col gap-2">
         <label for="max-price-filter" class="text-sm font-medium text-gray-700 dark:text-gray-300"
           >Prix max.</label
         >
@@ -225,6 +244,7 @@ onMounted(async () => {
           v-model="maxPrice"
           :min="0"
           placeholder="Max €"
+          class="w-full"
           @input="applyFilters"
         />
       </div>
@@ -262,7 +282,9 @@ onMounted(async () => {
         </template>
         <template #content>
           <div class="card-info">
-            <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100">{{ item.cardId }}</h3>
+            <h3 class="text-lg mb-4 text-gray-800 dark:text-gray-100 line-clamp-2">
+              {{ item.cardId }}
+            </h3>
             <div class="flex items-center gap-2 mb-2">
               <Badge :value="item.variant || 'normal'" severity="info" />
             </div>
@@ -317,6 +339,7 @@ onMounted(async () => {
               icon="pi pi-pencil"
               size="small"
               text
+              class="touch-manipulation"
               @click="openEditDialog(item)"
             />
             <Button
@@ -325,6 +348,7 @@ onMounted(async () => {
               severity="danger"
               size="small"
               text
+              class="touch-manipulation"
               @click="confirmRemove(item)"
             />
           </div>
@@ -410,8 +434,34 @@ onMounted(async () => {
 /* Modes de vue */
 .collection-container.view-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .collection-container.view-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .collection-container.view-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .collection-container.view-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .collection-container.view-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 
 .collection-container.view-list {
@@ -473,5 +523,72 @@ onMounted(async () => {
 
 .collection-container.view-compact .collection-card :deep(.p-card-header) {
   margin-bottom: 0.5rem;
+}
+
+.collection-container.view-compact .collection-card :deep(.p-card-header img) {
+  height: 80px;
+  object-fit: cover;
+}
+
+.collection-container.view-compact .card-info h3 {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.collection-container.view-compact .card-details {
+  gap: 0.5rem;
+}
+
+.collection-container.view-compact .detail-row {
+  gap: 0.25rem;
+}
+
+.collection-container.view-compact .card-actions {
+  margin-top: 0.5rem;
+  gap: 0.25rem;
+}
+
+.collection-container.view-compact .card-actions .p-button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .p-8 {
+    padding: 1rem;
+  }
+
+  .collection-container.view-grid {
+    gap: 0.75rem;
+  }
+
+  .collection-container.view-compact {
+    gap: 0.5rem;
+  }
+
+  .collection-card :deep(.p-card) {
+    padding: 0.75rem;
+  }
+
+  .collection-card :deep(.p-card-header img) {
+    height: 120px;
+  }
+
+  .collection-card :deep(.p-card-content) {
+    padding: 0.5rem 0;
+  }
+
+  .collection-card :deep(.p-card-footer) {
+    padding: 0.5rem 0 0 0;
+  }
+
+  .collection-container.view-list .collection-card :deep(.p-card-header) {
+    flex: 0 0 100px;
+  }
+
+  .collection-container.view-compact .collection-card :deep(.p-card-header img) {
+    height: 60px;
+  }
 }
 </style>

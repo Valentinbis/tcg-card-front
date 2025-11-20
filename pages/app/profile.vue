@@ -132,7 +132,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mx-auto p-6 fade-in">
+  <div class="container mx-auto p-4 md:p-6 fade-in">
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">Mon Profil</h1>
       <p class="text-gray-600 dark:text-gray-400">Gérez vos informations personnelles</p>
@@ -147,7 +147,7 @@ onMounted(() => {
             <div class="text-center">
               <div class="mb-4">
                 <div
-                  class="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold"
+                  class="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl md:text-4xl font-bold"
                 >
                   {{ profileData.firstName?.charAt(0) }}{{ profileData.lastName?.charAt(0) }}
                 </div>
@@ -227,7 +227,13 @@ onMounted(() => {
               </div>
 
               <div class="flex justify-end">
-                <Button type="submit" label="Sauvegarder" icon="pi pi-check" :loading="loading" />
+                <Button
+                  type="submit"
+                  label="Sauvegarder"
+                  icon="pi pi-check"
+                  :loading="loading"
+                  class="touch-manipulation"
+                />
               </div>
             </form>
           </template>
@@ -280,6 +286,7 @@ onMounted(() => {
                   icon="pi pi-lock"
                   :loading="loading"
                   severity="warning"
+                  class="touch-manipulation"
                 />
               </div>
             </form>
@@ -296,7 +303,13 @@ onMounted(() => {
               <p class="text-sm text-gray-600 dark:text-gray-400">
                 La suppression de votre compte est irréversible. Toutes vos données seront perdues.
               </p>
-              <Button label="Supprimer mon compte" icon="pi pi-trash" severity="danger" outlined />
+              <Button
+                label="Supprimer mon compte"
+                icon="pi pi-trash"
+                severity="danger"
+                outlined
+                class="touch-manipulation"
+              />
             </div>
           </template>
         </Card>

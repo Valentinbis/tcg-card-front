@@ -157,7 +157,7 @@ const handlePasswordChange = () => {
         severity="primary"
         size="large"
         fluid
-        class="mt-4 transition-smooth hover-glow"
+        class="mt-4 transition-smooth hover-glow touch-manipulation"
       />
 
       <!-- Lien vers register -->
@@ -173,3 +173,26 @@ const handlePasswordChange = () => {
     </form>
   </div>
 </template>
+
+<style scoped>
+/* Touch manipulation pour les interactions tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Optimisations mobiles */
+@media (max-width: 768px) {
+  .fade-in-up {
+    padding: 1rem !important;
+  }
+
+  .p-inputtext,
+  .p-password input {
+    font-size: 16px; /* Empêche le zoom sur iOS */
+  }
+
+  .p-button {
+    min-height: 44px; /* Taille minimale pour les boutons tactiles */
+  }
+}
+</style>

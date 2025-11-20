@@ -19,12 +19,18 @@ const addingCards = ref<Set<string>>(new Set());
 
 // Filtres de recherche avancée
 const searchQuery = ref('');
+const showFilters = ref(false);
 const filterType = ref('');
 const filterRarity = ref('');
 const filterSet = ref('');
 const filterHpMin = ref<number | null>(null);
 const filterHpMax = ref<number | null>(null);
+const filterPriceMin = ref<number | null>(null);
+const filterPriceMax = ref<number | null>(null);
 const filterAttackName = ref('');
+
+const sets = ref<Array<{ id: string; name: string }>>([]);
+const filteredSets = ref<Array<{ id: string; name: string }>>([]);
 
 const apiBase = useRuntimeConfig().public.apiBase.replace('/api/', '');
 
@@ -68,6 +74,8 @@ const fetchCards = async () => {
   if (filterSet.value) params.set = filterSet.value;
   if (filterHpMin.value) params.hpMin = filterHpMin.value;
   if (filterHpMax.value) params.hpMax = filterHpMax.value;
+  if (filterPriceMin.value) params.priceMin = filterPriceMin.value;
+  if (filterPriceMax.value) params.priceMax = filterPriceMax.value;
   if (filterAttackName.value) params.attackName = filterAttackName.value;
 
   const data = await useAPI<{ data: Card[]; pagination: Pagination }>('/cards', {
@@ -82,11 +90,27 @@ const fetchCards = async () => {
   pagination.value = data.data.value.pagination;
 };
 
+const fetchSets = async () => {
+  try {
+    const response = await $fetch<Array<{ id: string; name: string }>>('/api/sets', {
+      baseURL: useRuntimeConfig().public.apiBase,
+    });
+    sets.value = response;
+  } catch (error) {
+    console.error('Erreur lors du chargement des sets:', error);
+  }
+};
+
+function searchSet(event: { query: string }) {
+  const query = event.query.toLowerCase();
+  filteredSets.value = sets.value.filter(set => set.name.toLowerCase().includes(query));
+}
+
 async function addToCollection(card: Card, lang: string) {
   const cardKey = `${card.id}-${lang}`;
   addingCards.value.add(cardKey);
 
-  const newLanguages = [...(card.owned_languages || [])];
+  const newLanguages = [...((card as Card & { owned_languages?: string[] }).owned_languages || [])];
   if (!newLanguages.includes(lang)) {
     newLanguages.push(lang);
   }
@@ -94,7 +118,7 @@ async function addToCollection(card: Card, lang: string) {
   const result = await addCardToCollection(String(card.id), newLanguages);
 
   if (result.success) {
-    card.owned_languages = newLanguages;
+    (card as Card & { owned_languages?: string[] }).owned_languages = newLanguages;
   }
 
   addingCards.value.delete(cardKey);
@@ -111,6 +135,8 @@ const resetFilters = () => {
   filterSet.value = '';
   filterHpMin.value = null;
   filterHpMax.value = null;
+  filterPriceMin.value = null;
+  filterPriceMax.value = null;
   filterAttackName.value = '';
   page.value = 1;
 };
@@ -123,6 +149,8 @@ watch(
     filterSet,
     filterHpMin,
     filterHpMax,
+    filterPriceMin,
+    filterPriceMax,
     filterAttackName,
     limit,
   ],
@@ -133,6 +161,9 @@ watch(
 );
 
 watch(page, fetchCards, { immediate: true });
+
+// Charger les sets au montage
+onMounted(fetchSets);
 </script>
 
 <template>
@@ -156,6 +187,17 @@ watch(page, fetchCards, { immediate: true });
       </div>
     </div>
 
+    <!-- Bouton Filtres Mobile -->
+    <div class="flex justify-center sm:hidden mb-4">
+      <Button
+        :label="showFilters ? 'Masquer les filtres' : 'Afficher les filtres'"
+        icon="pi pi-filter"
+        outlined
+        class="touch-manipulation transition-all duration-200"
+        @click="showFilters = !showFilters"
+      />
+    </div>
+
     <!-- Filtres avancés -->
     <Card class="mb-6 bg-white dark:bg-gray-800 border dark:border-gray-700">
       <template #title>
@@ -171,7 +213,12 @@ watch(page, fetchCards, { immediate: true });
         </div>
       </template>
       <template #content>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div
+          :class="[
+            'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4',
+            showFilters ? 'block' : 'hidden sm:grid',
+          ]"
+        >
           <!-- Type -->
           <div class="flex flex-col gap-2">
             <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Type</label>
@@ -199,19 +246,50 @@ watch(page, fetchCards, { immediate: true });
           <!-- Set -->
           <div class="flex flex-col gap-2">
             <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Extension</label>
-            <InputText v-model="filterSet" placeholder="Nom de l'extension" />
+            <AutoComplete
+              v-model="filterSet"
+              :suggestions="filteredSets"
+              field="name"
+              placeholder="Nom de l'extension"
+              class="w-full"
+              :dropdown="true"
+              :multiple="false"
+              @complete="searchSet"
+            />
           </div>
 
-          <!-- HP Min -->
+          <!-- Prix Min -->
           <div class="flex flex-col gap-2">
-            <label class="text-xs font-bold text-gray-700 dark:text-gray-300">HP Minimum</label>
-            <InputNumber v-model="filterHpMin" :min="0" :max="300" placeholder="Ex: 50" />
+            <label class="text-xs font-bold text-gray-700 dark:text-gray-300"
+              >Prix Minimum (€)</label
+            >
+            <InputNumber
+              v-model="filterPriceMin"
+              :min="0"
+              :max="1000"
+              :step="0.01"
+              placeholder="Ex: 0.50"
+              mode="currency"
+              currency="EUR"
+              locale="fr-FR"
+            />
           </div>
 
-          <!-- HP Max -->
+          <!-- Prix Max -->
           <div class="flex flex-col gap-2">
-            <label class="text-xs font-bold text-gray-700 dark:text-gray-300">HP Maximum</label>
-            <InputNumber v-model="filterHpMax" :min="0" :max="300" placeholder="Ex: 200" />
+            <label class="text-xs font-bold text-gray-700 dark:text-gray-300"
+              >Prix Maximum (€)</label
+            >
+            <InputNumber
+              v-model="filterPriceMax"
+              :min="0"
+              :max="1000"
+              :step="0.01"
+              placeholder="Ex: 50.00"
+              mode="currency"
+              currency="EUR"
+              locale="fr-FR"
+            />
           </div>
 
           <!-- Nom d'attaque -->
@@ -231,12 +309,12 @@ watch(page, fetchCards, { immediate: true });
 
     <!-- Résultats -->
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6"
+      class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mb-6"
     >
       <Card
         v-for="card in cards"
         :key="card.id"
-        class="hover-lift transition-smooth bg-white dark:bg-gray-800 border dark:border-gray-700"
+        class="hover-lift transition-smooth bg-white dark:bg-gray-800 border dark:border-gray-700 touch-manipulation"
       >
         <template #header>
           <OptimizedImage
@@ -249,7 +327,9 @@ watch(page, fetchCards, { immediate: true });
           />
         </template>
         <template #title>
-          <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ card.nameFr }}</h3>
+          <h3 class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2">
+            {{ card.nameFr }}
+          </h3>
         </template>
         <template #subtitle>
           <div class="text-xs text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
@@ -258,8 +338,8 @@ watch(page, fetchCards, { immediate: true });
           <div class="space-y-2">
             <div class="text-xs text-gray-500 dark:text-gray-400">
               <div><strong>Type:</strong> {{ card.types?.join(', ') }}</div>
-              <div><strong>Rareté:</strong> {{ card.rarity }}</div>
-              <div v-if="card.hp"><strong>HP:</strong> {{ card.hp }}</div>
+              <div class="hidden sm:block"><strong>Rareté:</strong> {{ card.rarity }}</div>
+              <div v-if="card.hp" class="hidden sm:block"><strong>HP:</strong> {{ card.hp }}</div>
             </div>
 
             <!-- Prix de la carte -->
@@ -274,8 +354,11 @@ watch(page, fetchCards, { immediate: true });
                 text
                 size="small"
                 severity="success"
-                :disabled="card.owned_languages?.includes('fr')"
+                :disabled="
+                  (card as Card & { owned_languages?: string[] }).owned_languages?.includes('fr')
+                "
                 :loading="isCardAdding(card.id, 'fr')"
+                class="touch-manipulation"
                 @click="addToCollection(card, 'fr')"
               >
                 <template v-if="!isCardAdding(card.id, 'fr')" #default> 🇫🇷 </template>
@@ -288,8 +371,13 @@ watch(page, fetchCards, { immediate: true });
                 text
                 size="small"
                 severity="success"
-                :disabled="card.owned_languages?.includes('reverse')"
+                :disabled="
+                  (card as Card & { owned_languages?: string[] }).owned_languages?.includes(
+                    'reverse'
+                  )
+                "
                 :loading="isCardAdding(card.id, 'reverse')"
+                class="touch-manipulation"
                 @click="addToCollection(card, 'reverse')"
               >
                 <template v-if="!isCardAdding(card.id, 'reverse')" #default> 🔁 </template>
@@ -301,8 +389,11 @@ watch(page, fetchCards, { immediate: true });
                 text
                 size="small"
                 severity="success"
-                :disabled="card.owned_languages?.includes('jap')"
+                :disabled="
+                  (card as Card & { owned_languages?: string[] }).owned_languages?.includes('jap')
+                "
                 :loading="isCardAdding(card.id, 'jap')"
+                class="touch-manipulation"
                 @click="addToCollection(card, 'jap')"
               >
                 <template v-if="!isCardAdding(card.id, 'jap')" #default> 🇯🇵 </template>
@@ -342,3 +433,34 @@ watch(page, fetchCards, { immediate: true });
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Optimisations mobile */
+@media (max-width: 640px) {
+  .p-card-body {
+    padding: 0.75rem;
+  }
+
+  .p-card-content {
+    padding: 0.5rem 0;
+  }
+
+  .p-card-footer {
+    padding: 0.75rem;
+  }
+}
+
+/* Améliorer les interactions tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Limiter le nombre de lignes du titre */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
 import { useToast } from 'primevue/usetoast';
 import type { Card, Pagination } from '~/types/card';
@@ -29,8 +29,10 @@ const filterType = ref('');
 const filterRarity = ref('');
 const filterSet = ref('');
 const searchQuery = ref('');
+const showFilters = ref(false);
 
 const sets = ref<Array<{ id: string; name: string }>>([]);
+const filteredSets = ref<Array<{ id: string; name: string }>>([]);
 
 const apiBase = useRuntimeConfig().public.apiBase.replace('/api/', '');
 
@@ -57,10 +59,10 @@ const rarityOptions = [
   { label: 'Ultra Rare', value: 'Ultra Rare' },
 ];
 
-const setOptions = computed(() => [
-  { label: 'Tous', value: '' },
-  ...sets.value.map(set => ({ label: set.name, value: set.id })),
-]);
+function searchSet(event: { query: string }) {
+  const query = event.query.toLowerCase();
+  filteredSets.value = sets.value.filter(set => set.name.toLowerCase().includes(query));
+}
 
 function getImageUrl(path: string) {
   if (!path) return '';
@@ -171,8 +173,8 @@ onMounted(fetchSets);
     </div>
 
     <!-- Barre de recherche et vue -->
-    <div class="flex flex-wrap gap-4 mb-6 items-center">
-      <div class="flex-1 min-w-[250px]">
+    <div class="flex flex-col sm:flex-row gap-4 mb-6 items-stretch sm:items-center">
+      <div class="flex-1 min-w-0">
         <InputText
           v-model="searchQuery"
           placeholder="Rechercher une carte..."
@@ -180,21 +182,37 @@ onMounted(fetchSets);
           icon="pi pi-search"
         />
       </div>
-      <div class="flex gap-2">
+      <div class="flex gap-2 justify-center sm:justify-start">
         <Button
           v-tooltip.top="'Vue ' + (viewMode === 'grid' ? 'liste' : 'grille')"
           :icon="viewMode === 'grid' ? 'pi pi-th-large' : 'pi pi-bars'"
           :outlined="viewMode === 'list'"
+          size="small"
+          class="touch-manipulation"
           @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
         >
-          {{ viewMode === 'grid' ? 'Grille' : 'Liste' }}
+          <span class="hidden sm:inline">{{ viewMode === 'grid' ? 'Grille' : 'Liste' }}</span>
         </Button>
       </div>
     </div>
 
+    <!-- Bouton Filtres Mobile -->
+    <div class="flex justify-center sm:hidden mb-4">
+      <Button
+        :label="showFilters ? 'Masquer les filtres' : 'Afficher les filtres'"
+        icon="pi pi-filter"
+        outlined
+        class="touch-manipulation transition-all duration-200"
+        @click="showFilters = !showFilters"
+      />
+    </div>
+
     <!-- Filtres -->
     <div
-      class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300"
+      :class="[
+        'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300',
+        showFilters ? 'block' : 'hidden sm:grid',
+      ]"
     >
       <div class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Type</label>
@@ -204,7 +222,7 @@ onMounted(fetchSets);
           option-label="label"
           option-value="value"
           placeholder="Tous"
-          class="w-44 transition-all duration-200"
+          class="w-full transition-all duration-200"
         />
       </div>
 
@@ -216,19 +234,21 @@ onMounted(fetchSets);
           option-label="label"
           option-value="value"
           placeholder="Toutes"
-          class="w-44 transition-all duration-200"
+          class="w-full transition-all duration-200"
         />
       </div>
 
       <div class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Set</label>
-        <Select
+        <AutoComplete
           v-model="filterSet"
-          :options="setOptions"
-          option-label="label"
-          option-value="value"
+          :suggestions="filteredSets"
+          field="name"
           placeholder="Tous"
-          class="w-44 transition-all duration-200"
+          class="w-full transition-all duration-200"
+          :dropdown="true"
+          :multiple="false"
+          @complete="searchSet"
         />
       </div>
 
@@ -237,7 +257,7 @@ onMounted(fetchSets);
         <Select
           v-model="limit"
           :options="[10, 20, 50, 100]"
-          class="w-28 transition-all duration-200"
+          class="w-full transition-all duration-200"
         />
       </div>
     </div>
@@ -262,17 +282,17 @@ onMounted(fetchSets);
 
     <div
       v-else-if="viewMode === 'grid'"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6"
+      class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mb-6"
     >
       <TransitionGroup
         name="card-list"
         tag="div"
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+        class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
       >
         <Card
           v-for="card in cards"
           :key="card.id"
-          class="hover-lift transition-all duration-300 bg-white dark:bg-gray-800 border dark:border-gray-700"
+          class="hover-lift transition-all duration-300 bg-white dark:bg-gray-800 border dark:border-gray-700 touch-manipulation"
         >
           <template #header>
             <OptimizedImage
@@ -285,14 +305,16 @@ onMounted(fetchSets);
             />
           </template>
           <template #title>
-            <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ card.nameFr }}</h3>
+            <h3 class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2">
+              {{ card.nameFr }}
+            </h3>
           </template>
           <template #subtitle>
             <div class="text-xs text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
           </template>
           <template #content>
             <div class="text-xs text-gray-500 dark:text-gray-400">
-              <div><strong>Rareté:</strong> {{ card.rarity }}</div>
+              <div class="hidden sm:block"><strong>Rareté:</strong> {{ card.rarity }}</div>
             </div>
           </template>
           <template #footer>
@@ -302,7 +324,7 @@ onMounted(fetchSets);
               severity="danger"
               size="small"
               outlined
-              class="w-full transition-all duration-200 hover:shadow-md"
+              class="w-full transition-all duration-200 hover:shadow-md touch-manipulation"
               :loading="isCardRemoving(card.id)"
               @click="confirmRemoveCard(card)"
             />
@@ -373,5 +395,34 @@ onMounted(fetchSets);
 
 .card-list-move {
   transition: transform 0.3s ease;
+}
+
+/* Optimisations mobile */
+@media (max-width: 640px) {
+  .p-card-body {
+    padding: 0.75rem;
+  }
+
+  .p-card-content {
+    padding: 0.5rem 0;
+  }
+
+  .p-card-footer {
+    padding: 0.75rem;
+  }
+}
+
+/* Améliorer les interactions tactiles */
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Limiter le nombre de lignes du titre */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>
