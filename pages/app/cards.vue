@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
 import type { Card, Pagination } from '~/types/card';
 import CardSkeletonGrid from '~/components/CardSkeletonGrid.vue';
 import CardSkeletonList from '~/components/CardSkeletonList.vue';
 
 const confirm = useConfirm();
+const toast = useToast();
 const { removeCardFromCollection } = useUserCards();
 
 const cards = ref<Card[]>([]);
@@ -123,8 +125,21 @@ async function removeCard(card: Card) {
   try {
     const { success } = await removeCardFromCollection(cardKey);
     if (success) {
+      toast.add({
+        severity: 'success',
+        summary: 'Carte retirée',
+        detail: `"${card.nameFr}" a été retirée de votre collection`,
+        life: 3000,
+      });
       // Rafraîchir la liste
       await fetchCards();
+    } else {
+      toast.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: 'Impossible de retirer la carte',
+        life: 3000,
+      });
     }
   } finally {
     removingCards.value.delete(cardKey);
@@ -167,6 +182,7 @@ onMounted(fetchSets);
       </div>
       <div class="flex gap-2">
         <Button
+          v-tooltip.top="'Vue ' + (viewMode === 'grid' ? 'liste' : 'grille')"
           :icon="viewMode === 'grid' ? 'pi pi-th-large' : 'pi pi-bars'"
           :outlined="viewMode === 'list'"
           @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'"
@@ -177,7 +193,9 @@ onMounted(fetchSets);
     </div>
 
     <!-- Filtres -->
-    <div class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+    <div
+      class="flex flex-wrap gap-4 mb-6 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-all duration-300"
+    >
       <div class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Type</label>
         <Select
@@ -186,7 +204,7 @@ onMounted(fetchSets);
           option-label="label"
           option-value="value"
           placeholder="Tous"
-          class="w-44"
+          class="w-44 transition-all duration-200"
         />
       </div>
 
@@ -198,7 +216,7 @@ onMounted(fetchSets);
           option-label="label"
           option-value="value"
           placeholder="Toutes"
-          class="w-44"
+          class="w-44 transition-all duration-200"
         />
       </div>
 
@@ -210,13 +228,17 @@ onMounted(fetchSets);
           option-label="label"
           option-value="value"
           placeholder="Tous"
-          class="w-44"
+          class="w-44 transition-all duration-200"
         />
       </div>
 
       <div class="flex flex-col gap-2">
         <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Par page</label>
-        <Select v-model="limit" :options="[10, 20, 50, 100]" class="w-28" />
+        <Select
+          v-model="limit"
+          :options="[10, 20, 50, 100]"
+          class="w-28 transition-all duration-200"
+        />
       </div>
     </div>
 
@@ -242,45 +264,51 @@ onMounted(fetchSets);
       v-else-if="viewMode === 'grid'"
       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6"
     >
-      <Card
-        v-for="card in cards"
-        :key="card.id"
-        class="hover-lift transition-smooth bg-white dark:bg-gray-800 border dark:border-gray-700"
+      <TransitionGroup
+        name="card-list"
+        tag="div"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
       >
-        <template #header>
-          <OptimizedImage
-            :src="getImageUrl(card.images?.small || '')"
-            :alt="card.name"
-            class="w-full h-auto object-contain"
-            :width="200"
-            :height="280"
-            :quality="85"
-          />
-        </template>
-        <template #title>
-          <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ card.nameFr }}</h3>
-        </template>
-        <template #subtitle>
-          <div class="text-xs text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
-        </template>
-        <template #content>
-          <div class="text-xs text-gray-500 dark:text-gray-400">
-            <div><strong>Rareté:</strong> {{ card.rarity }}</div>
-          </div>
-        </template>
-        <template #footer>
-          <Button
-            label="Retirer"
-            icon="pi pi-trash"
-            severity="danger"
-            size="small"
-            outlined
-            class="w-full"
-            :loading="isCardRemoving(card.id)"
-            @click="confirmRemoveCard(card)"
-          />
-        </template>
-      </Card>
+        <Card
+          v-for="card in cards"
+          :key="card.id"
+          class="hover-lift transition-all duration-300 bg-white dark:bg-gray-800 border dark:border-gray-700"
+        >
+          <template #header>
+            <OptimizedImage
+              :src="getImageUrl(card.images?.small || '')"
+              :alt="card.name"
+              class="w-full h-auto object-contain transition-transform duration-200 hover:scale-105"
+              :width="200"
+              :height="280"
+              :quality="85"
+            />
+          </template>
+          <template #title>
+            <h3 class="text-sm font-bold text-gray-800 dark:text-gray-100">{{ card.nameFr }}</h3>
+          </template>
+          <template #subtitle>
+            <div class="text-xs text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
+          </template>
+          <template #content>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              <div><strong>Rareté:</strong> {{ card.rarity }}</div>
+            </div>
+          </template>
+          <template #footer>
+            <Button
+              label="Retirer"
+              icon="pi pi-trash"
+              severity="danger"
+              size="small"
+              outlined
+              class="w-full transition-all duration-200 hover:shadow-md"
+              :loading="isCardRemoving(card.id)"
+              @click="confirmRemoveCard(card)"
+            />
+          </template>
+        </Card>
+      </TransitionGroup>
     </div>
 
     <!-- Vue Liste -->
@@ -330,3 +358,20 @@ onMounted(fetchSets);
     </div>
   </div>
 </template>
+
+<style scoped>
+.card-list-enter-active,
+.card-list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.card-list-enter-from,
+.card-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.card-list-move {
+  transition: transform 0.3s ease;
+}
+</style>
