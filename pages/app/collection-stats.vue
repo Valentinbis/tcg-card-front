@@ -29,19 +29,22 @@ const averageCompletion = computed(() => {
 const fetchCollectionStats = async () => {
   loading.value = true;
   try {
-    const data = await $fetch<CollectionStats>('/api/collection/stats', {
-      baseURL: useRuntimeConfig().public.apiBase,
+    const { data } = await useAPI<CollectionStats>('collection/stats', {
+      method: 'GET',
+      default: () => ({ sets: [] }) as CollectionStats,
     });
 
-    sets.value = data.sets.map(set => ({
-      setId: set.id,
-      setName: set.name,
-      setLogo: `https://images.pokemontcg.io/${set.id}/logo.png`,
-      totalCards: set.total,
-      ownedCards: set.owned,
-      percentage: set.percentage,
-      releaseDate: set.releaseDate,
-    }));
+    if (data.value) {
+      sets.value = (data.value as { sets: any[] }).sets.map((set: any) => ({
+        setId: set.id,
+        setName: set.name,
+        setLogo: `https://images.pokemontcg.io/${set.id}/logo.png`,
+        totalCards: set.total,
+        ownedCards: set.owned,
+        percentage: set.percentage,
+        releaseDate: set.releaseDate,
+      }));
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des statistiques:', error);
     sets.value = [];

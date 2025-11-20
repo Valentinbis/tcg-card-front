@@ -80,7 +80,7 @@ const resetForm = () => {
       :loading="loading"
       @click="
         () => {
-          selectedVariant.value = 'normal';
+          selectedVariant = 'normal';
           visible = true;
         }
       "
@@ -93,7 +93,7 @@ const resetForm = () => {
       class="ml-2"
       @click="
         () => {
-          selectedVariant.value = 'reverse';
+          selectedVariant = 'reverse';
           visible = true;
         }
       "
@@ -167,10 +167,10 @@ const resetForm = () => {
       <template #footer>
         <Button label="Annuler" icon="pi pi-times" text @click="visible = false" />
         <Button
-          :label="selectedVariant.value === 'normal' ? 'Ajouter normale' : 'Ajouter reverse'"
+          :label="selectedVariant === 'normal' ? 'Ajouter normale' : 'Ajouter reverse'"
           icon="pi pi-check"
           :loading="loading"
-          @click="() => handleAddToCollection(selectedVariant.value)"
+          @click="() => handleAddToCollection(selectedVariant)"
         />
       </template>
     </Dialog>

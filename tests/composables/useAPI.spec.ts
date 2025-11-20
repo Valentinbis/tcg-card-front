@@ -3,16 +3,25 @@ import { useAPI } from '~/composables/useAPI';
 
 // Mock de useAsyncData
 const mockUseAsyncData = vi.fn();
+
+// Mock global useAsyncData and useNuxtApp
+vi.stubGlobal('useAsyncData', (...args: unknown[]) => mockUseAsyncData(...args));
+vi.stubGlobal('useNuxtApp', () => ({
+  $api: vi.fn(),
+}));
+
+// Mock useRuntimeConfig
 vi.mock('#app', () => ({
-  useAsyncData: (...args: unknown[]) => mockUseAsyncData(...args),
-  useNuxtApp: () => ({
-    $api: vi.fn(),
-  }),
   useRuntimeConfig: () => ({
     public: {
       apiBase: 'http://localhost:8000/api/',
     },
   }),
+}));
+
+// Mock vue toValue
+vi.mock('vue', () => ({
+  toValue: (value: unknown) => value,
 }));
 
 describe('useAPI', () => {
@@ -37,7 +46,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       expect(callArgs[0]).toContain('api-/test-GET');
     });
 
@@ -58,7 +67,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       expect(callArgs[0]).toContain('api-/dynamic-url-GET');
     });
 
@@ -86,7 +95,7 @@ describe('useAPI', () => {
       );
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       const urlKey = callArgs[0];
       expect(urlKey).toContain('api-/search?');
       expect(urlKey).toContain('page=1');
@@ -114,8 +123,8 @@ describe('useAPI', () => {
       );
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
-      expect(callArgs[0]).toBe('api-/test-GET-' + expect.any(Number));
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
+      expect(callArgs[0]).toMatch(/^api-\/test-GET-\d+$/);
     });
   });
 
@@ -136,7 +145,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       expect(callArgs[0]).toContain('GET');
     });
 
@@ -162,7 +171,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       expect(callArgs[0]).toContain('POST');
     });
 
@@ -183,7 +192,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       expect(callArgs[0]).toContain('PUT');
     });
 
@@ -203,7 +212,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       expect(callArgs[0]).toContain('DELETE');
     });
   });
@@ -265,7 +274,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       const options = callArgs[2];
       expect(options.server).toBe(false);
     });
@@ -286,7 +295,7 @@ describe('useAPI', () => {
       });
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       const options = callArgs[2];
       expect(options.lazy).toBe(false);
     });
@@ -381,7 +390,7 @@ describe('useAPI', () => {
       );
 
       expect(mockUseAsyncData).toHaveBeenCalled();
-      const callArgs = mockUseAsyncData.mock.calls[0];
+      const callArgs = mockUseAsyncData.mock.calls[0]!;
       const urlKey = callArgs[0];
       expect(urlKey).toContain('page=1');
       expect(urlKey).toContain('limit=50');
@@ -428,7 +437,7 @@ describe('useAPI', () => {
         default: () => ({}),
       });
 
-      const firstCallKey = mockUseAsyncData.mock.calls[0][0];
+      const firstCallKey = mockUseAsyncData.mock.calls[0]![0];
 
       // Wait a bit to ensure different timestamp
       vi.useFakeTimers();
@@ -439,7 +448,7 @@ describe('useAPI', () => {
         default: () => ({}),
       });
 
-      const secondCallKey = mockUseAsyncData.mock.calls[1][0];
+      const secondCallKey = mockUseAsyncData.mock.calls[1]![0];
 
       expect(firstCallKey).not.toBe(secondCallKey);
       vi.useRealTimers();

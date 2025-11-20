@@ -1,9 +1,9 @@
 import type { UseFetchOptions } from 'nuxt/app';
-import { useNuxtApp } from '#imports';
+import { toValue } from 'vue';
 
 export function useAPI<T>(
   url: string | (() => string),
-  options: Omit<UseFetchOptions<T>, 'default'> & { default: () => T | Ref<T> },
+  options: Omit<UseFetchOptions<T>, 'default'> & { default: () => T },
   params?: Record<string, string | number>
 ) {
   const apiUrl = typeof url === 'function' ? url() : url;
@@ -21,12 +21,12 @@ export function useAPI<T>(
   const { $api } = useNuxtApp();
 
   return useAsyncData(
-    `api-${finalUrl}-${options.method || 'GET'}-${Date.now()}`,
+    `api-${finalUrl}-${toValue(options.method) || 'GET'}-${Date.now()}`,
     () =>
       $api(finalUrl, {
-        method: options.method,
-        body: options.body,
-        headers: options.headers,
+        method: toValue(options.method),
+        body: toValue(options.body),
+        headers: toValue(options.headers) as HeadersInit | undefined,
       }),
     {
       default: options.default,

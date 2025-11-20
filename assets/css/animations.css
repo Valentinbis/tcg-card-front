@@ -1,4 +1,90 @@
 /* ===========================
+   PRIMEVUE COMPONENT FIXES
+   =========================== */
+
+/* Fix pour le composant Password - forcer la visibilité du bouton toggle */
+.p-password {
+  position: relative !important;
+}
+
+.p-password .p-password-toggle {
+  position: absolute !important;
+  right: 0.125rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  background: transparent !important;
+  border: none !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  border-radius: 0.125rem !important;
+  transition: background-color 0.2s ease-in-out !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.p-password .p-password-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .p-password .p-password-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.p-password .p-password-toggle .pi {
+  font-size: 0.75rem !important;
+  color: #6b7280 !important;
+  transition: color 0.2s ease-in-out !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.p-password .p-password-toggle:hover .pi {
+  color: #374151 !important;
+}
+
+.dark .p-password .p-password-toggle:hover .pi {
+  color: #d1d5db !important;
+}
+
+/* Styles spécifiques pour les champs password dans profile.vue */
+.password-field.p-password .p-password-toggle {
+  position: absolute !important;
+  right: 2px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10 !important;
+  background: transparent !important;
+  border: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  border-radius: 2px !important;
+  transition: background-color 0.2s ease-in-out !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.password-field.p-password input {
+  padding-right: 24px !important;
+}
+
+.password-field.p-password .p-password-toggle .pi {
+  font-size: 12px !important;
+  color: #6b7280 !important;
+  transition: color 0.2s ease-in-out !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* ===========================
    ANIMATIONS GLOBALES
    =========================== */
 

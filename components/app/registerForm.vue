@@ -90,7 +90,7 @@ const registerEvent = async () => {
         <Password
           id="password"
           v-model="user.password"
-          toggle-mask
+          :toggle-mask="true"
           :input-props="{ autocomplete: 'new-password' }"
           fluid
           placeholder="••••••••••"

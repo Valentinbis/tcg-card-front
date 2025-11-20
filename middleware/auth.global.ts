@@ -1,7 +1,7 @@
 import { storeToRefs } from 'pinia';
 import { useAuthStore } from '~/stores/auth';
 
-export default defineNuxtRouteMiddleware(async (to) => {
+export default defineNuxtRouteMiddleware(async to => {
   const { authenticated, user } = storeToRefs(useAuthStore());
   const { verifyToken } = useAuthStore();
 
@@ -18,7 +18,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   // Si token existe et url est /login ou /auth/register, rediriger vers l'app
-  if (user.value?.apiToken && authenticated.value && (to.path === '/auth/login' || to.path === '/auth/register')) {
+  if (
+    user.value?.apiToken &&
+    authenticated.value &&
+    (to.path === '/auth/login' || to.path === '/auth/register')
+  ) {
     return navigateTo('/app/home');
   }
 

@@ -4,7 +4,7 @@ import { useViewMode } from '~/composables/useViewMode';
 import CardSkeletonGrid from '~/components/CardSkeletonGrid.vue';
 
 definePageMeta({
-  middleware: 'auth',
+  middleware: ['auth'],
   layout: 'default',
 });
 

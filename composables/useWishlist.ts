@@ -202,7 +202,7 @@ export const useWishlist = () => {
    */
   const fetchWishlistStats = async () => {
     try {
-      const data = await $fetch<WishlistStats>('/api/wishlist/stats', {
+      const data = await $fetch<WishlistStats>('/user/wishlist/stats/summary', {
         baseURL: config.public.apiBase,
         credentials: 'include',
       });

@@ -34,18 +34,29 @@ const loading = ref(false);
 
 const fetchUserStats = async () => {
   try {
-    const data = await $fetch<UserStats>('/api/user/stats', {
-      baseURL: useRuntimeConfig().public.apiBase,
+    const { data } = await useAPI<UserStats>('user/stats', {
+      method: 'GET',
+      default: () =>
+        ({
+          totalCards: 0,
+          totalOwnedCards: 0,
+          completionPercentage: 0,
+          totalValue: 0,
+          favoriteType: '',
+          joinDate: new Date().toISOString(),
+        }) as UserStats,
     });
 
-    stats.value = {
-      totalCards: data.totalCards,
-      totalOwnedCards: data.totalOwnedCards,
-      completionPercentage: data.completionPercentage,
-      totalValue: data.totalValue,
-      favoriteType: data.favoriteType,
-      joinDate: new Date(data.joinDate),
-    };
+    if (data.value) {
+      stats.value = {
+        totalCards: (data.value as UserStats).totalCards,
+        totalOwnedCards: (data.value as UserStats).totalOwnedCards,
+        completionPercentage: (data.value as UserStats).completionPercentage,
+        totalValue: (data.value as UserStats).totalValue,
+        favoriteType: (data.value as UserStats).favoriteType,
+        joinDate: new Date((data.value as UserStats).joinDate),
+      };
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des statistiques:', error);
   }
@@ -252,31 +263,56 @@ onMounted(() => {
                 <label class="text-sm font-bold text-gray-700 dark:text-gray-300">
                   Mot de passe actuel
                 </label>
-                <Password
-                  v-model="passwordData.currentPassword"
-                  :feedback="false"
-                  toggle-mask
-                  required
-                />
+                <div class="flex flex-row gap-2">
+                  <Password
+                    v-model="passwordData.currentPassword"
+                    :feedback="false"
+                    :toggle-mask="true"
+                    required
+                    class="password-field"
+                  />
+                </div>
               </div>
 
               <div class="flex flex-col gap-2">
                 <label class="text-sm font-bold text-gray-700 dark:text-gray-300">
                   Nouveau mot de passe
                 </label>
-                <Password v-model="passwordData.newPassword" toggle-mask required />
+                <div class="flex flex-row gap-2">
+                  <Password
+                    v-model="passwordData.newPassword"
+                    :toggle-mask="true"
+                    required
+                    class="password-field"
+                    :style="{
+                      '--password-toggle-right': '2px',
+                      '--password-toggle-width': '20px',
+                      '--password-toggle-height': '20px',
+                      '--password-input-padding-right': '24px',
+                    }"
+                  />
+                </div>
               </div>
 
               <div class="flex flex-col gap-2">
                 <label class="text-sm font-bold text-gray-700 dark:text-gray-300">
                   Confirmer le mot de passe
                 </label>
-                <Password
-                  v-model="passwordData.confirmPassword"
-                  :feedback="false"
-                  toggle-mask
-                  required
-                />
+                <div class="flex flex-row gap-2">
+                  <Password
+                    v-model="passwordData.confirmPassword"
+                    :feedback="false"
+                    :toggle-mask="true"
+                    required
+                    class="password-field"
+                    :style="{
+                      '--password-toggle-right': '2px',
+                      '--password-toggle-width': '20px',
+                      '--password-toggle-height': '20px',
+                      '--password-input-padding-right': '24px',
+                    }"
+                  />
+                </div>
               </div>
 
               <div class="flex justify-end">
@@ -317,3 +353,26 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Styles de base pour les champs password */
+:deep(.password-field.p-password .p-password-toggle) {
+  background: transparent !important;
+  border: none !important;
+  width: 20px !important;
+  height: 20px !important;
+  cursor: pointer !important;
+  border-radius: 2px !important;
+  transition: background-color 0.2s ease-in-out !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+:deep(.password-field.p-password .p-password-toggle:hover) {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark :deep(.password-field.p-password .p-password-toggle:hover) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+</style>

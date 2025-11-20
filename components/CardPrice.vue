@@ -3,7 +3,7 @@ import { usePricing } from '~/composables/usePricing';
 import { usePriceService } from '~/composables/usePriceService';
 import type { Card } from '~/types/card';
 
-import type { PriceData } from '~/composables/usePriceService';
+import type { PriceData, PriceByLanguage } from '~/composables/usePriceService';
 
 interface Props {
   card: Card;
@@ -65,7 +65,7 @@ const priceRange = computed(() => {
 const availableLanguages = computed(() => {
   if (!priceData.value) return ['en'];
   return Object.keys(priceData.value).filter(
-    lang => priceData.value && priceData.value[lang]?.marketPrice
+    lang => priceData.value && (priceData.value[lang] as PriceByLanguage)?.marketPrice
   );
 });
 </script>

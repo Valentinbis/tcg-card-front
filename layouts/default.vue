@@ -3,6 +3,7 @@ import { useAuthStore } from '~/stores/auth';
 
 const router = useRouter();
 const { logout } = useAuthStore();
+const { user } = storeToRefs(useAuthStore());
 
 const isSidebarOpen = ref(false);
 const isMobile = ref(false);
@@ -53,6 +54,10 @@ onMounted(() => {
 const logoutEvent = () => {
   logout();
   router.push('/auth/login');
+};
+
+const openAdmin = () => {
+  window.open('http://localhost:8000/admin', '_blank');
 };
 
 // Navigation items avec icônes SVG
@@ -198,6 +203,36 @@ const menuItems = [
 
         <!-- Footer / User Section -->
         <div class="border-t border-gray-700 p-2 space-y-2">
+          <!-- Admin Button (only for admins) -->
+          <button
+            v-if="user?.roles?.includes('ROLE_ADMIN')"
+            class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all hover:bg-gray-800 w-full group relative text-yellow-400 hover:text-yellow-300 touch-manipulation"
+            @click="openAdmin"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              fill="currentColor"
+              class="flex-shrink-0"
+            >
+              <path
+                d="M480-440q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0-80q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0 360q-7 0-13-1t-12-3q-135-45-215-166.5T160-516v-189q0-25 14.5-45t37.5-29l240-90q14-5 28-5t28 5l240 90q23 9 37.5 29t14.5 45v189q0 140-80 261.5T505-164q-6 2-12 3t-13 1Z"
+              />
+            </svg>
+            <Transition name="fade">
+              <span v-if="isSidebarOpen" class="text-sm font-medium">Administration</span>
+            </Transition>
+            <!-- Tooltip quand la sidebar est fermée -->
+            <div
+              v-if="!isSidebarOpen"
+              class="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50"
+            >
+              Administration
+            </div>
+          </button>
+
           <!-- Toggle Theme -->
           <button
             class="flex items-center gap-3 px-3 py-3 rounded-lg transition-all hover:bg-gray-800 w-full group relative text-white touch-manipulation"

@@ -32,28 +32,48 @@ const loading = ref(false);
 // Charger les paramètres au montage
 onMounted(async () => {
   try {
-    const data = (await $fetch('/user/settings')) as UserSettings;
+    const { data } = await useAPI<UserSettings>('user/settings', {
+      method: 'GET',
+      default: () =>
+        ({
+          cardsPerPage: 20,
+          defaultView: 'grid',
+          showCardNumbers: true,
+          showPrices: true,
+          defaultLanguage: 'fr',
+          emailNotifications: true,
+          newCardAlerts: false,
+          priceDropAlerts: false,
+          weeklyReport: true,
+          profileVisibility: 'private',
+          showCollection: false,
+          showWishlist: false,
+        }) as UserSettings,
+    });
 
-    displaySettings.value = {
-      cardsPerPage: data.cardsPerPage || 20,
-      defaultView: data.defaultView || 'grid',
-      showCardNumbers: data.showCardNumbers ?? true,
-      showPrices: data.showPrices ?? true,
-      defaultLanguage: data.defaultLanguage || 'fr',
-    };
+    if (data.value && typeof data.value === 'object' && 'cardsPerPage' in data.value) {
+      const settings = data.value as UserSettings;
+      displaySettings.value = {
+        cardsPerPage: settings.cardsPerPage || 20,
+        defaultView: settings.defaultView || 'grid',
+        showCardNumbers: settings.showCardNumbers ?? true,
+        showPrices: settings.showPrices ?? true,
+        defaultLanguage: settings.defaultLanguage || 'fr',
+      };
 
-    notificationSettings.value = {
-      emailNotifications: data.emailNotifications ?? true,
-      newCardAlerts: data.newCardAlerts ?? false,
-      priceDropAlerts: data.priceDropAlerts ?? false,
-      weeklyReport: data.weeklyReport ?? true,
-    };
+      notificationSettings.value = {
+        emailNotifications: settings.emailNotifications ?? true,
+        newCardAlerts: settings.newCardAlerts ?? false,
+        priceDropAlerts: settings.priceDropAlerts ?? false,
+        weeklyReport: settings.weeklyReport ?? true,
+      };
 
-    privacySettings.value = {
-      profileVisibility: data.profileVisibility || 'private',
-      showCollection: data.showCollection ?? false,
-      showWishlist: data.showWishlist ?? false,
-    };
+      privacySettings.value = {
+        profileVisibility: settings.profileVisibility || 'private',
+        showCollection: settings.showCollection ?? false,
+        showWishlist: settings.showWishlist ?? false,
+      };
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des paramètres:', error);
   }

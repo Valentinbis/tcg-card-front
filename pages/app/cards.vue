@@ -72,10 +72,14 @@ function getImageUrl(path: string) {
 
 const fetchSets = async () => {
   try {
-    const response = await $fetch<Array<{ id: string; name: string }>>('/api/sets', {
-      baseURL: useRuntimeConfig().public.apiBase,
+    const { data } = await useAPI<{ id: string; name: string }[]>('sets', {
+      method: 'GET',
+      default: () => [] as { id: string; name: string }[],
     });
-    sets.value = response;
+
+    if (data.value) {
+      sets.value = data.value as { id: string; name: string }[];
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des sets:', error);
   }
@@ -94,12 +98,19 @@ const fetchCards = async () => {
     if (filterSet.value) params.set = filterSet.value;
     if (searchQuery.value) params.search = searchQuery.value;
 
-    const response = await $fetch<{ data: Card[]; pagination: Pagination }>('/api/cards', {
-      baseURL: useRuntimeConfig().public.apiBase,
+    const { data } = await useAPI<{ data: Card[]; pagination: Pagination }>('cards', {
+      method: 'GET',
+      default: () => ({
+        data: [] as Card[],
+        pagination: { current_page: 1, per_page: 20, total_items: 0, total_pages: 1 } as Pagination,
+      }),
       params,
     });
-    cards.value = response.data;
-    pagination.value = response.pagination;
+
+    if (data.value) {
+      cards.value = (data.value as { data: Card[]; pagination: Pagination }).data;
+      pagination.value = (data.value as { data: Card[]; pagination: Pagination }).pagination;
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des cartes:', error);
     cards.value = [];

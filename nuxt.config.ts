@@ -166,7 +166,11 @@ export default defineNuxtConfig({
     importTheme: { from: '@/themes/auratheme.ts' },
   },
 
-  css: ['@mdi/font/css/materialdesignicons.css', '@/assets/css/animations.css'],
+  css: [
+    'primeicons/primeicons.css',
+    '@mdi/font/css/materialdesignicons.css',
+    '@/assets/css/animations.css',
+  ],
 
   compatibilityDate: '2024-11-01',
 });

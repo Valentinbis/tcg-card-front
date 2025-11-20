@@ -28,8 +28,9 @@ export const useViewMode = () => {
   const cycleViewMode = () => {
     const modes: ('grid' | 'list' | 'compact')[] = ['grid', 'list', 'compact'];
     const currentIndex = modes.indexOf(viewMode.value);
-    const nextIndex = (currentIndex + 1) % modes.length;
-    setViewMode(modes[nextIndex]);
+    const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+    const nextIndex = (safeIndex + 1) % modes.length;
+    setViewMode(modes[nextIndex]!);
   };
 
   // Initialisation

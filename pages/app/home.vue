@@ -17,7 +17,6 @@ const limit = ref(20);
 const showFilters = ref(false);
 
 const filterOwned = ref(''); // "", "true", "false"
-const filterLang = ref(''); // "", "fr", "jap", "reverse"
 const filterType = ref(''); // "", "Fire", "Water", etc.
 const filterNumber = ref<number | null>(null); // null ou nombre
 
@@ -28,13 +27,6 @@ const ownedOptions = [
   { label: 'Toutes', value: '' },
   { label: 'Possédées', value: 'true' },
   { label: 'Non possédées', value: 'false' },
-];
-
-const langOptions = [
-  { label: 'Toutes', value: '' },
-  { label: 'Français 🇫🇷', value: 'fr' },
-  { label: 'Japonais 🇯🇵', value: 'jap' },
-  { label: 'Reverse 🔁', value: 'reverse' },
 ];
 
 const typeOptions = [
@@ -71,48 +63,30 @@ const fetchCards = async () => {
     limit: limit.value,
   };
   if (filterOwned.value) params.owned = filterOwned.value;
-  if (filterLang.value) params.lang = filterLang.value;
   if (filterType.value) params.type = filterType.value;
   if (filterNumber.value) params.number = filterNumber.value.toString();
 
-  const data = await useAPI<{ data: Card[]; pagination: Pagination }>('/cards', {
+  const data = await useAPI<{ data: Card[]; pagination: Pagination }>('cards', {
     method: 'GET',
     params,
-    default: () => ({
-      data: [],
-      pagination: { current_page: 1, per_page: 20, total_items: 0, total_pages: 1 },
-    }),
+    default: () =>
+      ({
+        data: [],
+        pagination: { current_page: 1, per_page: 20, total_items: 0, total_pages: 1 },
+      }) as { data: Card[]; pagination: Pagination },
   });
-  cards.value = data.data.value.data;
-  pagination.value = data.data.value.pagination;
-  // Synchronise la page courante si modifiée côté back
-  page.value = pagination.value.current_page;
-  limit.value = pagination.value.per_page;
+  if (data.data.value && typeof data.data.value === 'object' && 'data' in data.data.value) {
+    const response = data.data.value as { data: Card[]; pagination: Pagination };
+    cards.value = response.data;
+    pagination.value = response.pagination;
+    // Synchronise la page courante si modifiée côté back
+    page.value = pagination.value.current_page;
+    limit.value = pagination.value.per_page;
+  }
 };
 
-async function toggleLanguage(card: Card, lang: string, checked: boolean) {
-  const newLanguages = [...(card.owned_languages || [])];
-  if (checked && !newLanguages.includes(lang)) {
-    newLanguages.push(lang);
-  } else if (!checked && newLanguages.includes(lang)) {
-    const idx = newLanguages.indexOf(lang);
-    newLanguages.splice(idx, 1);
-  }
-  card.owned_languages = newLanguages;
-  await useAPI(`/cards/${card.id}/languages`, {
-    method: 'POST',
-    body: { languages: newLanguages },
-    default: () => ({}),
-  });
-}
-
-function onCheckboxChange(card: Card, lang: string, event: Event) {
-  const checked = (event.target as HTMLInputElement).checked;
-  toggleLanguage(card, lang, checked);
-}
-
 // Réinitialise la page à 1 lors d'un changement de filtre
-watch([filterOwned, filterLang, filterType, filterNumber, limit], () => {
+watch([filterOwned, filterType, filterNumber, limit], () => {
   page.value = 1;
   fetchCards();
 });
@@ -155,18 +129,6 @@ watch(page, fetchCards, { immediate: true });
           option-value="value"
           placeholder="Toutes"
           class="w-44 transition-smooth"
-        />
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Langue</label>
-        <Select
-          v-model="filterLang"
-          :options="langOptions"
-          option-label="label"
-          option-value="value"
-          placeholder="Toutes"
-          class="w-52 transition-smooth"
         />
       </div>
 
@@ -246,42 +208,6 @@ watch(page, fetchCards, { immediate: true });
               class="text-xs text-gray-500 dark:text-gray-400"
             >
               <strong>Pokédex:</strong> {{ card.nationalPokedexNumbers.join(', ') }}
-            </div>
-
-            <div class="flex gap-2 mt-3 justify-center">
-              <label
-                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast touch-manipulation"
-              >
-                <Checkbox
-                  :model-value="card.owned_languages?.includes('fr')"
-                  :binary="true"
-                  @change="onCheckboxChange(card, 'fr', $event)"
-                />
-                <span>🇫🇷</span>
-              </label>
-
-              <label
-                v-if="['Common', 'Uncommon', 'Rare'].includes(card.rarity)"
-                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast touch-manipulation"
-              >
-                <Checkbox
-                  :model-value="card.owned_languages?.includes('reverse')"
-                  :binary="true"
-                  @change="onCheckboxChange(card, 'reverse', $event)"
-                />
-                <span>🔁</span>
-              </label>
-
-              <label
-                class="flex items-center gap-1 cursor-pointer hover-scale transition-fast touch-manipulation"
-              >
-                <Checkbox
-                  :model-value="card.owned_languages?.includes('jap')"
-                  :binary="true"
-                  @change="onCheckboxChange(card, 'jap', $event)"
-                />
-                <span>🇯🇵</span>
-              </label>
             </div>
           </div>
         </template>

@@ -71,3 +71,10 @@ export interface ApiResponse<T> {
   error?: string;
   message?: string;
 }
+
+export interface UseApiResponse<T> {
+  data: Ref<T | null>;
+  pending: Ref<boolean>;
+  error: Ref<any>;
+  refresh: () => Promise<void>;
+}

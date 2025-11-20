@@ -1,6 +1,6 @@
 import { ref, readonly } from 'vue';
 
-interface PriceByLanguage {
+export interface PriceByLanguage {
   marketPrice?: number;
   lowPrice?: number;
   highPrice?: number;
@@ -21,6 +21,7 @@ export interface PriceData {
   en?: PriceByLanguage;
   jp?: PriceByLanguage;
   lastUpdated?: string;
+  [key: string]: PriceByLanguage | string | undefined;
 }
 
 export const usePriceService = () => {

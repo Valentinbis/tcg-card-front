@@ -26,10 +26,7 @@ export const useLoading = () => {
   /**
    * Exécute une fonction async avec gestion automatique du loading
    */
-  const withLoading = async <T>(
-    key: string,
-    fn: () => Promise<T>
-  ): Promise<T> => {
+  const withLoading = async <T>(key: string, fn: () => Promise<T>): Promise<T> => {
     try {
       startLoading(key);
       return await fn();

@@ -78,24 +78,31 @@ const fetchCards = async () => {
   if (filterPriceMax.value) params.priceMax = filterPriceMax.value;
   if (filterAttackName.value) params.attackName = filterAttackName.value;
 
-  const data = await useAPI<{ data: Card[]; pagination: Pagination }>('/cards', {
+  const data = await useAPI<{ data: Card[]; pagination: Pagination }>('cards', {
     method: 'GET',
     params,
-    default: () => ({
-      data: [],
-      pagination: { current_page: 1, per_page: 20, total_items: 0, total_pages: 1 },
-    }),
+    default: () =>
+      ({
+        data: [],
+        pagination: { current_page: 1, per_page: 20, total_items: 0, total_pages: 1 },
+      }) as { data: Card[]; pagination: Pagination },
   });
-  cards.value = data.data.value.data;
-  pagination.value = data.data.value.pagination;
+  if (data.data.value) {
+    cards.value = (data.data.value as { data: Card[]; pagination: Pagination }).data;
+    pagination.value = (data.data.value as { data: Card[]; pagination: Pagination }).pagination;
+  }
 };
 
 const fetchSets = async () => {
   try {
-    const response = await $fetch<Array<{ id: string; name: string }>>('/api/sets', {
-      baseURL: useRuntimeConfig().public.apiBase,
+    const { data } = await useAPI<Array<{ id: string; name: string }>>('sets', {
+      method: 'GET',
+      default: () => [] as Array<{ id: string; name: string }>,
     });
-    sets.value = response;
+
+    if (data.value) {
+      sets.value = data.value as { id: string; name: string }[];
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des sets:', error);
   }

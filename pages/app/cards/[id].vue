@@ -9,12 +9,15 @@ const route = useRoute();
 const cardId = computed(() => route.params.id as string);
 
 const {
-  data: card,
+  data: cardData,
   pending,
   error,
-} = await useFetch<Card>(`/api/cards/${cardId.value}`, {
-  baseURL: useRuntimeConfig().public.apiBase,
+} = await useAPI<Card>(`cards/${cardId.value}`, {
+  method: 'GET',
+  default: () => ({} as Card),
 });
+
+const card = computed(() => cardData.value as Card | null);
 
 // Gestion des erreurs
 if (error.value) {
