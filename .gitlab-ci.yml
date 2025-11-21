@@ -142,6 +142,8 @@ deploy:production:
       - runner_system_failure
       - stuck_or_timeout_failure
   timeout: 30m
+  variables:
+    RAILWAY_TOKEN: $RAILWAY_TOKEN
   dependencies:
     - build:dependencies
   before_script:
@@ -149,7 +151,7 @@ deploy:production:
     - railway --version
   script:
     - echo "Déploiement du frontend sur Railway..."
-    - railway link $RAILWAY_FRONTEND_PROJECT_ID
+    - railway link $RAILWAY_FRONTEND_PROJECT_ID --yes
     - railway up --detach
   environment:
     name: production
