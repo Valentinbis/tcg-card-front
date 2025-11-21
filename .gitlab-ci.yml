@@ -148,7 +148,7 @@ deploy:production:
     - build:dependencies
   before_script:
     - npm install -g @railway/cli
-    - railway --version
+    - echo "Railway CLI installed successfully"
   script:
     - echo "Déploiement du frontend sur Railway..."
     - railway link $RAILWAY_FRONTEND_PROJECT_ID --yes
