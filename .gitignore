@@ -1,0 +1,36 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+dev
+.nuxt
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Test coverage
+coverage/
+*.lcov
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel
+
+# Editor
+.idea
+.vscode
+.nuxt/manifest/latest.json
+app.vue
+.nuxt/manifest/meta
+dist/stats.html

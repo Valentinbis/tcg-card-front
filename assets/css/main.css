@@ -1,0 +1,11 @@
+/* Thème clair */
+body {
+  background-color: white;
+  color: black;
+}
+
+/* Thème sombre */
+.dark body {
+  background-color: rgba(29, 30, 39, 1);
+  color: white;
+}

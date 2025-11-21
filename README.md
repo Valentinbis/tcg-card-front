@@ -1,93 +1,218 @@
-# front
+# TCG Card Collection - Frontend
 
+[![CI/CD](https://github.com/YOUR_USERNAME/tcg-card-front/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/tcg-card-front/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/YOUR_USERNAME/tcg-card-front/branch/main/graph/badge.svg)](https://codecov.io/gh/YOUR_USERNAME/tcg-card-front)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+Application web moderne de gestion de collection de cartes Pokémon TCG, construite avec Nuxt 3, Vue 3, et PrimeVue.
 
-## Getting started
+## 🚀 Fonctionnalités
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- ✅ **Recherche avancée** : Filtres multiples (type, rareté, série, HP, attaque)
+- ✅ **Gestion de collection** : Ajout/suppression de cartes avec langues multiples
+- ✅ **Statistiques détaillées** : Progression par set, valeur totale, type favori
+- ✅ **Interface moderne** : PrimeVue UI avec thème personnalisable
+- ✅ **États de chargement** : Loading states et skeletons pour une UX fluide
+- ✅ **Confirmations** : Dialogs de confirmation avant suppressions
+- ✅ **Notifications** : Toast notifications pour tous les feedbacks
+- ✅ **TypeScript** : Type-safety complète sur toute l'application
+- ✅ **Tests unitaires** : Coverage des composables critiques
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 📋 Prérequis
 
-## Add your files
+- Node.js >= 18.x
+- npm >= 9.x
+- API Backend (Symfony) en cours d'exécution
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 🛠️ Installation
+
+```bash
+# Cloner le repository
+git clone https://github.com/YOUR_USERNAME/tcg-card-front.git
+cd tcg-card-front
+
+# Installer les dépendances
+npm install
+
+# Copier le fichier d'environnement
+cp .env.example .env
+
+# Configurer l'URL de l'API dans .env
+# NUXT_PUBLIC_API_BASE=http://localhost:8000/api/
+```
+
+## 💻 Développement
+
+```bash
+# Démarrer le serveur de développement
+npm run dev
+```
+
+Le serveur sera accessible sur `http://localhost:3000`
+
+## 🧪 Tests
+
+```bash
+# Lancer tous les tests
+npm test
+
+# Lancer les tests en mode watch
+npm test
+
+# Lancer les tests une seule fois
+npm run test:run
+
+# Générer le rapport de coverage
+npm run test:coverage
+
+# Interface UI pour les tests
+npm run test:ui
+```
+
+## 📝 Qualité du code
+
+```bash
+# Lancer ESLint
+npm run lint
+
+# Corriger automatiquement les erreurs ESLint
+npm run lint:fix
+
+# Vérifier le formatage Prettier
+npm run format:check
+
+# Formater le code avec Prettier
+npm run format
+
+# Vérifier les types TypeScript
+npm run type-check
+
+# Lancer toutes les vérifications de qualité
+npm run quality
+```
+
+## 🏗️ Build de production
+
+```bash
+# Build pour production
+npm run build
+
+# Prévisualiser le build de production localement
+npm run preview
+
+# Analyser le bundle
+npm run build:analyze
+```
+
+## 📁 Structure du projet
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/zonax-corp/tcg-card/front.git
-git branch -M main
-git push -uf origin main
+front/
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # Configuration CI/CD
+├── assets/
+│   └── css/                    # Styles globaux
+├── components/
+│   ├── app/                    # Composants spécifiques app
+│   └── ui/                     # Composants UI réutilisables
+├── composables/
+│   ├── useAPI.ts              # Wrapper pour appels API
+│   └── useUserCards.ts        # Gestion collection cartes
+├── layouts/                    # Layouts Nuxt
+├── middleware/                 # Middleware de routing
+├── pages/
+│   ├── app/                   # Pages de l'application
+│   │   ├── search.vue         # Recherche de cartes
+│   │   ├── cards.vue          # Ma collection
+│   │   ├── collection.vue     # Stats par set
+│   │   ├── profile.vue        # Profil utilisateur
+│   │   └── settings.vue       # Paramètres
+│   └── index.vue              # Page d'accueil
+├── plugins/                    # Plugins Nuxt
+├── stores/                     # Pinia stores
+├── tests/
+│   ├── composables/           # Tests des composables
+│   ├── stores/                # Tests des stores
+│   └── setup.ts               # Configuration tests
+├── types/
+│   └── api.ts                 # Types TypeScript API
+└── utils/                     # Utilitaires
+
 ```
 
-## Integrate with your tools
+## 🎨 Technologies utilisées
 
-- [ ] [Set up project integrations](https://gitlab.com/zonax-corp/tcg-card/front/-/settings/integrations)
+- **Framework**: [Nuxt 3](https://nuxt.com/)
+- **UI Library**: [PrimeVue 4](https://primevue.org/)
+- **CSS Framework**: [TailwindCSS](https://tailwindcss.com/)
+- **State Management**: [Pinia](https://pinia.vuejs.org/)
+- **Testing**: [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/)
+- **Linting**: [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/)
+- **Type Checking**: [TypeScript](https://www.typescriptlang.org/)
 
-## Collaborate with your team
+## 🔧 Configuration
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Variables d'environnement
 
-## Test and Deploy
+Créez un fichier `.env` à la racine du projet :
 
-Use the built-in continuous integration in GitLab.
+```env
+# URL de l'API Backend
+NUXT_PUBLIC_API_BASE=http://localhost:8000/api/
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+# Autres configurations...
+```
 
-***
+### PrimeVue Thème
 
-# Editing this README
+Le thème PrimeVue est configuré dans `nuxt.config.ts`. Vous pouvez personnaliser :
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+- Palette de couleurs
+- Taille des composants
+- Mode sombre/clair
 
-## Suggestions for a good README
+## 📊 Coverage des tests
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Les tests couvrent actuellement :
 
-## Name
-Choose a self-explaining name for your project.
+- ✅ Composables : `useUserCards` (10 tests)
+- ✅ Stores : `auth`, `toast`, `loading`
+- ✅ Validations : `useValidation` (26 tests)
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+Objectif de coverage : 80% minimum sur toutes les métriques
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+## 🤝 Contribution
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Commit vos changements (`git commit -m 'feat: add amazing feature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+### Convention de commits
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Nous utilisons [Conventional Commits](https://www.conventionalcommits.org/):
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- `feat:` Nouvelle fonctionnalité
+- `fix:` Correction de bug
+- `docs:` Documentation
+- `style:` Formatage, style
+- `refactor:` Refactoring de code
+- `perf:` Amélioration de performance
+- `test:` Ajout/modification de tests
+- `chore:` Tâches de maintenance
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## 📝 License
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## 👥 Auteurs
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+- **Votre Nom** - _Développeur initial_
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## 🔗 Liens utiles
 
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- [Documentation Nuxt 3](https://nuxt.com/docs)
+- [Documentation PrimeVue](https://primevue.org/)
+- [API Backend Repository](https://github.com/YOUR_USERNAME/tcg-card-api)
