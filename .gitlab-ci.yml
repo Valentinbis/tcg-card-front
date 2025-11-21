@@ -152,8 +152,12 @@ deploy:production:
   script:
     - echo "Déploiement du frontend sur Railway..."
     - echo "RAILWAY_FRONTEND_PROJECT_ID: $RAILWAY_FRONTEND_PROJECT_ID"
-    - echo "RAILWAY_TOKEN is set: $(if [ -n "$RAILWAY_TOKEN" ]; then echo 'YES'; else echo 'NO'; fi)"
-    - railway link $RAILWAY_FRONTEND_PROJECT_ID --yes || (echo "Railway link failed" && exit 1)
+    - echo "RAILWAY_TOKEN is set: $(if [ -n \"$RAILWAY_TOKEN\" ]; then echo 'YES'; else echo 'NO'; fi)"
+    - |
+      if ! railway link $RAILWAY_FRONTEND_PROJECT_ID --yes; then
+        echo "Railway link failed"
+        exit 1
+      fi
     - railway up --detach
   environment:
     name: production
