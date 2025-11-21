@@ -126,7 +126,7 @@ describe('useWishlist', () => {
     it('should add card to wishlist successfully', async () => {
       const mockItem: WishlistItem = {
         id: 1,
-          variant: 'normal',
+        variant: 'normal',
         cardId: 'base1-4',
         priority: 5,
         notes: 'Must have',
@@ -167,7 +167,7 @@ describe('useWishlist', () => {
     it('should add card with default priority when not specified', async () => {
       const mockItem: WishlistItem = {
         id: 1,
-          variant: 'normal',
+        variant: 'normal',
         cardId: 'base1-4',
         priority: 0,
         notes: undefined,
@@ -219,7 +219,7 @@ describe('useWishlist', () => {
     it('should update wishlist item successfully', async () => {
       const initialItem: WishlistItem = {
         id: 1,
-          variant: 'normal',
+        variant: 'normal',
         cardId: 'base1-4',
         priority: 3,
         notes: 'Old notes',
@@ -478,7 +478,7 @@ describe('useWishlist', () => {
       // Add item
       const newItem: WishlistItem = {
         id: 1,
-          variant: 'normal',
+        variant: 'normal',
         cardId: 'base1-4',
         priority: 3,
         notes: 'Want this',

@@ -14,7 +14,7 @@ const {
   error,
 } = await useAPI<Card>(`cards/${cardId.value}`, {
   method: 'GET',
-  default: () => ({} as Card),
+  default: () => ({}) as Card,
 });
 
 const card = computed(() => cardData.value as Card | null);
