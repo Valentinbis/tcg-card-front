@@ -72,9 +72,21 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
+export interface ApiError extends Error {
+  statusCode?: number;
+  status?: number;
+  data?: {
+    message?: string;
+    error?: string;
+    errors?: Record<string, string[]>;
+    retryAfter?: number;
+    [key: string]: unknown;
+  };
+}
+
 export interface UseApiResponse<T> {
   data: Ref<T | null>;
   pending: Ref<boolean>;
-  error: Ref<Error | null>;
+  error: Ref<ApiError | null>;
   refresh: () => Promise<void>;
 }
