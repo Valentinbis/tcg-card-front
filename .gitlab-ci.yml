@@ -135,7 +135,7 @@ tests:
 # =====================================
 deploy:production:
   stage: deploy
-  image: railwayapp/cli:latest
+  image: node:20-alpine
   retry:
     max: 2
     when:
@@ -144,6 +144,9 @@ deploy:production:
   timeout: 30m
   dependencies:
     - build:dependencies
+  before_script:
+    - npm install -g @railway/cli
+    - railway --version
   script:
     - echo "Déploiement du frontend sur Railway..."
     - railway link $RAILWAY_FRONTEND_PROJECT_ID
