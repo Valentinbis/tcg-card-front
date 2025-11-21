@@ -3,6 +3,7 @@ import { useToastStore } from '~/stores/toast';
 import type { FetchContext } from 'ofetch';
 
 export default defineNuxtPlugin(_nuxtApp => {
+  const config = useRuntimeConfig();
   const { clearUser, refreshToken } = useAuthStore();
 
   let isRefreshing = false;
@@ -23,7 +24,7 @@ export default defineNuxtPlugin(_nuxtApp => {
   };
 
   const api = $fetch.create({
-    baseURL: 'http://localhost:8000/api/',
+    baseURL: config.public.apiBase,
 
     onRequest({ options }) {
       const authStore = useAuthStore();

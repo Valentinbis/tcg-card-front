@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:8000/api/',
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000/api/',
     },
   },
 
@@ -109,9 +109,19 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        // Preconnect aux domaines externes
-        { rel: 'preconnect', href: 'http://localhost:8000' },
-        { rel: 'dns-prefetch', href: 'http://localhost:8000' },
+        // Preconnect aux domaines externes (dynamique selon l'environnement)
+        {
+          rel: 'preconnect',
+          href: process.env.NUXT_PUBLIC_API_BASE
+            ? new URL(process.env.NUXT_PUBLIC_API_BASE).origin
+            : 'http://localhost:8000',
+        },
+        {
+          rel: 'dns-prefetch',
+          href: process.env.NUXT_PUBLIC_API_BASE
+            ? new URL(process.env.NUXT_PUBLIC_API_BASE).origin
+            : 'http://localhost:8000',
+        },
       ],
     },
   },
