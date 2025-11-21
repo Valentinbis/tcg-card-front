@@ -163,7 +163,7 @@ export default defineNuxtConfig({
     components: {
       include: '*',
     },
-    importTheme: { from: '@/themes/auratheme.ts' },
+    importTheme: { from: '@/themes/Auratheme.ts' },
   },
 
   css: [
