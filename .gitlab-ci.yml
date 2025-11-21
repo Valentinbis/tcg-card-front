@@ -151,13 +151,6 @@ deploy:production:
     - echo "Railway CLI installed successfully"
   script:
     - echo "Déploiement du frontend sur Railway..."
-    - echo "RAILWAY_FRONTEND_PROJECT_ID: $RAILWAY_FRONTEND_PROJECT_ID"
-    - |
-      if [ -n "$RAILWAY_TOKEN" ]; then
-        echo "RAILWAY_TOKEN is set: YES"
-      else
-        echo "RAILWAY_TOKEN is set: NO"
-      fi
     - |
       if ! railway link $RAILWAY_FRONTEND_PROJECT_ID --yes; then
         echo "Railway link failed"
