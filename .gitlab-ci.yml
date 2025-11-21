@@ -145,10 +145,13 @@ deploy:production:
   dependencies:
     - build:dependencies
   before_script:
-    - apk add --no-cache curl bash
-    # Installation de Railway CLI
-    - curl -fsSL https://railway.app/install.sh | sh
-    - export PATH="/root/.railway/bin:$PATH"
+    - apk add --no-cache curl bash tar gzip
+    # Installation de Railway CLI de manière alternative
+    - curl -L https://github.com/railwayapp/cli/releases/latest/download/railway_linux_amd64.tar.gz -o railway.tar.gz
+    - tar -xzf railway.tar.gz
+    - mv railway /usr/local/bin/railway
+    - chmod +x /usr/local/bin/railway
+    - railway --version
   script:
     - echo "Déploiement du frontend sur Railway..."
     - railway link $RAILWAY_FRONTEND_PROJECT_ID
