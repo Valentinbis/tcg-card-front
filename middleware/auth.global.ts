@@ -1,34 +1,26 @@
-import { storeToRefs } from 'pinia';
-import { useAuthStore } from '~/stores/auth';
-
 export default defineNuxtRouteMiddleware(async to => {
-  const { authenticated, user } = storeToRefs(useAuthStore());
-  const { verifyToken } = useAuthStore();
+  const authStore = useAuthStore();
 
-  // Routes publiques qui ne nécessitent pas d'authentification
-  const publicRoutes = ['/auth/login', '/auth/register', '/'];
-  const isPublicRoute = publicRoutes.includes(to.path) || to.path.startsWith('/public');
-
-  // Si on a un token stocké, on vérifie sa validité
-  if (user.value?.apiToken && !isPublicRoute) {
-    const isValidToken = await verifyToken();
-    if (!isValidToken) {
+  // Si l'utilisateur est censé être connecté
+  if (authStore.authenticated) {
+    try {
+      // Vérifier le token avant chaque changement de page
+      const isValid = await authStore.verifyToken();
+      if (!isValid) {
+        return navigateTo('/auth/login');
+      }
+    } catch (error) {
+      // Si la vérification échoue, déconnecter l'utilisateur
+      console.warn('Auth check failed, logging out:', error);
+      authStore.clearUser();
       return navigateTo('/auth/login');
     }
-  }
-
-  // Si token existe et url est /login ou /auth/register, rediriger vers l'app
-  if (
-    user.value?.apiToken &&
-    authenticated.value &&
-    (to.path === '/auth/login' || to.path === '/auth/register')
+  } else if (
+    to.path.startsWith('/dashboard') ||
+    to.path.startsWith('/profile') ||
+    to.path.startsWith('/collection')
   ) {
-    return navigateTo('/app/home');
-  }
-
-  // Si pas de token et route protégée, rediriger vers login
-  if (!user.value?.apiToken && !isPublicRoute) {
-    abortNavigation();
+    // Rediriger vers login si page protégée et pas connecté
     return navigateTo('/auth/login');
   }
 });
