@@ -1,7 +1,7 @@
 import type { WishlistItem, WishlistStats } from '~/types/api';
 
 export const useWishlist = () => {
-  const config = useRuntimeConfig();
+  const { $api } = useNuxtApp();
   const toast = useToast();
 
   const isLoading = ref(false);
@@ -37,12 +37,9 @@ export const useWishlist = () => {
       }
 
       const query = queryParams.toString();
-      const url = `/user/wishlist${query ? `?${query}` : ''}`;
+      const url = `wishlist${query ? `?${query}` : ''}`;
 
-      const data = await $fetch<WishlistItem[]>(url, {
-        baseURL: config.public.apiBase,
-        credentials: 'include',
-      });
+      const data = await $api<WishlistItem[]>(url);
 
       wishlistItems.value = data;
       return data;
@@ -73,10 +70,8 @@ export const useWishlist = () => {
   ) => {
     isLoading.value = true;
     try {
-      const data = await $fetch<WishlistItem>('/user/wishlist', {
-        baseURL: config.public.apiBase,
+      const data = await $api<WishlistItem>('wishlist', {
         method: 'POST',
-        credentials: 'include',
         body: {
           cardId,
           priority,
@@ -125,10 +120,8 @@ export const useWishlist = () => {
   ) => {
     isLoading.value = true;
     try {
-      const data = await $fetch<WishlistItem>(`/user/wishlist/${cardId}`, {
-        baseURL: config.public.apiBase,
+      const data = await $api<WishlistItem>(`wishlist/${cardId}`, {
         method: 'PATCH',
-        credentials: 'include',
         body: updates,
       });
 
@@ -167,10 +160,8 @@ export const useWishlist = () => {
   const removeFromWishlist = async (cardId: string) => {
     isLoading.value = true;
     try {
-      await $fetch(`/user/wishlist/${cardId}`, {
-        baseURL: config.public.apiBase,
+      await $api(`wishlist/${cardId}`, {
         method: 'DELETE',
-        credentials: 'include',
       });
 
       // Retire l'élément du tableau local
@@ -202,10 +193,7 @@ export const useWishlist = () => {
    */
   const fetchWishlistStats = async () => {
     try {
-      const data = await $fetch<WishlistStats>('/user/wishlist/stats/summary', {
-        baseURL: config.public.apiBase,
-        credentials: 'include',
-      });
+      const data = await $api<WishlistStats>('wishlist/stats');
 
       wishlistStats.value = data;
       return data;

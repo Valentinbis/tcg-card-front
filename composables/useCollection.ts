@@ -43,7 +43,7 @@ export interface UpdateCollectionPayload {
 }
 
 export const useCollection = () => {
-  const config = useRuntimeConfig();
+  const { $api } = useNuxtApp();
   const toast = useToast();
 
   const collection: Ref<CollectionItem[]> = ref([]);
@@ -69,10 +69,7 @@ export const useCollection = () => {
       const query = queryParams.toString();
       const url = `/collection${query ? `?${query}` : ''}`;
 
-      const data = await $fetch<CollectionItem[]>(url, {
-        baseURL: config.public.apiBase,
-        credentials: 'include',
-      });
+      const data = await $api<CollectionItem[]>(url);
 
       collection.value = data;
       return data;
@@ -98,10 +95,7 @@ export const useCollection = () => {
     loading.value = true;
 
     try {
-      const data = await $fetch<CollectionStats>('/collection/stats', {
-        baseURL: config.public.apiBase,
-        credentials: 'include',
-      });
+      const data = await $api<CollectionStats>('/collection/stats');
 
       stats.value = data;
       return data;
@@ -127,10 +121,8 @@ export const useCollection = () => {
     loading.value = true;
 
     try {
-      const data = await $fetch<CollectionItem>('/collection', {
-        baseURL: config.public.apiBase,
+      const data = await $api<CollectionItem>('/collection', {
         method: 'POST',
-        credentials: 'include',
         body: payload,
       });
 
@@ -174,10 +166,8 @@ export const useCollection = () => {
     loading.value = true;
 
     try {
-      const data = await $fetch<CollectionItem>(`/collection/${cardId}`, {
-        baseURL: config.public.apiBase,
+      const data = await $api<CollectionItem>(`/collection/${cardId}`, {
         method: 'PATCH',
-        credentials: 'include',
         body: payload,
       });
 
@@ -217,10 +207,8 @@ export const useCollection = () => {
     loading.value = true;
 
     try {
-      await $fetch(`/collection/${cardId}`, {
-        baseURL: config.public.apiBase,
+      await $api(`/collection/${cardId}`, {
         method: 'DELETE',
-        credentials: 'include',
       });
 
       // Mise à jour de la collection locale

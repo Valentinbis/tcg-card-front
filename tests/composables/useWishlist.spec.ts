@@ -376,7 +376,7 @@ describe('useWishlist', () => {
 
       const result = await fetchWishlistStats();
 
-      expect(mockFetch).toHaveBeenCalledWith('/user/wishlist/stats/summary', {
+      expect(mockFetch).toHaveBeenCalledWith('wishlist/stats', {
         baseURL: 'http://localhost:8000/api/',
         credentials: 'include',
       });
