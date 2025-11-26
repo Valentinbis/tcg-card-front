@@ -20,6 +20,11 @@ vi.mock('#app', () => ({
   }),
 }));
 
+// Mock useNuxtApp
+vi.stubGlobal('useNuxtApp', () => ({
+  $api: mockFetch,
+}));
+
 // Stub global useToast function
 vi.stubGlobal('useToast', () => ({
   add: mockToastAdd,
@@ -57,10 +62,7 @@ describe('useWishlist', () => {
 
       const result = await fetchWishlist();
 
-      expect(mockFetch).toHaveBeenCalledWith('/user/wishlist', {
-        baseURL: 'http://localhost:8000/api/',
-        credentials: 'include',
-      });
+      expect(mockFetch).toHaveBeenCalledWith('wishlist');
       expect(result).toEqual(mockItems);
       expect(wishlistItems.value).toEqual(mockItems);
       expect(isLoading.value).toBe(false);
@@ -80,11 +82,7 @@ describe('useWishlist', () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        '/user/wishlist?minPriority=3&maxPrice=100&orderBy=priority&direction=DESC',
-        {
-          baseURL: 'http://localhost:8000/api/',
-          credentials: 'include',
-        }
+        'wishlist?minPriority=3&maxPrice=100&orderBy=priority&direction=DESC'
       );
     });
 
@@ -141,10 +139,8 @@ describe('useWishlist', () => {
 
       const result = await addToWishlist('base1-4', 5, 'Must have', 75.5);
 
-      expect(mockFetch).toHaveBeenCalledWith('/user/wishlist', {
-        baseURL: 'http://localhost:8000/api/',
+      expect(mockFetch).toHaveBeenCalledWith('wishlist', {
         method: 'POST',
-        credentials: 'include',
         body: {
           cardId: 'base1-4',
           priority: 5,
@@ -182,10 +178,8 @@ describe('useWishlist', () => {
 
       await addToWishlist('base1-4');
 
-      expect(mockFetch).toHaveBeenCalledWith('/user/wishlist', {
-        baseURL: 'http://localhost:8000/api/',
+      expect(mockFetch).toHaveBeenCalledWith('wishlist', {
         method: 'POST',
-        credentials: 'include',
         body: {
           cardId: 'base1-4',
           priority: 0,
@@ -248,10 +242,8 @@ describe('useWishlist', () => {
         maxPrice: 75,
       });
 
-      expect(mockFetch).toHaveBeenLastCalledWith('/user/wishlist/base1-4', {
-        baseURL: 'http://localhost:8000/api/',
+      expect(mockFetch).toHaveBeenLastCalledWith('wishlist/base1-4', {
         method: 'PATCH',
-        credentials: 'include',
         body: {
           priority: 5,
           notes: 'Updated notes',
@@ -323,10 +315,8 @@ describe('useWishlist', () => {
 
       await removeFromWishlist('base1-4');
 
-      expect(mockFetch).toHaveBeenLastCalledWith('/user/wishlist/base1-4', {
-        baseURL: 'http://localhost:8000/api/',
+      expect(mockFetch).toHaveBeenLastCalledWith('wishlist/base1-4', {
         method: 'DELETE',
-        credentials: 'include',
       });
 
       expect(wishlistItems.value).toHaveLength(1);
@@ -376,10 +366,7 @@ describe('useWishlist', () => {
 
       const result = await fetchWishlistStats();
 
-      expect(mockFetch).toHaveBeenCalledWith('wishlist/stats', {
-        baseURL: 'http://localhost:8000/api/',
-        credentials: 'include',
-      });
+      expect(mockFetch).toHaveBeenCalledWith('wishlist/stats');
 
       expect(result).toEqual(mockStats);
       expect(wishlistStats.value).toEqual(mockStats);
