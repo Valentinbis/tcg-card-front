@@ -291,58 +291,54 @@ onMounted(fetchSets);
       </p>
     </Message>
 
-    <div
+    <TransitionGroup
       v-else-if="viewMode === 'grid'"
+      name="card-list"
+      tag="div"
       class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 mb-6"
     >
-      <TransitionGroup
-        name="card-list"
-        tag="div"
-        class="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
+      <Card
+        v-for="card in cards"
+        :key="card.id"
+        class="hover-lift transition-all duration-300 bg-white dark:bg-gray-800 border dark:border-gray-700 touch-manipulation"
       >
-        <Card
-          v-for="card in cards"
-          :key="card.id"
-          class="hover-lift transition-all duration-300 bg-white dark:bg-gray-800 border dark:border-gray-700 touch-manipulation"
-        >
-          <template #header>
-            <OptimizedImage
-              :src="getImageUrl(card.images?.small || '')"
-              :alt="card.name"
-              class="w-full h-auto object-contain transition-transform duration-200 hover:scale-105"
-              :width="200"
-              :height="280"
-              :quality="85"
-            />
-          </template>
-          <template #title>
-            <h3 class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2">
-              {{ card.nameFr }}
-            </h3>
-          </template>
-          <template #subtitle>
-            <div class="text-xs text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
-          </template>
-          <template #content>
-            <div class="text-xs text-gray-500 dark:text-gray-400">
-              <div class="hidden sm:block"><strong>Rareté:</strong> {{ card.rarity }}</div>
-            </div>
-          </template>
-          <template #footer>
-            <Button
-              label="Retirer"
-              icon="pi pi-trash"
-              severity="danger"
-              size="small"
-              outlined
-              class="w-full transition-all duration-200 hover:shadow-md touch-manipulation"
-              :loading="isCardRemoving(card.id)"
-              @click="confirmRemoveCard(card)"
-            />
-          </template>
-        </Card>
-      </TransitionGroup>
-    </div>
+        <template #header>
+          <OptimizedImage
+            :src="getImageUrl(card.images?.small || '')"
+            :alt="card.name"
+            class="w-full h-auto object-contain transition-transform duration-200 hover:scale-105"
+            :width="200"
+            :height="280"
+            :quality="85"
+          />
+        </template>
+        <template #title>
+          <h3 class="text-xs sm:text-sm font-bold text-gray-800 dark:text-gray-100 line-clamp-2">
+            {{ card.nameFr }}
+          </h3>
+        </template>
+        <template #subtitle>
+          <div class="text-xs text-gray-600 dark:text-gray-400">#{{ card.number }}</div>
+        </template>
+        <template #content>
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            <div class="hidden sm:block"><strong>Rareté:</strong> {{ card.rarity }}</div>
+          </div>
+        </template>
+        <template #footer>
+          <Button
+            label="Retirer"
+            icon="pi pi-trash"
+            severity="danger"
+            size="small"
+            outlined
+            class="w-full transition-all duration-200 hover:shadow-md touch-manipulation"
+            :loading="isCardRemoving(card.id)"
+            @click="confirmRemoveCard(card)"
+          />
+        </template>
+      </Card>
+    </TransitionGroup>
 
     <!-- Vue Liste -->
     <CardSkeletonList v-if="loading && cards.length === 0" :count="limit" />
