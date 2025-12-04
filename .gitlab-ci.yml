@@ -1,6 +1,9 @@
 # GitLab CI/CD Pipeline pour Nuxt Front-end
-# Déploiement sur Railway
-
+# PIPELINES TEMPORAIREMENT DÉSACTIVÉES
+workflow:
+  rules:
+    - when: never
+    
 stages:
   - build
   - quality
